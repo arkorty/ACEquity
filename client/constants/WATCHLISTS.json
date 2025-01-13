@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "name": "IT & Software",
+    "stocks": ["TCS", "INFY", "WIPRO", "HCLTECH", "LTIM"]
+  },
+  {
+    "id": 2,
+    "name": "Banking & Finance",
+    "stocks": ["HDFCBANK", "ICICIBANK", "KOTAKBANK", "SBIN", "AXISBANK"]
+  },
+  {
+    "id": 3,
+    "name": "Pharmaceuticals",
+    "stocks": ["SUNPHARMA", "CIPLA", "DRREDDY", "LUPIN", "AUROPHARMA"]
+  },
+  {
+    "id": 4,
+    "name": "Automobile",
+    "stocks": ["MARUTI", "TATAMOTORS", "M&M", "BAJAJ-AUTO", "HEROMOTOCO"]
+  },
+  {
+    "id": 5,
+    "name": "Energy & Power",
+    "stocks": ["RELIANCE", "ONGC", "POWERGRID", "NTPC", "IOC"]
+  },
+  {
+    "id": 6,
+    "name": "Metals & Mining",
+    "stocks": ["TATASTEEL", "HINDALCO", "JSWSTEEL", "VEDL", "SAIL"]
+  },
+  {
+    "id": 7,
+    "name": "FMCG & Consumer Goods",
+    "stocks": ["HINDUNILVR", "ITC", "DABUR", "NESTLEIND", "BRITANNIA"]
+  },
+  {
+    "id": 8,
+    "name": "Infrastructure & Real Estate",
+    "stocks": ["L&T", "DLF", "GODREJPROP", "NBCC", "IRCON"]
+  },
+  {
+    "id": 9,
+    "name": "Telecom",
+    "stocks": ["BHARTIARTL", "IDEA", "MTNL", "TATACOMM", "HFCL"]
+  },
+  {
+    "id": 10,
+    "name": "Retail & E-commerce",
+    "stocks": ["DMART", "TRENT", "VBL", "RELAXO", "NYKAA"]
+  }
+]

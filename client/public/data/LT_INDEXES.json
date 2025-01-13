@@ -1,0 +1,41 @@
+[
+    {
+        "Ticker": "^BSESN",
+        "Adj Close": 75301.2578125,
+        "Capital Gains": 0.0,
+        "Close": 75301.2578125,
+        "Dividends": 0.0,
+        "High": 75385.7578125,
+        "Low": 74480.1484375,
+        "Open": 74608.65625,
+        "Stock Splits": 0.0,
+        "Volume": 0.0,
+        "Name": "SENSEX"
+    },
+    {
+        "Ticker": "^NSEI",
+        "Adj Close": 22834.30078125,
+        "Capital Gains": 0.0,
+        "Close": 22834.30078125,
+        "Dividends": 0.0,
+        "High": 22857.80078125,
+        "Low": 22599.19921875,
+        "Open": 22662.25,
+        "Stock Splits": 0.0,
+        "Volume": 0.0,
+        "Name": "NIFTY 50"
+    },
+    {
+        "Ticker": "^NSEBANK",
+        "Adj Close": 49314.5,
+        "Capital Gains": 0.0,
+        "Close": 49314.5,
+        "Dividends": 0.0,
+        "High": 49400.30078125,
+        "Low": 48629.44921875,
+        "Open": 48792.8984375,
+        "Stock Splits": 0.0,
+        "Volume": 0.0,
+        "Name": "NIFTY BANK"
+    }
+]

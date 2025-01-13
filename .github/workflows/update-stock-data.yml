@@ -1,0 +1,57 @@
+name: Update Stock Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 11 * * 1-5' # 5 PM IST (11:30 AM UTC) every weekday
+
+jobs:
+  update-stock-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Python Dependencies
+        run: |
+          cd server
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute stockdata.py
+        run: |
+          cd server
+          python src/utils/stockdata.py
+
+      - name: Execute to_json.py
+        run: |
+          cd server
+          python src/utils/to_json.py
+
+      - name: Execute ts_json.py
+        run: |
+          cd server
+          python src/utils/ts_json.py
+
+      - name: Copy LT_HIST.json to Client
+        run: cp server/LT_HIST.json client/constants/LT_HIST.json
+
+      - name: Copy Stock JSON Directory to Client
+        run: cp -r server/stockjson/* client/public/data/
+
+      - name: Commit and Push Changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+        run: |
+          git config user.name github-actions
+          git config user.email arkaprabha.chakraborty@outlook.com
+          git add client/constants/LT_HIST.json client/public/data/
+          git commit -m "chore: update stock data" || echo "No changes to commit"
+          git push origin HEAD:master
