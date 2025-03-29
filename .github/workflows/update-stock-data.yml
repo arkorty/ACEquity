@@ -3,7 +3,7 @@ name: Update Stock Data
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 11 * * 1-5' # 5 PM IST (11:30 AM UTC) every weekday
+    - cron: "30 11 * * 1-5" # 5 PM IST (11:30 AM UTC) every weekday
 
 jobs:
   update-stock-data:
@@ -16,7 +16,7 @@ jobs:
       - name: Set Up Python Environment
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
       - name: Install Python Dependencies
         run: |
@@ -51,7 +51,7 @@ jobs:
           USERNAME: ${{ github.repository_owner }}
         run: |
           git config user.name github-actions
-          git config user.email arkaprabha.chakraborty@outlook.com
+          git config user.email arkorty@gmail.com
           git add client/constants/LT_HIST.json client/public/data/
           git commit -m "chore: update stock data" || echo "No changes to commit"
           git push origin HEAD:master
