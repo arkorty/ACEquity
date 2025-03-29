@@ -30,7 +30,7 @@ export function TrendingStocks() {
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 300;
+      const scrollAmount = 600;
       scrollContainerRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
@@ -137,7 +137,7 @@ export function TrendingStocks() {
           <Button
             variant="outline"
             size="icon"
-            className="absolute right-0 z-10 p-1 md:p-2"
+            className="absolute mr-2 right-0 z-10 p-1 md:p-2"
             onClick={() => scroll("right")}
           >
             <ArrowRight className="h-4 w-4" />
