@@ -39,8 +39,8 @@ jobs:
           cd server
           python src/utils/ts_json.py
 
-      - name: Copy LT_HIST.json to Client
-        run: cp server/LT_HIST.json client/constants/LT_HIST.json
+      - name: Copy TICKERS.json to Client
+        run: cp server/stockjson/TICKERS.json client/constants/TICKERS.json
 
       - name: Copy Stock JSON Directory to Client
         run: cp -r server/stockjson/* client/public/data/
@@ -52,6 +52,6 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email arkorty@gmail.com
-          git add client/constants/LT_HIST.json client/public/data/
+          git add client/constants/TICKERS.json client/public/data/
           git commit -m "chore: update stock data" || echo "No changes to commit"
           git push origin HEAD:master
