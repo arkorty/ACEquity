@@ -63,8 +63,8 @@ export default function WatchlistDetails() {
               key={stock.ticker}
               onClick={() => viewStock(stock.ticker)}
               className={`cursor-pointer ${
-                index % 2 === 0 ? "bg-gray-100" : "bg-white"
-              } hover:bg-gray-200`}
+                index % 2 === 0 ? "bg-foreground/10" : "bg-background"
+              }`}
             >
               <TableCell className="font-medium">{stock.ticker}</TableCell>
               <TableCell>₹{stock.price.toFixed(2)}</TableCell>
