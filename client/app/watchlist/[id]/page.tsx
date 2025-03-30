@@ -12,18 +12,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import stockData from '@/constants/LT_HIST.json'
+import stockData from '@/constants/TICKERS.json'
 import watchlistsData from '@/constants/WATCHLISTS.json'
 
-// Mock data (replace with real API data in production)
-const mockWatchlists = [
-  { id: 1, name: 'Tech Stocks', stocks: [{ ticker: 'AAPL', price: 150 }, { ticker: 'MSFT', price: 250 }, { ticker: 'GOOGL', price: 2800 }] },
-  { id: 2, name: 'Energy Stocks', stocks: [{ ticker: 'XOM', price: 60 }, { ticker: 'CVX', price: 100 }, { ticker: 'BP', price: 25 }] },
-  { id: 3, name: 'Finance Stocks', stocks: [{ ticker: 'JPM', price: 150 }, { ticker: 'BAC', price: 40 }, { ticker: 'C', price: 70 }] },
-]
-
 export default function WatchlistDetails() {
-  const [watchlist, setWatchlist] = useState<{ id: number; name: string; stocks: { ticker: string; price: number; }[]; } | null>(null)
+  const [watchlist, setWatchlist] = useState<{ id: number; name: string; stocks: { ticker: string; price: number; change: number; }[]; } | null>(null)
   const router = useRouter()
   const { id } = useParams()
 
@@ -33,7 +26,11 @@ export default function WatchlistDetails() {
     if (foundWatchlist) {
       const stocks = foundWatchlist.stocks.map(ticker => {
         const stock = stockData.find(s => s.Ticker === ticker)
-        return { ticker, price: stock ? stock['Adj Close'] : 0 }
+        return { 
+          ticker, 
+          price: stock ? stock['Adj Close'] : 0, 
+          change: stock ? stock['Change'] : 0 
+        }
       })
       setWatchlist({ ...foundWatchlist, stocks })
     } else {
@@ -57,13 +54,25 @@ export default function WatchlistDetails() {
           <TableRow>
             <TableHead>Ticker</TableHead>
             <TableHead>Price</TableHead>
+            <TableHead className="text-right">Change</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {watchlist.stocks.map((stock) => (
-            <TableRow key={stock.ticker} onClick={() => viewStock(stock.ticker)} className="cursor-pointer">
+          {watchlist.stocks.map((stock, index) => (
+            <TableRow
+              key={stock.ticker}
+              onClick={() => viewStock(stock.ticker)}
+              className={`cursor-pointer ${
+                index % 2 === 0 ? "bg-gray-100" : "bg-white"
+              } hover:bg-gray-200`}
+            >
               <TableCell className="font-medium">{stock.ticker}</TableCell>
               <TableCell>₹{stock.price.toFixed(2)}</TableCell>
+              <TableCell
+                className={`${stock.change >= 0 ? "text-green-500" : "text-red-500"} text-right`}
+              >
+                {stock.change.toFixed(2)}%
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

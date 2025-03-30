@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import LT_HIST from "@/constants/LT_HIST.json";
+import TICKERS from "@/constants/TICKERS.json";
 import Fuse from "fuse.js";
 import { useTheme } from "next-themes";
 import { Sankofa_Display } from "next/font/google";
@@ -18,7 +18,7 @@ export function SearchBar() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
 
-  const fuse = new Fuse(LT_HIST, {
+  const fuse = new Fuse(TICKERS, {
     keys: ["Ticker", "Name"],
     threshold: 0.3,
   });
@@ -34,7 +34,7 @@ export function SearchBar() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const stock = LT_HIST.find(
+    const stock = TICKERS.find(
       (item) => item.Ticker.toLowerCase() === query.toLowerCase()
     );
     if (stock) {

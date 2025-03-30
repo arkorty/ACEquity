@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { IndexOverview } from '@/components/index-overview'
-import { PriceChart } from '@/components/price-chart'
-import LT_INDEXES from '@/constants/LT_HIST.json'
+import { PointsChart } from '@/components/points-chart'
+import Indexes from '@/constants/TICKERS.json'
 import { SearchBar } from '@/components/search-bar'
 
 export default function StockDetailsPage() {
@@ -19,7 +19,7 @@ export default function StockDetailsPage() {
       tickerFromPath = tickerFromPath.substring(1)
     }
     setTicker(tickerFromPath)
-    const stock = LT_INDEXES.find(item => item.Ticker === `^${tickerFromPath}`)
+    const stock = Indexes.find(item => item.Ticker === `^${tickerFromPath}`)
     setStockData(stock)
   }, [])
 
@@ -31,7 +31,7 @@ export default function StockDetailsPage() {
     <div className="space-y-4">
       <SearchBar />
       <IndexOverview ticker={ticker || ''} />
-      <PriceChart ticker={ticker || ''} />
+      <PointsChart ticker={ticker || ''} />
     </div>
   )
 }

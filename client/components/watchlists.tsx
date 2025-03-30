@@ -5,17 +5,18 @@ import { ArrowRight, ArrowUp, ArrowDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import watchlists from "@/constants/WATCHLISTS.json";
-import stockData from "@/constants/LT_HIST.json";
+import stockData from "@/constants/TICKERS.json";
 import { StockData, Watchlist } from "@/types/watchlists";
 
 function calculateAggregateChange(stocks: string[]): number {
-  const totalChange = stocks.reduce((sum, stock) => {
+  const changes = stocks.map((stock) => {
     const stockInfo = stockData.find(
       (data: StockData) => data.Ticker === stock
     );
-    return sum + (stockInfo?.Change ?? 0);
-  }, 0);
-  return totalChange;
+    return stockInfo ? stockInfo.Change : 0;
+  });
+  const totalChange = changes.reduce((sum, change) => sum + change, 0);
+  return stocks.length > 0 ? totalChange / stocks.length : 0;
 }
 
 export function WatchlistsList() {

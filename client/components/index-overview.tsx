@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowDown, ArrowUp } from 'lucide-react'
-import indexData from '@/constants/LT_HIST.json'
+import indexData from '@/constants/TICKERS.json'
 
 interface IndexOverviewProps {
   ticker: string

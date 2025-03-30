@@ -6,8 +6,8 @@ import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import "tailwind-scrollbar-hide";
-import trendingTickersArray from "@/constants/TRENDING.json";
-import stockData from "@/constants/LT_HIST.json";
+import trendingTickersArray from "@/constants/TRENDINGS.json";
+import stockData from "@/constants/TICKERS.json";
 
 export function TrendingStocks() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);

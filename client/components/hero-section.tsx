@@ -1,7 +1,7 @@
 "use client";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import LT_INDEXES from "@/constants/LT_HIST.json";
+import LT_INDEXES from "@/constants/TICKERS.json";
 import { useRouter } from "next/navigation";
 
 const indices = LT_INDEXES.filter((index) => index.Ticker.startsWith("^")).map(

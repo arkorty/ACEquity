@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowDown, ArrowUp } from 'lucide-react'
-import stockData from '../constants/LT_HIST.json'
+import stockData from '../constants/TICKERS.json'
 
 export function StockOverview({ ticker }: { ticker: string }) {
   const stock = stockData.find((item) => item.Ticker === ticker);

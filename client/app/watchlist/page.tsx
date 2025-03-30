@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import watchlistsData from "@/constants/WATCHLISTS.json";
-import stockData from "@/constants/LT_HIST.json";
+import stockData from "@/constants/TICKERS.json";
 
 export default function WatchlistPage() {
   const [watchlists, setWatchlists] = useState(watchlistsData);
@@ -44,6 +44,10 @@ export default function WatchlistPage() {
     return totalChange / stocks.length;
   };
 
+  const getChangeColor = (change: number) => {
+    return change >= 0 ? "text-green-500" : "text-red-500";
+  };
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">Your Watchlist</h1>
@@ -62,19 +66,21 @@ export default function WatchlistPage() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Stocks</TableHead>
-              <TableHead>Change</TableHead>
+              <TableHead className="text-right">Change</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {watchlists.map((watchlist) => (
+            {watchlists.map((watchlist, index) => (
               <TableRow
                 key={watchlist.id}
                 onClick={() => viewWatchlist(watchlist.id)}
-                className="cursor-pointer"
+                className={`cursor-pointer ${
+                  index % 2 === 0 ? "bg-gray-100" : "bg-white"
+                } hover:bg-gray-200`}
               >
                 <TableCell className="font-medium">{watchlist.name}</TableCell>
                 <TableCell>{watchlist.stocks.join(", ")}</TableCell>
-                <TableCell>
+                <TableCell className={`${getChangeColor(calculateAggregateChange(watchlist.stocks))} text-right`}>
                   {calculateAggregateChange(watchlist.stocks).toFixed(2)}%
                 </TableCell>
               </TableRow>

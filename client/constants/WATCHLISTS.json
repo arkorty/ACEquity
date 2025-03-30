@@ -1,52 +1,82 @@
 [
   {
     "id": 1,
-    "name": "IT & Software",
-    "stocks": ["TCS", "INFY", "WIPRO", "HCLTECH", "LTIM"]
+    "name": "Favourites",
+    "stocks": ["HDFCBANK.BO", "RELIANCE.BO", "SBIN.NS", "TATAMOTORS.BO", "ONGC.BO"]
   },
   {
     "id": 2,
     "name": "Banking & Finance",
-    "stocks": ["HDFCBANK", "ICICIBANK", "KOTAKBANK", "SBIN", "AXISBANK"]
+    "stocks": [
+      "HDFCBANK.BO",
+      "ICICIBANK.BO",
+      "KOTAKBANK.NS",
+      "SBIN.NS",
+      "AXISBANK.NS"
+    ]
   },
   {
     "id": 3,
     "name": "Pharmaceuticals",
-    "stocks": ["SUNPHARMA", "CIPLA", "DRREDDY", "LUPIN", "AUROPHARMA"]
+    "stocks": [
+      "SUNPHARMA.BO",
+      "CIPLA.BO",
+      "DRREDDY.NS",
+      "LUPIN.NS",
+      "AUROPHARMA.NS"
+    ]
   },
   {
     "id": 4,
     "name": "Automobile",
-    "stocks": ["MARUTI", "TATAMOTORS", "M&M", "BAJAJ-AUTO", "HEROMOTOCO"]
+    "stocks": [
+      "MARUTI.BO",
+      "TATAMOTORS.BO",
+      "M&M.NS",
+      "BAJAJ-AUTO.NS",
+      "HEROMOTOCO.NS"
+    ]
   },
   {
     "id": 5,
     "name": "Energy & Power",
-    "stocks": ["RELIANCE", "ONGC", "POWERGRID", "NTPC", "IOC"]
+    "stocks": ["RELIANCE.BO", "ONGC.BO", "POWERGRID.NS", "NTPC.NS", "IOC.NS"]
   },
   {
     "id": 6,
     "name": "Metals & Mining",
-    "stocks": ["TATASTEEL", "HINDALCO", "JSWSTEEL", "VEDL", "SAIL"]
+    "stocks": [
+      "TATASTEEL.BO",
+      "HINDALCO.BO",
+      "JSWSTEEL.NS",
+      "VEDL.NS",
+      "SAIL.NS"
+    ]
   },
   {
     "id": 7,
     "name": "FMCG & Consumer Goods",
-    "stocks": ["HINDUNILVR", "ITC", "DABUR", "NESTLEIND", "BRITANNIA"]
+    "stocks": [
+      "HINDUNILVR.BO",
+      "ITC.BO",
+      "DABUR.NS",
+      "NESTLEIND.NS",
+      "BRITANNIA.NS"
+    ]
   },
   {
     "id": 8,
     "name": "Infrastructure & Real Estate",
-    "stocks": ["L&T", "DLF", "GODREJPROP", "NBCC", "IRCON"]
+    "stocks": ["L&T.BO", "DLF.BO", "GODREJPROP.NS", "NBCC.NS", "IRCON.NS"]
   },
   {
     "id": 9,
     "name": "Telecom",
-    "stocks": ["BHARTIARTL", "IDEA", "MTNL", "TATACOMM", "HFCL"]
+    "stocks": ["BHARTIARTL.BO", "IDEA.BO", "MTNL.NS", "TATACOMM.NS", "HFCL.NS"]
   },
   {
     "id": 10,
-    "name": "Retail & E-commerce",
-    "stocks": ["DMART", "TRENT", "VBL", "RELAXO", "NYKAA"]
+    "name": "IT & Software",
+    "stocks": ["TCS.BO", "INFY.BO", "WIPRO.NS", "HCLTECH.NS", "LTIM.NS"]
   }
 ]
