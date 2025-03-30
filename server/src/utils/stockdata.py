@@ -29,8 +29,11 @@ def parse_ticker_data(ticker, hist):
 
 if __name__ == "__main__":
 
-    tickers_df = pd.read_csv("symbols.csv")
-    tickers = tickers_df.iloc[:, 0].tolist()
+    bse_tickers = pd.read_csv("bsesymbols.csv")
+    nse_tickers = pd.read_csv("nsesymbols.csv")
+    bse_tickers = bse_tickers.iloc[:, 0].tolist()
+    nse_tickers = nse_tickers.iloc[:, 0].tolist()
+    tickers = bse_tickers + nse_tickers
 
     for ticker in tickers:
         while True:
@@ -45,11 +48,6 @@ if __name__ == "__main__":
                     f.write(",".join(headers) + "\n")
 
                 hist.to_csv(f"stockdata/{file_name}.csv", mode="a", header=False)
-
-                last_row = parse_ticker_data(ticker, hist)
-                if last_row:
-                    with open("listed.csv", "a") as listed_file:
-                        listed_file.write(",".join(map(str, last_row.values())) + "\n")
 
                 break
             except Exception as e:

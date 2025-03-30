@@ -35,7 +35,7 @@ for filename in os.listdir(input_dir):
 
         json_file_path = os.path.join(
             output_dir,
-            f"{ticker.replace(".NS", "").replace("^", "").replace("_data", "")}.json",
+            f"{ticker.replace("^", "")}.json",
         )
         with open(json_file_path, "w", encoding="utf-8") as f:
             json.dump(json_data, f, indent=2)

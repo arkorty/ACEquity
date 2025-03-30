@@ -5,11 +5,19 @@ import json
 
 stock_dir = "stockdata/"
 
-symbols_file = "symbols.csv"
+bsesymbols = "bsesymbols.csv"
+nsesymbols = "nsesymbols.csv"
 
 
 symbol_names = {}
-with open(symbols_file, mode="r", encoding="utf-8") as file:
+with open(bsesymbols, mode="r", encoding="utf-8") as file:
+    reader = csv.reader(file)
+    next(reader)
+    for row in reader:
+        if len(row) >= 2:
+            symbol_names[row[0]] = row[1]
+
+with open(nsesymbols, mode="r", encoding="utf-8") as file:
     reader = csv.reader(file)
     next(reader)
     for row in reader:
@@ -55,7 +63,7 @@ for filename in os.listdir(stock_dir):
                 for key, value in zip(headers, rows[-2])
             }
 
-            latest_day["Ticker"] = symbol.replace(".NS", "")
+            latest_day["Ticker"] = symbol
             latest_day["Name"] = symbol_names.get(symbol, "Unknown")
             latest_day["Change"] = (
                 (
@@ -72,7 +80,7 @@ for filename in os.listdir(stock_dir):
         stock_data.append(latest_day)
 
 
-target_json_file = "LT_HIST.json"
+target_json_file = "TICKERS.json"
 with open(target_json_file, mode="w", encoding="utf-8") as file:
     json.dump(stock_data, file, indent=4)
 

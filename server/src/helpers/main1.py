@@ -61,7 +61,7 @@ if __name__ == "__main__":
                     print(f"Skipping {ticker} due to error: {e}")
                     break
 
-    with open("LT_HIST1.json", "w") as f:
+    with open("TICKERS1.json", "w") as f:
         json.dump(stock_data, f, indent=4)
 
-    print("\nData fetching complete. Saved to LT_HIST1.json.")
+    print("\nData fetching complete. Saved to TICKERS1.json.")
