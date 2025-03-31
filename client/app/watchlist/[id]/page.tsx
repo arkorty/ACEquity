@@ -16,13 +16,13 @@ import stockData from '@/constants/TICKERS.json'
 import watchlistsData from '@/constants/WATCHLISTS.json'
 
 export default function WatchlistDetails() {
-  const [watchlist, setWatchlist] = useState<{ id: number; name: string; stocks: { ticker: string; price: number; change: number; }[]; } | null>(null)
+  const [watchlist, setWatchlist] = useState<{ uuid: string; name: string; stocks: { ticker: string; price: number; change: number; }[]; } | null>(null)
   const router = useRouter()
   const { id } = useParams()
 
   useEffect(() => {
-    const watchlistId = parseInt(Array.isArray(id) ? id[0] : id)
-    const foundWatchlist = watchlistsData.find(w => w.id === watchlistId)
+    const watchlistUuid = Array.isArray(id) ? id[0] : id
+    const foundWatchlist = watchlistsData.find(w => w.uuid === watchlistUuid)
     if (foundWatchlist) {
       const stocks = foundWatchlist.stocks.map(ticker => {
         const stock = stockData.find(s => s.Ticker === ticker)

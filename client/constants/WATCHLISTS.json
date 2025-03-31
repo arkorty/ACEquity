@@ -1,11 +1,11 @@
 [
   {
-    "id": 1,
+    "uuid": "550e8400-e29b-41d4-a716-446655440000",
     "name": "Favourites",
     "stocks": ["HDFCBANK.BO", "RELIANCE.BO", "SBIN.NS", "TATAMOTORS.BO", "ONGC.BO"]
   },
   {
-    "id": 2,
+    "uuid": "550e8400-e29b-41d4-a716-446655440001",
     "name": "Banking & Finance",
     "stocks": [
       "HDFCBANK.BO",
@@ -16,7 +16,7 @@
     ]
   },
   {
-    "id": 3,
+    "uuid": "550e8400-e29b-41d4-a716-446655440002",
     "name": "Pharmaceuticals",
     "stocks": [
       "SUNPHARMA.BO",
@@ -27,7 +27,7 @@
     ]
   },
   {
-    "id": 4,
+    "uuid": "550e8400-e29b-41d4-a716-446655440003",
     "name": "Automobile",
     "stocks": [
       "MARUTI.BO",
@@ -38,12 +38,12 @@
     ]
   },
   {
-    "id": 5,
+    "uuid": "550e8400-e29b-41d4-a716-446655440004",
     "name": "Energy & Power",
     "stocks": ["RELIANCE.BO", "ONGC.BO", "POWERGRID.NS", "NTPC.NS", "IOC.NS"]
   },
   {
-    "id": 6,
+    "uuid": "550e8400-e29b-41d4-a716-446655440005",
     "name": "Metals & Mining",
     "stocks": [
       "TATASTEEL.BO",
@@ -54,7 +54,7 @@
     ]
   },
   {
-    "id": 7,
+    "uuid": "550e8400-e29b-41d4-a716-446655440006",
     "name": "FMCG & Consumer Goods",
     "stocks": [
       "HINDUNILVR.BO",
@@ -65,17 +65,17 @@
     ]
   },
   {
-    "id": 8,
+    "uuid": "550e8400-e29b-41d4-a716-446655440007",
     "name": "Infrastructure & Real Estate",
     "stocks": ["L&T.BO", "DLF.BO", "GODREJPROP.NS", "NBCC.NS", "IRCON.NS"]
   },
   {
-    "id": 9,
+    "uuid": "550e8400-e29b-41d4-a716-446655440008",
     "name": "Telecom",
     "stocks": ["BHARTIARTL.BO", "IDEA.BO", "MTNL.NS", "TATACOMM.NS", "HFCL.NS"]
   },
   {
-    "id": 10,
+    "uuid": "550e8400-e29b-41d4-a716-446655440009",
     "name": "IT & Software",
     "stocks": ["TCS.BO", "INFY.BO", "WIPRO.NS", "HCLTECH.NS", "LTIM.NS"]
   }

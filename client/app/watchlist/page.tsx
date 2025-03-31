@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import watchlistsData from "@/constants/WATCHLISTS.json";
 import stockData from "@/constants/TICKERS.json";
+import { v4 as uuidv4 } from "uuid";
 
 export default function WatchlistPage() {
   const [watchlists, setWatchlists] = useState(watchlistsData);
@@ -25,14 +26,14 @@ export default function WatchlistPage() {
     if (newWatchlist && !watchlists.find((w) => w.name === newWatchlist)) {
       setWatchlists([
         ...watchlists,
-        { id: watchlists.length + 1, name: newWatchlist, stocks: [] },
+        { uuid: uuidv4(), name: newWatchlist, stocks: [] },
       ]);
       setNewWatchlist("");
     }
   };
 
-  const viewWatchlist = (id: number) => {
-    router.push(`/watchlist/${id}`);
+  const viewWatchlist = (uuid: string) => {
+    router.push(`/watchlist/${uuid}`);
   };
 
   const calculateAggregateChange = (stocks: string[]) => {
@@ -72,11 +73,11 @@ export default function WatchlistPage() {
           <TableBody>
             {watchlists.map((watchlist, index) => (
               <TableRow
-                key={watchlist.id}
-                onClick={() => viewWatchlist(watchlist.id)}
+                key={watchlist.uuid}
+                onClick={() => viewWatchlist(watchlist.uuid)}
                 className={`cursor-pointer ${
-                index % 2 === 0 ? "bg-foreground/10" : "bg-background"
-              }`}
+                  index % 2 === 0 ? "bg-foreground/10" : "bg-background"
+                }`}
               >
                 <TableCell className="font-medium">{watchlist.name}</TableCell>
                 <TableCell>{watchlist.stocks.join(", ")}</TableCell>
