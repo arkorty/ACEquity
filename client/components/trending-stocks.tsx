@@ -8,12 +8,13 @@ import { Button } from "@/components/ui/button";
 import "tailwind-scrollbar-hide";
 import trendingTickersArray from "@/constants/TRENDINGS.json";
 import stockData from "@/constants/TICKERS.json";
+import { Stock } from "@/types/stock";
 
 export function TrendingStocks() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isLeftmost, setIsLeftmost] = useState(true);
   const [isRightmost, setIsRightmost] = useState(true);
-  const [trendingStocks, setTrendingStocks] = useState<any[]>([]);
+  const [trendingStocks, setTrendingStocks] = useState<Stock[]>([]);
   const router = useRouter();
 
   const updateTrendingStocks = () => {

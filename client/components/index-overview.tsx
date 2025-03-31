@@ -1,22 +1,28 @@
-import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowDown, ArrowUp } from 'lucide-react'
-import indexData from '@/constants/TICKERS.json'
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowDown, ArrowUp } from "lucide-react";
+import indexData from "@/constants/TICKERS.json";
 
 interface IndexOverviewProps {
-  ticker: string
+  ticker: string;
 }
 
 export const IndexOverview: React.FC<IndexOverviewProps> = ({ ticker }) => {
-  const formattedTicker = ticker.startsWith('^') ? ticker.substring(1) : ticker;
+  const formattedTicker = ticker.startsWith("^") ? ticker.substring(1) : ticker;
   const index = indexData.find((item) => item.Ticker === `^${formattedTicker}`);
 
   const getValue = (value: any) => {
-    return value !== undefined ? value : <span className="text-amber-500">Coming Soon</span>;
+    return value !== undefined ? (
+      value
+    ) : (
+      <span className="text-amber-500">Coming Soon</span>
+    );
   };
 
   const formatNumber = (value: any, decimals: number = 2) => {
-    return typeof value === 'number' ? value.toFixed(decimals) : getValue(value);
+    return typeof value === "number"
+      ? value.toFixed(decimals)
+      : getValue(value);
   };
 
   const getChange = (change: any) => {
@@ -26,14 +32,26 @@ export const IndexOverview: React.FC<IndexOverviewProps> = ({ ticker }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-3xl font-bold">{getValue(index?.Ticker)}</CardTitle>
+        <CardTitle className="text-3xl font-bold">
+          {getValue(index?.Ticker)}
+        </CardTitle>
         <p className="text-xl text-muted-foreground">{getValue(index?.Name)}</p>
       </CardHeader>
       <CardContent>
         <div className="flex items-baseline space-x-2 mb-4">
-          <span className="text-4xl font-bold">{formatNumber(index?.Close)}</span>
-          <span className={`text-lg ${getChange(index?.Change) >= 0 ? 'text-green-500' : 'text-red-500'} flex items-center`}>
-            {getChange(index?.Change) >= 0 ? <ArrowUp className="mr-1" /> : <ArrowDown className="mr-1" />}
+          <span className="text-4xl font-bold">
+            {formatNumber(index?.Close)}
+          </span>
+          <span
+            className={`text-lg ${
+              getChange(index?.Change) >= 0 ? "text-green-500" : "text-red-500"
+            } flex items-center`}
+          >
+            {getChange(index?.Change) >= 0 ? (
+              <ArrowUp className="mr-1" />
+            ) : (
+              <ArrowDown className="mr-1" />
+            )}
             {formatNumber(Math.abs(getChange(index?.Change)))}%
           </span>
         </div>
@@ -51,15 +69,17 @@ export const IndexOverview: React.FC<IndexOverviewProps> = ({ ticker }) => {
             <p className="text-lg font-semibold">{formatNumber(index?.Low)}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Market Cap</p>
-            <p className="text-lg font-semibold">{getValue(index?.MarketCap)}</p>
+            <p className="text-sm text-muted-foreground">Volume</p>
+            <p className="text-lg font-semibold">{getValue(index?.Volume)}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">P/E Ratio</p>
-            <p className="text-lg font-semibold">{getValue(index?.PERatio)}</p>
+            <p className="text-sm text-muted-foreground">Turnover</p>
+            <p className="text-lg font-semibold">
+              {getValue(index?.Volume) * getValue(index?.["Adj Close"])}
+            </p>
           </div>
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};

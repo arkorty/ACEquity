@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
-import UserInfo from "@/components/UserInfo";
-import PortfolioOverview from "@/components/PortfolioOverview";
-import Holdings from "@/components/Holdings";
-import RecentTransactions from "@/components/RecentTransactions";
-import TradingInterface from "@/components/TradingInterface";
+import UserInfo from "@/components/user-info";
+import PortfolioOverview from "@/components/portfolio-overview";
+import Holdings from "@/components/holdings";
+import RecentTransactions from "@/components/recent-transactions";
+import TradingInterface from "@/components/trading-interface";
 
 const ProfilePage = () => {
   const user = {

@@ -29,7 +29,7 @@ export function WatchlistsList() {
         {watchlists.slice(0, 6).map((watchlist) => {
           const aggregateChange = calculateAggregateChange(watchlist.stocks);
           return (
-            <Link key={watchlist.id} href={`/watchlist/${watchlist.id}`} passHref>
+            <Link key={watchlist.uuid} href={`/watchlist/${watchlist.uuid}`} passHref>
               <Card className="cursor-pointer hover:shadow-md transition-shadow duration-200">
                 <div className="px-3 py-2 flex items-center justify-between">
                   <div className="flex flex-col">

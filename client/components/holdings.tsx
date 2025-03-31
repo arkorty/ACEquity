@@ -1,5 +1,5 @@
 import React from "react";
-import { Holding } from "@/types/Holding";
+import { Holding } from "../types/holding";
 
 interface HoldingsProps {
   holdings: Holding[];

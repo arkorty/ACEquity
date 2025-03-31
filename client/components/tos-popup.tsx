@@ -10,12 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
-
-interface ToSPopupProps {
-  isOpen: boolean;
-  onAccept: () => void;
-  onDecline: () => void;
-}
+import { ToSPopupProps } from "../types/tos-popup";
 
 const ToSPopup: React.FC<ToSPopupProps> = ({ isOpen, onAccept, onDecline }) => {
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);

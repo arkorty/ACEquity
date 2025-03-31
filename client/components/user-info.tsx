@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { User } from '@/types/User';
+import { User } from '@/types/user';
 
 const UserInfo: React.FC<{ user: User }> = ({ user }) => {
   return (

@@ -15,6 +15,7 @@ import {
 } from "chart.js";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
+import { ChartData, ChartOptions } from "@/types";
 
 ChartJS.register(
   CategoryScale,
@@ -41,10 +42,6 @@ export function PointsChart({ ticker }: { ticker: string }) {
   const [backgroundColor, setBackgroundColor] = useState(
     "rgba(75, 192, 192, 0.2)"
   );
-  interface ChartData {
-    Date: string;
-    "Adj Close": number;
-  }
 
   const [chartData, setChartData] = useState<ChartData[]>([]);
 
@@ -83,44 +80,6 @@ export function PointsChart({ ticker }: { ticker: string }) {
       },
     ],
   };
-
-  interface ChartOptions {
-    responsive: boolean;
-    plugins: {
-      legend: {
-        display: boolean;
-      };
-      title: {
-        display: boolean;
-        text: string;
-      };
-      tooltip: {
-        mode: keyof InteractionModeMap;
-        intersect: boolean;
-        callbacks: {
-          label: (context: any) => string;
-        };
-      };
-    };
-    hover: {
-      mode: keyof InteractionModeMap;
-      intersect: boolean;
-    };
-    scales: {
-      x: {
-        title: {
-          display: boolean;
-          text: string;
-        };
-      };
-      y: {
-        title: {
-          display: boolean;
-          text: string;
-        };
-      };
-    };
-  }
 
   const options: ChartOptions = {
     responsive: true,

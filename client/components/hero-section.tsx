@@ -3,6 +3,7 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import LT_INDEXES from "@/constants/TICKERS.json";
 import { useRouter } from "next/navigation";
+import { Index } from "@/types";
 
 const indices = LT_INDEXES.filter((index) => index.Ticker.startsWith("^")).map(
   (index) => ({
@@ -27,13 +28,6 @@ export function HeroSection() {
   };
 
   // Function to format number with exactly 2 decimal places
-  interface Index {
-    name: string;
-    value: number;
-    change: number;
-    ticker: string;
-  }
-
   const formatWithTwoDecimals = (value: number): string => {
     if (isNaN(value)) return "Unavailable";
 

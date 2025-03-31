@@ -1,5 +1,5 @@
 import React from 'react';
-import { Portfolio } from '@/types/Portfolio';
+import { Portfolio } from '@/types/portfolio';
 
 const PortfolioOverview = ({ portfolio }: { portfolio: Portfolio }) => {
   return (
