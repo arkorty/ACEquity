@@ -24,26 +24,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Execute stockdata.py
+      - name: Get Stock Data
         run: |
           cd server
-          python src/utils/stockdata.py
+          python src/utils/getstockdata.py
 
-      - name: Execute to_json.py
+      - name: Save Stock Data in JSON format
         run: |
           cd server
-          python src/utils/to_json.py
-
-      - name: Execute ts_json.py
-        run: |
-          cd server
-          python src/utils/ts_json.py
-
-      - name: Copy TICKERS.json to Client
-        run: cp server/stockjson/TICKERS.json client/constants/TICKERS.json
-
-      - name: Copy Stock JSON Directory to Client
-        run: cp -r server/stockjson/* client/public/data/
+          python src/utils/savetojson.py
 
       - name: Commit and Push Changes
         env:
