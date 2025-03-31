@@ -1659,18 +1659,18 @@
         "Change": -3.1901559810334135
     },
     {
-        "Datetime": "2025-03-19 00:00:00+05:30",
-        "Open": 262.0,
-        "High": 266.5,
-        "Low": 256.25,
-        "Close": 265.70001220703125,
-        "Adj Close": 265.70001220703125,
-        "Volume": 14039376.0,
+        "Datetime": "2025-03-28 00:00:00+05:30",
+        "Open": 271.0,
+        "High": 271.8500061035156,
+        "Low": 261.6000061035156,
+        "Close": 262.25,
+        "Adj Close": 262.25,
+        "Volume": 14283389.0,
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "WIPRO.NS",
-        "Name": "Unknown",
-        "Change": 2.251301122227096
+        "Name": "WIPRO LIMITED",
+        "Change": -3.655404761504353
     },
     {
         "Datetime": "2025-03-27 00:00:00+05:30",
@@ -4872,7 +4872,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "PPARIVAH.BO",
-        "Name": "Paradeep Parivahan Ltd",
+        "Name": "Unknown",
         "Change": 1.6026747136809891
     },
     {
@@ -5000,6 +5000,20 @@
         "Ticker": "NAM-INDIA.NS",
         "Name": "NIPPON L I A M LTD",
         "Change": -1.8991118621502756
+    },
+    {
+        "Datetime": "2025-03-28 00:00:00+05:30",
+        "Open": 3.430000066757202,
+        "High": 3.549999952316284,
+        "Low": 3.259999990463257,
+        "Close": 3.440000057220459,
+        "Adj Close": 3.440000057220459,
+        "Volume": 37104.0,
+        "Dividends": 0.0,
+        "Stock Splits": 0.0,
+        "Ticker": "AANCHALISP.BO",
+        "Name": "Aanchal Ispat Ltd",
+        "Change": 0.2915449057909508
     },
     {
         "Datetime": "2025-03-28 00:00:00+05:30",
@@ -7376,7 +7390,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "AIHL.BO",
-        "Name": "Ambassador Intra Holdings Ltd",
+        "Name": "Unknown",
         "Change": -4.991205981995601
     },
     {
@@ -7559,7 +7573,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "SUPRATRE.BO",
-        "Name": "Supra Trends Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -8177,7 +8191,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "CISTRO.BO",
-        "Name": "CISTRO Telelink Ltd",
+        "Name": "Unknown",
         "Change": 3.7974646297370884
     },
     {
@@ -9554,7 +9568,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "GANHOLD.BO",
-        "Name": "Ganesh Holdings Ltd",
+        "Name": "Unknown",
         "Change": 1.893200920623483
     },
     {
@@ -10132,7 +10146,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "BOSTONBIO.BO",
-        "Name": "Boston Bio Systems Ltd",
+        "Name": "Unknown",
         "Change": -4.98826488146008
     },
     {
@@ -10427,7 +10441,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "UNISTRMU.BO",
-        "Name": "Unistar Multimedia Ltd",
+        "Name": "Unknown",
         "Change": 0.25188892673024776
     },
     {
@@ -10511,7 +10525,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "HITKITGLO.BO",
-        "Name": "Hit Kit Global Solutions Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -11467,7 +11481,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "VIKRAMAR.BO",
-        "Name": "Vikram Aroma Ltd",
+        "Name": "Unknown",
         "Change": -3.9506135163483793
     },
     {
@@ -12420,7 +12434,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "SWORDEDGE.BO",
-        "Name": "Sword-Edge Commercials Ltd",
+        "Name": "Unknown",
         "Change": 3.846161781683767
     },
     {
@@ -12434,7 +12448,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "SALGUTI.BO",
-        "Name": "Salguti Industries Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -13668,7 +13682,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "HYPERSOFT.BO",
-        "Name": "Hypersoft Technologies Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -15146,6 +15160,20 @@
         "Change": 4.203268805557588
     },
     {
+        "Datetime": "2025-03-25 00:00:00+05:30",
+        "Open": 10.170000076293945,
+        "High": 10.170000076293945,
+        "Low": 10.170000076293945,
+        "Close": 10.170000076293945,
+        "Adj Close": 10.170000076293945,
+        "Volume": 16000.0,
+        "Dividends": 0.0,
+        "Stock Splits": 0.0,
+        "Ticker": "GANGAPHARM.BO",
+        "Name": "Unknown",
+        "Change": 9.945946770745355
+    },
+    {
         "Datetime": "2025-03-28 00:00:00+05:30",
         "Open": 42.5,
         "High": 43.5,
@@ -15269,7 +15297,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "PSPL.BO",
-        "Name": "PDP Shipping & Projects Ltd",
+        "Name": "Unknown",
         "Change": -4.947229352272482
     },
     {
@@ -15891,7 +15919,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "MPCOSEMB.BO",
-        "Name": "Mipco Seamless Rings Gujarat Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -17802,7 +17830,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "STURDY.BO",
-        "Name": "Sturdy Industries Ltd",
+        "Name": "Unknown",
         "Change": 2.857148695965302
     },
     {
@@ -18631,7 +18659,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "INTERDIGI.BO",
-        "Name": "Interworld Digital Ltd",
+        "Name": "Unknown",
         "Change": -3.124997089616889
     },
     {
@@ -18857,7 +18885,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "MAGNUS.BO",
-        "Name": "Magnus Retail Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -19067,7 +19095,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "BPCAP.BO",
-        "Name": "B. P. Capital Ltd",
+        "Name": "Unknown",
         "Change": 4.95049358040287
     },
     {
@@ -19727,7 +19755,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "^NSEI",
-        "Name": "NIFTY 50",
+        "Name": "Unknown",
         "Change": -0.3077304410154484
     },
     {
@@ -20696,7 +20724,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "^BSESN",
-        "Name": "SENSEX",
+        "Name": "Unknown",
         "Change": -0.24676797176619247
     },
     {
@@ -21103,7 +21131,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "ADVIKLA.BO",
-        "Name": "Advik Laboratories Ltd",
+        "Name": "Unknown",
         "Change": -4.7904147162800985
     },
     {
@@ -22541,7 +22569,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "NAPSGLOBAL.BO",
-        "Name": "NAPS Global India Ltd",
+        "Name": "Unknown",
         "Change": -9.75802227128703
     },
     {
@@ -23019,7 +23047,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "SBL.BO",
-        "Name": "Shivamshree Businesses Ltd",
+        "Name": "Unknown",
         "Change": 4.712043714733788
     },
     {
@@ -24398,18 +24426,18 @@
         "Change": -4.987484099590725
     },
     {
-        "Datetime": "2025-03-19 00:00:00+05:30",
-        "Open": 1401.0,
-        "High": 1419.8499755859375,
-        "Low": 1386.8499755859375,
-        "Close": 1394.199951171875,
-        "Adj Close": 1394.199951171875,
-        "Volume": 354281.0,
+        "Datetime": "2025-03-28 00:00:00+05:30",
+        "Open": 1482.0,
+        "High": 1514.8499755859375,
+        "Low": 1443.6500244140625,
+        "Close": 1454.6500244140625,
+        "Adj Close": 1454.6500244140625,
+        "Volume": 358406.0,
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "WABAG.NS",
-        "Name": "Unknown",
-        "Change": 4.407082537303732
+        "Name": "VA Tech Wabag Limited",
+        "Change": -1.2155800360271338
     },
     {
         "Datetime": "2025-03-27 00:00:00+05:30",
@@ -27569,7 +27597,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "BFFL.BO",
-        "Name": "Bangalore Fort Farms Ltd",
+        "Name": "Unknown",
         "Change": -4.987014836563176
     },
     {
@@ -27765,7 +27793,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "CONCRETE.BO",
-        "Name": "Concrete Credit Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -33104,7 +33132,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "4THGEN.BO",
-        "Name": "Fourth Generation Information Systems Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -37214,7 +37242,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "RAMAPETRO.BO",
-        "Name": "Rama Petrochemicals Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -37833,6 +37861,20 @@
         "Ticker": "SPRL.NS",
         "Name": "SP REFRACTORIES LIMITED",
         "Change": 0.0
+    },
+    {
+        "Datetime": "2025-03-28 00:00:00+05:30",
+        "Open": 38.0,
+        "High": 38.119998931884766,
+        "Low": 36.0,
+        "Close": 37.9900016784668,
+        "Adj Close": 37.9900016784668,
+        "Volume": 23473.0,
+        "Dividends": 0.0,
+        "Stock Splits": 0.0,
+        "Ticker": "ODIGMA.BO",
+        "Name": "Odigma Consultancy Solutions Ltd",
+        "Change": 4.626825231715798
     },
     {
         "Datetime": "2025-03-28 00:00:00+05:30",
@@ -39617,7 +39659,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "ADLINE.BO",
-        "Name": "Adline Chem Lab Ltd",
+        "Name": "Unknown",
         "Change": -4.946233618763388
     },
     {
@@ -39982,7 +40024,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "NOGMIND.BO",
-        "Name": "Neogem India Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -40914,7 +40956,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "SAENTER.BO",
-        "Name": "South Asian Enterprises Ltd",
+        "Name": "Unknown",
         "Change": 3.0084544320919413
     },
     {
@@ -41113,7 +41155,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "UNITEDTE.BO",
-        "Name": "United Textiles Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -45145,7 +45187,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "NEWLIGHT.BO",
-        "Name": "New Light Apparels Ltd",
+        "Name": "Unknown",
         "Change": -4.961235725380232
     },
     {
@@ -46409,7 +46451,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "ACEEDU.BO",
-        "Name": "ACE Edutrend Ltd",
+        "Name": "Unknown",
         "Change": -4.907978107323611
     },
     {
@@ -46423,7 +46465,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "IPOWER.BO",
-        "Name": "I-Power Solutions India Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -48363,7 +48405,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "KABRADG.BO",
-        "Name": "Kabra Drugs Ltd",
+        "Name": "Unknown",
         "Change": 4.924237532447277
     },
     {
@@ -50245,7 +50287,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "HCKKVENTURE.BO",
-        "Name": "HCKK Ventures Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -51117,7 +51159,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "DOLPHMED.BO",
-        "Name": "Dolphin Medical Services Ltd",
+        "Name": "Unknown",
         "Change": -1.754384313814067
     },
     {
@@ -51287,7 +51329,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "SURINDL.BO",
-        "Name": "Surya Industrial Corporation Ltd",
+        "Name": "Unknown",
         "Change": 4.184232926925162
     },
     {
@@ -51892,7 +51934,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "SUPERIRON.BO",
-        "Name": "Super Iron Foundry Ltd",
+        "Name": "Unknown",
         "Change": -4.968549620430425
     },
     {
@@ -52074,7 +52116,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "UNQTYMI.BO",
-        "Name": "Union Quality Plastics Ltd",
+        "Name": "Unknown",
         "Change": -4.923799407290835
     },
     {
@@ -52088,7 +52130,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "AJEL.BO",
-        "Name": "AJEL Ltd",
+        "Name": "Unknown",
         "Change": -4.934548939913718
     },
     {
@@ -53538,7 +53580,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "CHARMS.BO",
-        "Name": "Charms Industries Ltd",
+        "Name": "Unknown",
         "Change": -4.94011874530435
     },
     {
@@ -54623,7 +54665,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "GENESIS.BO",
-        "Name": "Genesis Ibrc India Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -56099,7 +56141,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "VIJAYTX.BO",
-        "Name": "Vijay Textiles Ltd",
+        "Name": "Unknown",
         "Change": 0.09140977390682462
     },
     {
@@ -58442,7 +58484,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "BARONINF.BO",
-        "Name": "Baron Infotech Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -58499,7 +58541,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "FUTURSEC.BO",
-        "Name": "Futuristic Securities Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -58671,6 +58713,20 @@
         "Ticker": "ARCEEIN.BO",
         "Name": "Arcee Industries Ltd",
         "Change": -0.4838666757111911
+    },
+    {
+        "Datetime": "2025-03-28 00:00:00+05:30",
+        "Open": 225.0500030517578,
+        "High": 234.5500030517578,
+        "Low": 217.25,
+        "Close": 224.39999389648438,
+        "Adj Close": 224.39999389648438,
+        "Volume": 4093.0,
+        "Dividends": 0.0,
+        "Stock Splits": 0.0,
+        "Ticker": "PALCO.BO",
+        "Name": "Palco Metals Ltd",
+        "Change": -1.8587361090961072
     },
     {
         "Datetime": "2025-03-28 00:00:00+05:30",
@@ -59951,7 +60007,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "PRABHA.BO",
-        "Name": "Prabha Energy Ltd",
+        "Name": "Unknown",
         "Change": 4.999998194226146
     },
     {
@@ -60234,7 +60290,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "AVIVA.BO",
-        "Name": "Aviva Industries Ltd",
+        "Name": "Unknown",
         "Change": 1.9903493680613435
     },
     {
@@ -62442,7 +62498,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "MSCTC.BO",
-        "Name": "Mardia Samyoung Capillary Tubes Company Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -63201,7 +63257,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "RAJSPTR.BO",
-        "Name": "Rajasthan Petro Synthetics Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -64301,7 +64357,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "KLIFESTYL.BO",
-        "Name": "K-Lifestyle & Industries Ltd",
+        "Name": "Unknown",
         "Change": -3.4482726727597
     },
     {
@@ -65976,7 +66032,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "DIAMANT.BO",
-        "Name": "Diamant Infrastructure Ltd",
+        "Name": "Unknown",
         "Change": 4.724414400782764
     },
     {
@@ -66945,7 +67001,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "GTTDATAPP.BO",
-        "Name": "GTT DATA SOLUTIONS Ltd",
+        "Name": "Unknown",
         "Change": 4.995535677716888
     },
     {
@@ -67535,7 +67591,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "IRONWOOD.BO",
-        "Name": "Ironwood Education Ltd",
+        "Name": "Unknown",
         "Change": 2.584176006998889
     },
     {
@@ -67789,7 +67845,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "ASYL.BO",
-        "Name": "Advance Syntex Ltd",
+        "Name": "Unknown",
         "Change": -1.9607866469959303
     },
     {
@@ -69015,6 +69071,20 @@
     },
     {
         "Datetime": "2025-03-28 00:00:00+05:30",
+        "Open": 43.2599983215332,
+        "High": 44.9900016784668,
+        "Low": 43.2599983215332,
+        "Close": 43.97999954223633,
+        "Adj Close": 43.97999954223633,
+        "Volume": 21541.0,
+        "Dividends": 0.0,
+        "Stock Splits": 0.0,
+        "Ticker": "MANAKSTEEL.BO",
+        "Name": "Manaksia Steels Ltd",
+        "Change": -0.22686543707878662
+    },
+    {
+        "Datetime": "2025-03-28 00:00:00+05:30",
         "Open": 30741.0,
         "High": 30800.0,
         "Low": 30388.25,
@@ -69939,7 +70009,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "^NSEBANK",
-        "Name": "NIFTY BANK",
+        "Name": "Unknown",
         "Change": -0.021327810722950678
     },
     {
@@ -70317,7 +70387,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "SHREENATH.BO",
-        "Name": "Shreenath Paper Products Ltd",
+        "Name": "Unknown",
         "Change": -0.7092248149663288
     },
     {
@@ -70656,6 +70726,21 @@
         "Ticker": "OCEANIC.BO",
         "Name": "Oceanic Foods Ltd",
         "Change": 6.198745179873193
+    },
+    {
+        "Datetime": "2025-03-28 00:00:00+05:30",
+        "Open": 6.769999980926514,
+        "High": 6.769999980926514,
+        "Low": 6.769999980926514,
+        "Close": 6.769999980926514,
+        "Adj Close": 6.769999980926514,
+        "Volume": 0.0,
+        "Dividends": 0.0,
+        "Stock Splits": 0.0,
+        "Capital Gains": 0.0,
+        "Ticker": "PINCON.BO",
+        "Name": "Pincon Spirit Ltd",
+        "Change": 0.0
     },
     {
         "Datetime": "2025-03-28 00:00:00+05:30",
@@ -71314,7 +71399,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "IDM.BO",
-        "Name": "International Data Management Ltd",
+        "Name": "Unknown",
         "Change": -4.992761183936315
     },
     {
@@ -72587,6 +72672,20 @@
     },
     {
         "Datetime": "2025-03-28 00:00:00+05:30",
+        "Open": 67.5,
+        "High": 70.51000213623047,
+        "Low": 65.91000366210938,
+        "Close": 66.1500015258789,
+        "Adj Close": 66.1500015258789,
+        "Volume": 11241.0,
+        "Dividends": 0.0,
+        "Stock Splits": 0.0,
+        "Ticker": "UFO.BO",
+        "Name": "UFO Moviez India Ltd",
+        "Change": -1.7233636529329248
+    },
+    {
+        "Datetime": "2025-03-28 00:00:00+05:30",
         "Open": 217.8000030517578,
         "High": 219.5,
         "Low": 214.60000610351562,
@@ -73722,7 +73821,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "KINETRU.BO",
-        "Name": "Kinetic Trust Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -74032,7 +74131,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "POLYTEX.BO",
-        "Name": "Polytex India Ltd",
+        "Name": "Unknown",
         "Change": 4.480286799609097
     },
     {
@@ -74761,7 +74860,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "GEETANJ.BO",
-        "Name": "Geetanjali Credit and Capital Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -75296,20 +75395,6 @@
         "Ticker": "JAICORPLTD.BO",
         "Name": "Jai Corp Ltd",
         "Change": -0.4538366718340038
-    },
-    {
-        "Datetime": "2025-03-28 00:00:00+05:30",
-        "Open": 6140.0,
-        "High": 6390.0,
-        "Low": 6140.0,
-        "Close": 6257.39990234375,
-        "Adj Close": 6257.39990234375,
-        "Volume": 56625.0,
-        "Dividends": 0.0,
-        "Stock Splits": 0.0,
-        "Ticker": "LINDEINDIA.NS",
-        "Name": "LINDE INDIA LIMITED",
-        "Change": 1.3688866065674696
     },
     {
         "Datetime": "2025-03-28 00:00:00+05:30",
@@ -75999,20 +76084,6 @@
         "Ticker": "JLHL.NS",
         "Name": "JUPITER LIFE LINE HOSP L",
         "Change": 3.8845739135614927
-    },
-    {
-        "Datetime": "2025-03-28 00:00:00+05:30",
-        "Open": 171.85000610351562,
-        "High": 172.6999969482422,
-        "Low": 158.0,
-        "Close": 164.14999389648438,
-        "Adj Close": 164.14999389648438,
-        "Volume": 72222.0,
-        "Dividends": 0.0,
-        "Stock Splits": 0.0,
-        "Ticker": "UGROCAP.BO",
-        "Name": "Ugro Capital Ltd",
-        "Change": -2.898556088031071
     },
     {
         "Datetime": "2025-03-28 00:00:00+05:30",
@@ -78262,7 +78333,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "SHRINIWAS.BO",
-        "Name": "Shri Niwas Leasing And Finance Ltd",
+        "Name": "Unknown",
         "Change": -39.41109908427824
     },
     {
@@ -78319,7 +78390,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "ISTRNETWK.BO",
-        "Name": "iStreet Network Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -79090,7 +79161,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "INTETHR.BO",
-        "Name": "Integrated Thermoplastics Ltd",
+        "Name": "Unknown",
         "Change": 4.937156374418004
     },
     {
@@ -82074,7 +82145,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "AVASARA.BO",
-        "Name": "Avasara Finance Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
@@ -83614,6 +83685,20 @@
     },
     {
         "Datetime": "2025-03-28 00:00:00+05:30",
+        "Open": 0.9599999785423279,
+        "High": 0.9900000095367432,
+        "Low": 0.8500000238418579,
+        "Close": 0.9300000071525574,
+        "Adj Close": 0.9300000071525574,
+        "Volume": 107215.0,
+        "Dividends": 0.0,
+        "Stock Splits": 0.0,
+        "Ticker": "PANAFIC.BO",
+        "Name": "Panafic Industrials Ltd",
+        "Change": -4.123713430708066
+    },
+    {
+        "Datetime": "2025-03-28 00:00:00+05:30",
         "Open": 2.799999952316284,
         "High": 3.0,
         "Low": 2.799999952316284,
@@ -84227,7 +84312,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "JPTSEC.BO",
-        "Name": "JPT Securities Ltd",
+        "Name": "Unknown",
         "Change": -4.920917521837927
     },
     {
@@ -84355,6 +84440,20 @@
         "Ticker": "YUKEN.BO",
         "Name": "Yuken India Ltd",
         "Change": 0.3487192600984705
+    },
+    {
+        "Datetime": "2025-03-28 00:00:00+05:30",
+        "Open": 379.04998779296875,
+        "High": 382.1000061035156,
+        "Low": 348.29998779296875,
+        "Close": 355.5,
+        "Adj Close": 355.5,
+        "Volume": 5466.0,
+        "Dividends": 0.0,
+        "Stock Splits": 0.0,
+        "Ticker": "5PAISA.BO",
+        "Name": "5paisa Capital Ltd",
+        "Change": -4.177897574123989
     },
     {
         "Datetime": "2025-03-28 00:00:00+05:30",
@@ -85069,7 +85168,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "GTEIT.BO",
-        "Name": "G-Tech Info-Training Ltd",
+        "Name": "Unknown",
         "Change": 4.999995091382332
     },
     {
@@ -85294,7 +85393,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "MHSGRMS.BO",
-        "Name": "Mahasagar Travels Ltd",
+        "Name": "Unknown",
         "Change": 4.817517201465652
     },
     {
@@ -85972,6 +86071,20 @@
         "Ticker": "EIHAHOTELS.BO",
         "Name": "EIH Associated Hotels Ltd",
         "Change": -2.4850894201426237
+    },
+    {
+        "Datetime": "2025-03-28 00:00:00+05:30",
+        "Open": 199.3000030517578,
+        "High": 203.0,
+        "Low": 192.0500030517578,
+        "Close": 194.75,
+        "Adj Close": 194.75,
+        "Volume": 3541.0,
+        "Dividends": 0.0,
+        "Stock Splits": 0.0,
+        "Ticker": "DPWIRES.BO",
+        "Name": "D.P. Wires Ltd",
+        "Change": -1.4672370280988698
     },
     {
         "Datetime": "2025-03-28 00:00:00+05:30",
@@ -88917,7 +89030,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "NNTL.BO",
-        "Name": "N2N Technologies Ltd",
+        "Name": "Unknown",
         "Change": -4.886208585941602
     },
     {
@@ -89989,6 +90102,20 @@
     },
     {
         "Datetime": "2025-03-28 00:00:00+05:30",
+        "Open": 705.0,
+        "High": 722.9500122070312,
+        "Low": 698.4500122070312,
+        "Close": 722.9500122070312,
+        "Adj Close": 722.9500122070312,
+        "Volume": 11750.0,
+        "Dividends": 0.0,
+        "Stock Splits": 0.0,
+        "Ticker": "RMC.BO",
+        "Name": "RMC Switchgears Ltd",
+        "Change": 1.438192763356161
+    },
+    {
+        "Datetime": "2025-03-28 00:00:00+05:30",
         "Open": 442.25,
         "High": 469.0,
         "Low": 442.25,
@@ -90603,6 +90730,20 @@
         "Ticker": "STANCAP.BO",
         "Name": "Standard Capital Markets Ltd",
         "Change": 1.960782480441495
+    },
+    {
+        "Datetime": "2025-03-28 00:00:00+05:30",
+        "Open": 13.0,
+        "High": 13.170000076293945,
+        "Low": 12.350000381469727,
+        "Close": 12.350000381469727,
+        "Adj Close": 12.350000381469727,
+        "Volume": 8427.0,
+        "Dividends": 0.0,
+        "Stock Splits": 0.0,
+        "Ticker": "SIMBHALS.BO",
+        "Name": "Simbhaoli Sugars Ltd",
+        "Change": -4.999997065617488
     },
     {
         "Datetime": "2025-03-28 00:00:00+05:30",
@@ -94332,7 +94473,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "DWL.BO",
-        "Name": "Dhruv Wellness Ltd",
+        "Name": "Unknown",
         "Change": -4.934683343095
     },
     {
@@ -96432,7 +96573,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "GOLCA.BO",
-        "Name": "Golden Carpets Ltd",
+        "Name": "Unknown",
         "Change": 4.132231274684204
     },
     {
@@ -96911,7 +97052,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "ABATEAS.BO",
-        "Name": "Abate As Industries Ltd",
+        "Name": "Unknown",
         "Change": 0.0
     },
     {
