@@ -19755,7 +19755,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "^NSEI",
-        "Name": "Unknown",
+        "Name": "NIFTY 50",
         "Change": -0.3077304410154484
     },
     {
@@ -20724,7 +20724,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "^BSESN",
-        "Name": "Unknown",
+        "Name": "SENSEX",
         "Change": -0.24676797176619247
     },
     {
@@ -69995,7 +69995,7 @@
         "Dividends": 0.0,
         "Stock Splits": 0.0,
         "Ticker": "^NSEBANK",
-        "Name": "Unknown",
+        "Name": "NIFTY BANK",
         "Change": -0.021327810722950678
     },
     {
