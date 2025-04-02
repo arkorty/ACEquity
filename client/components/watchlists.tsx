@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { parseCookies } from "nookies";
 import { ArrowRight, ArrowUp, ArrowDown } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import watchlists from "@/constants/WATCHLISTS.json";
 import stockData from "@/constants/TICKERS.json";
-import { StockData, Watchlist } from "@/types/watchlists";
+import { StockData } from "@/types/watchlists";
 
 function calculateAggregateChange(stocks: string[]): number {
   const changes = stocks.map((stock) => {
@@ -20,6 +21,63 @@ function calculateAggregateChange(stocks: string[]): number {
 }
 
 export function WatchlistsList() {
+  const [watchlists, setWatchlists] = useState<
+    { uuid: string; name: string; stocks: string[] }[]
+  >([]);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const cookies = parseCookies();
+      const userid = cookies.userid;
+      if (userid) {
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                userid: userid,
+              },
+            }
+          );
+          const data = await response.json();
+          if (data.status === "success") {
+            const userWatchlists = await Promise.all(
+              data.response.watchlistIDs.map(async (id: string) => {
+                const watchlistResponse = await fetch(
+                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${id}`,
+                  {
+                    headers: {
+                      "Content-Type": "application/json",
+                      userid: userid,
+                    },
+                  }
+                );
+                const watchlistData = await watchlistResponse.json();
+                if (watchlistData.status === "success") {
+                  return {
+                    uuid: watchlistData.response.id,
+                    name: watchlistData.response.name,
+                    stocks: watchlistData.response.tickers,
+                  };
+                }
+                return null;
+              })
+            );
+
+            setWatchlists(
+              userWatchlists.filter((watchlist) => watchlist !== null)
+            );
+          }
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   return (
     <div>
       <div className="mb-4">

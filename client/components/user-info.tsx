@@ -9,7 +9,7 @@ const UserInfo: React.FC<{ user: User }> = ({ user }) => {
         <Image src="/cat.jpg" alt="Profile" width={160} height={160} className="rounded-full mb-4 w-5/6" />
         <div className="text-center">
           <h2 className="text-2xl font-bold">{user.fullname}</h2>
-          <p>@{user.username}</p> {/* Display username */}
+          <p className='font-bold'>{user.userid}</p>
           <p>{user.email}</p>
         </div>
       </div>

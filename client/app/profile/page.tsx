@@ -1,34 +1,220 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import UserInfo from "@/components/user-info";
 import PortfolioOverview from "@/components/portfolio-overview";
 import Holdings from "@/components/holdings";
 import RecentTransactions from "@/components/recent-transactions";
 import TradingInterface from "@/components/trading-interface";
+import { LoginPopup } from "@/components/login-popup";
+import { User } from "@/types/user";
+import { Portfolio } from "@/types/portfolio";
+import { Holding } from "@/types/holding";
+import { Transaction } from "@/types/transaction";
+import {
+  ToastProvider,
+  Toast,
+  ToastTitle,
+  ToastDescription,
+  ToastViewport,
+} from "@/components/ui/toast";
+import { setCookie, parseCookies } from "nookies"; // Import nookies for cookie management and parsing
 
 const ProfilePage = () => {
-  const user = {
-    username: "JohnDoe",
-    email: "john.doe@example.com",
-    fullname: "John Doe",
+  const [user, setUser] = useState<User | null>(null);
+  const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
+  const [holdings, setHoldings] = useState<Holding[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(true);
+  const [toasts, setToasts] = useState<
+    {
+      title: string;
+      description: string;
+      variant?: "default" | "destructive";
+    }[]
+  >([]);
+  const [reload, setReload] = useState(false); // State to signal reload
+
+  const addToast = (toast: {
+    title: string;
+    description: string;
+    variant?: "default" | "destructive";
+  }) => {
+    setToasts((prev) => [...prev, toast]);
   };
 
-  const portfolio = {
-    totalValue: 7500000,
-    cashBalance: 200000,
-    profitLoss: 500000,
-    currency: "INR",
+  const handleLogin = async (credentials: { userid: string }) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${credentials.userid}`
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch user data: ${response.statusText}`);
+      }
+      const data = await response.json();
+      setUser({
+        fullname: data.response.fullname,
+        email: data.response.email,
+        userid: credentials.userid,
+      });
+
+      // Save userid to cookies
+      setCookie(null, "userid", data.response.userid, {
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+        path: "/",
+      });
+
+      // Mock data for portfolio, holdings, and transactions
+      setPortfolio({
+        totalValue: 7500000,
+        cashBalance: 200000,
+        profitLoss: 500000,
+      });
+      setHoldings([
+        {
+          symbol: "RELIANCE",
+          shares: 50,
+          currentPrice: 2500,
+          totalValue: 125000,
+        },
+        {
+          symbol: "TCS",
+          shares: 30,
+          currentPrice: 3500,
+          totalValue: 105000,
+        },
+      ]);
+      setTransactions([
+        {
+          date: "2023-10-01",
+          symbol: "RELIANCE",
+          type: "Buy",
+          shares: 50,
+          price: 2500,
+        },
+        {
+          date: "2023-10-02",
+          symbol: "TCS",
+          type: "Buy",
+          shares: 30,
+          price: 3500,
+        },
+      ]);
+
+      // Close the login popup
+      setIsLoginPopupOpen(false);
+
+      // Signal the page to reload its state
+      setReload((prev) => !prev);
+    } catch (error) {
+      addToast({
+        title: "Error",
+        description:
+          "Failed to fetch user data. Please check your connection or try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const holdings = [
-    { symbol: "RELIANCE", shares: 50, currentPrice: 2500, totalValue: 125000, currency: "INR" },
-    { symbol: "TCS", shares: 30, currentPrice: 3500, totalValue: 105000, currency: "INR" },
-  ];
+  useEffect(() => {
+    const cookies = parseCookies();
+    const userid = cookies.userid;
 
-  const transactions = [
-    { date: "2023-10-01", symbol: "RELIANCE", type: "Buy", shares: 50, price: 2500 },
-    { date: "2023-10-02", symbol: "TCS", type: "Buy", shares: 30, price: 3500 },
-  ];
+    if (userid) {
+      const autoLogin = async () => {
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`);
+          if (!response.ok) {
+            throw new Error(
+              `Failed to fetch user data: ${response.statusText}`
+            );
+          }
+          const data = await response.json();
+          setUser({
+            fullname: data.response.fullname,
+            email: data.response.email,
+            userid: data.response.userid,
+          });
+
+          // Mock data for portfolio, holdings, and transactions
+          setPortfolio({
+            totalValue: 7500000,
+            cashBalance: 200000,
+            profitLoss: 500000,
+          });
+          setHoldings([
+            {
+              symbol: "RELIANCE",
+              shares: 50,
+              currentPrice: 2500,
+              totalValue: 125000,
+            },
+            {
+              symbol: "TCS",
+              shares: 30,
+              currentPrice: 3500,
+              totalValue: 105000,
+            },
+          ]);
+          setTransactions([
+            {
+              date: "2023-10-01",
+              symbol: "RELIANCE",
+              type: "Buy",
+              shares: 50,
+              price: 2500,
+            },
+            {
+              date: "2023-10-02",
+              symbol: "TCS",
+              type: "Buy",
+              shares: 30,
+              price: 3500,
+            },
+          ]);
+
+          // Signal the page to reload its state
+          setReload((prev) => !prev);
+          setIsLoginPopupOpen(false);
+        } catch (error) {
+          addToast({
+            title: "Error",
+            description:
+              "Failed to fetch user data. Please check your connection or try again later.",
+            variant: "destructive",
+          });
+        }
+      };
+
+      autoLogin();
+    }
+  }, [reload]); // Add reload as a dependency
+
+  if (!user) {
+    return (
+      <>
+        <ToastProvider>
+          {toasts.map((toast, index) => (
+            <Toast key={index} variant={toast.variant}>
+              <ToastTitle>{toast.title}</ToastTitle>
+              <ToastDescription>{toast.description}</ToastDescription>
+            </Toast>
+          ))}
+          <ToastViewport />
+        </ToastProvider>
+        <LoginPopup
+          isOpen={isLoginPopupOpen}
+          onLogin={handleLogin}
+          onCancel={() =>
+            addToast({
+              title: "Login Required",
+              description: "Login is required to proceed.",
+              variant: "destructive",
+            })
+          }
+        />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen p-4">
@@ -52,7 +238,7 @@ const ProfilePage = () => {
           {/* UserInfo - Tall sidebar on right (unchanged position) */}
           <div className="col-span-12 md:col-span-4 lg:col-span-3 row-span-2">
             <div className="rounded-xl shadow-sm h-full">
-              <PortfolioOverview portfolio={portfolio} />
+              {portfolio && <PortfolioOverview portfolio={portfolio} />}
             </div>
           </div>
 

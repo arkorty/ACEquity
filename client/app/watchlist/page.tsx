@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,28 +12,168 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import watchlistsData from "@/constants/WATCHLISTS.json";
 import stockData from "@/constants/TICKERS.json";
-import { v4 as uuidv4 } from "uuid";
+import { parseCookies } from "nookies";
+import { Trash } from "lucide-react"; // Import Trash icon
 
 export default function WatchlistPage() {
-  const [watchlists, setWatchlists] = useState(watchlistsData);
+  const [watchlists, setWatchlists] = useState<
+    { uuid: string; name: string; stocks: string[] }[]
+  >([]);
   const [newWatchlist, setNewWatchlist] = useState("");
   const router = useRouter();
 
-  const addWatchlist = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const cookies = parseCookies();
+      const userid = cookies.userid;
+      if (userid) {
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                userid: userid,
+              },
+            }
+          );
+          const data = await response.json();
+          if (data.status === "success") {
+            // Fetch and map watchlists correctly
+            const userWatchlists = await Promise.all(
+              data.response.watchlistIDs.map(async (id: string) => {
+                const watchlistResponse = await fetch(
+                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${id}`,
+                  {
+                    headers: {
+                      "Content-Type": "application/json",
+                      userid: userid,
+                    },
+                  }
+                );
+                const watchlistData = await watchlistResponse.json();
+                if (watchlistData.status === "success") {
+                  return {
+                    uuid: watchlistData.response.id,
+                    name: watchlistData.response.name,
+                    stocks: watchlistData.response.tickers,
+                  };
+                }
+                return null;
+              })
+            );
+
+            // Filter out any null values and set the watchlists
+            setWatchlists(
+              userWatchlists.filter((watchlist) => watchlist !== null)
+            );
+          }
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const addWatchlist = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newWatchlist && !watchlists.find((w) => w.name === newWatchlist)) {
-      setWatchlists([
-        ...watchlists,
-        { uuid: uuidv4(), name: newWatchlist, stocks: [] },
-      ]);
-      setNewWatchlist("");
+      const cookies = parseCookies();
+      const userid = cookies.userid;
+      if (userid) {
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                userid: userid,
+              },
+              body: JSON.stringify({
+                name: newWatchlist,
+                tickers: [],
+              }),
+            }
+          );
+          const data = await response.json();
+          if (data.status === "success") {
+            setWatchlists([
+              ...watchlists,
+              { uuid: data.response.id, name: newWatchlist, stocks: [] },
+            ]);
+            setNewWatchlist("");
+          }
+        } catch (error) {
+          console.error("Failed to add watchlist:", error);
+        }
+      }
     }
   };
 
-  const viewWatchlist = (uuid: string) => {
-    router.push(`/watchlist/${uuid}`);
+  const viewWatchlist = async (uuid: string) => {
+    const cookies = parseCookies();
+    const userid = cookies.userid;
+    if (userid) {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${uuid}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              userid: userid,
+            },
+          }
+        );
+        const data = await response.json();
+        if (data.status === "success") {
+          const { tickers } = data.response;
+
+          // Fetch stock data for the tickers
+          const relevantStocks = tickers.map((ticker: string) => {
+            const stockInfo = stockData.find(
+              (stock) => stock.Ticker === ticker
+            );
+            return stockInfo || { Ticker: ticker, Name: "Unknown", Change: 0 };
+          });
+
+          // Navigate to the watchlist page with fetched data
+          router.push(`/watchlist/${uuid}`);
+        }
+      } catch (error) {
+        console.error("Failed to fetch watchlist details:", error);
+      }
+    }
+  };
+
+  const deleteWatchlist = async (uuid: string) => {
+    const cookies = parseCookies();
+    const userid = cookies.userid;
+    if (userid) {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${uuid}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              userid: userid,
+            },
+          }
+        );
+        const data = await response.json();
+        if (data.status === "success") {
+          setWatchlists(
+            watchlists.filter((watchlist) => watchlist.uuid !== uuid)
+          );
+        }
+      } catch (error) {
+        console.error("Failed to delete watchlist:", error);
+      }
+    }
   };
 
   const calculateAggregateChange = (stocks: string[]) => {
@@ -50,7 +190,7 @@ export default function WatchlistPage() {
   };
 
   return (
-    <div>
+    <div className="py-2">
       <h1 className="text-3xl font-bold mb-6">Your Watchlist</h1>
       <form onSubmit={addWatchlist} className="flex space-x-2 mb-4">
         <Input
@@ -74,15 +214,35 @@ export default function WatchlistPage() {
             {watchlists.map((watchlist, index) => (
               <TableRow
                 key={watchlist.uuid}
-                onClick={() => viewWatchlist(watchlist.uuid)}
                 className={`cursor-pointer ${
                   index % 2 === 0 ? "bg-foreground/10" : "bg-background"
                 }`}
               >
-                <TableCell className="font-medium">{watchlist.name}</TableCell>
-                <TableCell>{watchlist.stocks.join(", ")}</TableCell>
-                <TableCell className={`${getChangeColor(calculateAggregateChange(watchlist.stocks))} text-right`}>
+                <TableCell
+                  className="font-medium"
+                  onClick={() => viewWatchlist(watchlist.uuid)}
+                >
+                  {watchlist.name}
+                </TableCell>
+                <TableCell onClick={() => viewWatchlist(watchlist.uuid)}>
+                  {watchlist.stocks.join(", ")}
+                </TableCell>
+                <TableCell
+                  className={`${getChangeColor(
+                    calculateAggregateChange(watchlist.stocks)
+                  )} text-right`}
+                  onClick={() => viewWatchlist(watchlist.uuid)}
+                >
                   {calculateAggregateChange(watchlist.stocks).toFixed(2)}%
+                </TableCell>
+                <TableCell className="flex justify-end">
+                  <Trash
+                    className="cursor-pointer text-red-500"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering row click
+                      deleteWatchlist(watchlist.uuid);
+                    }}
+                  />
                 </TableCell>
               </TableRow>
             ))}
@@ -98,4 +258,3 @@ export default function WatchlistPage() {
     </div>
   );
 }
-

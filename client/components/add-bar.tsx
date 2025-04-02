@@ -1,50 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Plus } from "lucide-react"; // Updated import
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import TICKERS from "@/constants/TICKERS.json";
 import Fuse from "fuse.js";
-import { useTheme } from "next-themes";
-import { Sankofa_Display } from "next/font/google";
 
-export function SearchBar() {
+export function AddBar({ onAdd }: { onAdd: (ticker: string) => void }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<{ Ticker: string; Name: string }[]>(
     []
   );
   const [highlightedIndex, setHighlightedIndex] = useState(-1); // Track highlighted index
-  const router = useRouter();
-  const { theme, setTheme } = useTheme();
 
   const fuse = new Fuse(TICKERS, {
     keys: ["Ticker", "Name"],
     threshold: 0.3,
   });
-
-  const navigateToIndexOrStock = (ticker: string) => {
-    if (ticker.startsWith("^")) {
-      const sanitizedTicker = ticker.replace('^', '');
-      router.push(`/index/${sanitizedTicker}`);
-    } else {
-      router.push(`/stock/${ticker}`);
-    }
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const stock = TICKERS.find(
-      (item) => item.Ticker.toLowerCase() === query.toLowerCase()
-    );
-    if (stock) {
-      navigateToIndexOrStock(stock.Ticker);
-    } else {
-      console.log("Stock not found");
-    }
-    setTheme(theme === "light" ? "dark" : "light");
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -69,28 +42,31 @@ export function SearchBar() {
     } else if (e.key === "ArrowUp") {
       setHighlightedIndex((prev) => Math.max(prev - 1, 0));
     } else if (e.key === "Enter" && highlightedIndex >= 0) {
-      e.preventDefault();
-      const selectedStock = results[highlightedIndex];
-      setQuery(selectedStock.Ticker);
-      setResults([]);
-      navigateToIndexOrStock(selectedStock.Ticker);
+      handleAdd(results[highlightedIndex].Ticker);
     }
+  };
+
+  const handleAdd = (ticker: string) => {
+    onAdd(ticker);
+    setQuery("");
+    setResults([]);
+    setHighlightedIndex(-1); // Reset highlighted index
   };
 
   return (
     <div className="relative w-full max-w-sm mx-auto">
-      <form onSubmit={handleSearch} className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2">
         <Input
           type="text"
-          placeholder="Search stocks..."
+          placeholder="Add stocks..."
           value={query}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown} // Add keydown handler
         />
-        <Button variant="outline" type="submit" size="icon">
-          <Search className="h-4 w-4" />
+        <Button variant="outline" size="icon" onClick={() => handleAdd(query)}>
+          <Plus className="h-4 w-4" /> {/* Updated icon */}
         </Button>
-      </form>
+      </div>
       {results.length > 0 && (
         <ul className="absolute top-full mt-2 w-full bg-white dark:bg-black border border-gray-300 dark:border-zinc-800 rounded-md shadow-lg z-10">
           {results.map((result, index) => (
@@ -101,11 +77,7 @@ export function SearchBar() {
                   ? "bg-gray-200 dark:bg-gray-600" // Highlight selected stock
                   : ""
               }`}
-              onClick={() => {
-                setQuery(result.Ticker);
-                setResults([]);
-                navigateToIndexOrStock(result.Ticker);
-              }}
+              onClick={() => handleAdd(result.Ticker)}
               onMouseEnter={() => setHighlightedIndex(index)} // Highlight on hover
             >
               {result.Ticker} - {result.Name}
