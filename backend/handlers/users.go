@@ -12,12 +12,17 @@ import (
 )
 
 const userIDLength = 6
-const alphanumeric = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const alphanumeric = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func generateUserID() string {
 	b := make([]byte, userIDLength)
-	for i := range b {
-		b[i] = alphanumeric[rand.Intn(len(alphanumeric))]
+
+	for i := 0; i < 3; i++ {
+		b[i] = alphanumeric[rand.Intn(26)]
+	}
+
+	for i := 3; i < 6; i++ {
+		b[i] = alphanumeric[26+rand.Intn(10)]
 	}
 	return string(b)
 }
@@ -30,7 +35,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	user.UserID = generateUserID()
 	user.WatchlistIDs = []string{}
-	user.HoldingIDs = []string{} // Initialize HoldingIDs
+	user.HoldingIDs = []string{}
 
 	watchlistIDsJSON, _ := json.Marshal(user.WatchlistIDs)
 	holdingIDsJSON, _ := json.Marshal(user.HoldingIDs)
