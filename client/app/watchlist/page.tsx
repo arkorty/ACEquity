@@ -206,7 +206,7 @@ export default function WatchlistPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Stocks</TableHead>
+              <TableHead className="hidden md:table-cell">Stocks</TableHead>
               <TableHead className="text-right">Change</TableHead>
             </TableRow>
           </TableHeader>
@@ -224,7 +224,10 @@ export default function WatchlistPage() {
                 >
                   {watchlist.name}
                 </TableCell>
-                <TableCell onClick={() => viewWatchlist(watchlist.uuid)}>
+                <TableCell
+                  className="hidden md:table-cell"
+                  onClick={() => viewWatchlist(watchlist.uuid)}
+                >
                   {watchlist.stocks.join(", ")}
                 </TableCell>
                 <TableCell

@@ -3,10 +3,12 @@
 // Import statements
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart2, Home, List, User } from "lucide-react";
+import { BarChart2, Home, List, LogOut, User, UserCircle } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useState } from "react";
+import { destroyCookie } from "nookies";
 
 // Navigation items array
 const navigation = [
@@ -20,6 +22,11 @@ const navigation = [
 export default function Header() {
   const pathname = usePathname();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
+  const handleLogout = () => {
+    destroyCookie(null, "userid");
+    window.location.href = "/";
+  };
 
   return (
     // Header container
@@ -71,7 +78,26 @@ export default function Header() {
         </div>
 
         {/* Dark Mode Toggle */}
-        <div>
+        <div className="flex items-center space-x-2">
+          {pathname === "/profile" ? (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleLogout}
+              className="relative flex items-center justify-center overflow-hidden"
+            >
+              <LogOut className="h-6 w-6" />
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => (window.location.href = "/profile")}
+              className="relative flex items-center justify-center overflow-hidden"
+            >
+              <UserCircle className="h-6 w-6" />
+            </Button>
+          )}
           <ModeToggle />
         </div>
       </div>

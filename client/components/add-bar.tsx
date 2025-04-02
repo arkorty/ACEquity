@@ -63,7 +63,17 @@ export function AddBar({ onAdd }: { onAdd: (ticker: string) => void }) {
           onChange={handleInputChange}
           onKeyDown={handleKeyDown} // Add keydown handler
         />
-        <Button variant="outline" size="icon" onClick={() => handleAdd(query)}>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => {
+            if (highlightedIndex >= 0) {
+              handleAdd(results[highlightedIndex].Ticker);
+            } else if (results.length > 0) {
+              handleAdd(results[0].Ticker);
+            }
+          }}
+        >
           <Plus className="h-4 w-4" /> {/* Updated icon */}
         </Button>
       </div>

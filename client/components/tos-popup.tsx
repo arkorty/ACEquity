@@ -47,12 +47,18 @@ const ToSPopup: React.FC<ToSPopupProps> = ({ isOpen, onAccept, onDecline }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onDecline}>
       {isOpen && <div className="fixed inset-0 backdrop-blur-sm z-50"></div>}
-      <DialogContent className="z-50 max-w-md mx-auto py-8 px-6 md:p-8">
+      <DialogContent
+        className="z-50 max-w-md mx-auto py-8 px-6 md:p-8"
+        aria-describedby="tos-description"
+      >
         <DialogHeader>
           <DialogTitle>Terms of Service</DialogTitle>
         </DialogHeader>
         <ScrollArea className="max-h-96 tos-scroll-area">
-          <DialogDescription className="text-primary/80 text-justify sm:mr-3">
+          <DialogDescription
+            id="tos-description"
+            className="text-primary/80 text-justify sm:mr-3"
+          >
             By accessing or using our experimental Stock Market Tracker{" "}
             <strong>ACEquity</strong>, you agree to be bound by these terms of
             Service. If you do not agree to these terms, please do not use the

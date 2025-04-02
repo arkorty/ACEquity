@@ -15,7 +15,8 @@ import {
 import stockData from "@/constants/TICKERS.json";
 import { parseCookies } from "nookies";
 import { AddBar } from "@/components/add-bar";
-import { Trash2 } from "lucide-react";
+import { Trash2, PenTool, Pencil, LucideSave, Ban } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export default function WatchlistDetails() {
   const [watchlist, setWatchlist] = useState<{
@@ -23,6 +24,8 @@ export default function WatchlistDetails() {
     name: string;
     stocks: { ticker: string; price: number; change: number }[];
   } | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState("");
   const router = useRouter();
   const { id } = useParams();
   const watchlistId = Array.isArray(id) ? id[0] : id;
@@ -176,6 +179,42 @@ export default function WatchlistDetails() {
     }
   };
 
+  const updateWatchlistName = async () => {
+    const cookies = parseCookies();
+    const userid = cookies.userid;
+    if (userid && watchlist) {
+      try {
+        const updatedWatchlist = {
+          uuid: watchlist.uuid,
+          name: newName,
+          tickers: watchlist.stocks.map((stock) => stock.ticker),
+        };
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${watchlist.uuid}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              userid: userid,
+            },
+            body: JSON.stringify(updatedWatchlist),
+          }
+        );
+
+        const data = await response.json();
+        if (data.status === "success") {
+          setWatchlist({ ...watchlist, name: newName });
+          setIsEditing(false);
+        } else {
+          console.error("Failed to update watchlist name:", data.message);
+        }
+      } catch (error) {
+        console.error("Error updating watchlist name:", error);
+      }
+    }
+  };
+
   if (!watchlist) {
     return <div>Loading...</div>;
   }
@@ -186,7 +225,41 @@ export default function WatchlistDetails() {
 
   return (
     <div className="py-2">
-      <h1 className="text-2xl font-bold mb-4">{watchlist.name}</h1>
+      <div className="flex items-center mb-4 min-h-[2.5rem]">
+        {isEditing ? (
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              className="border rounded px-1 py-0.5 text-sm"
+            />
+            <Button className="h-6 px-1 text-xs" onClick={updateWatchlistName}>
+              <LucideSave className="w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              className="h-6 px-1 text-xs bg-destructive"
+              onClick={() => setIsEditing(false)}
+            >
+              <Ban className="w-4" />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold">{watchlist.name}</h1>
+            <Button
+              className="h-6 px-1 text-xs"
+              onClick={() => {
+                setNewName(watchlist.name);
+                setIsEditing(true);
+              }}
+            >
+              <Pencil className="w-4" />
+            </Button>
+          </div>
+        )}
+      </div>
       <div className="mb-4">
         <AddBar onAdd={addStockToWatchlist} />
       </div>

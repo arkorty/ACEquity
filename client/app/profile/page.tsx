@@ -17,7 +17,7 @@ import {
   ToastDescription,
   ToastViewport,
 } from "@/components/ui/toast";
-import { setCookie, parseCookies } from "nookies"; // Import nookies for cookie management and parsing
+import { setCookie, parseCookies } from "nookies";
 
 const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -32,7 +32,7 @@ const ProfilePage = () => {
       variant?: "default" | "destructive";
     }[]
   >([]);
-  const [reload, setReload] = useState(false); // State to signal reload
+  const [reload, setReload] = useState(false);
 
   const addToast = (toast: {
     title: string;
@@ -57,13 +57,11 @@ const ProfilePage = () => {
         userid: credentials.userid,
       });
 
-      // Save userid to cookies
       setCookie(null, "userid", data.response.userid, {
-        maxAge: 30 * 24 * 60 * 60, // 30 days
+        maxAge: 30 * 24 * 60 * 60,
         path: "/",
       });
 
-      // Mock data for portfolio, holdings, and transactions
       setPortfolio({
         totalValue: 7500000,
         cashBalance: 200000,
@@ -100,10 +98,8 @@ const ProfilePage = () => {
         },
       ]);
 
-      // Close the login popup
       setIsLoginPopupOpen(false);
 
-      // Signal the page to reload its state
       setReload((prev) => !prev);
     } catch (error) {
       addToast({
@@ -122,7 +118,9 @@ const ProfilePage = () => {
     if (userid) {
       const autoLogin = async () => {
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`);
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`
+          );
           if (!response.ok) {
             throw new Error(
               `Failed to fetch user data: ${response.statusText}`
@@ -135,7 +133,6 @@ const ProfilePage = () => {
             userid: data.response.userid,
           });
 
-          // Mock data for portfolio, holdings, and transactions
           setPortfolio({
             totalValue: 7500000,
             cashBalance: 200000,
@@ -172,7 +169,6 @@ const ProfilePage = () => {
             },
           ]);
 
-          // Signal the page to reload its state
           setReload((prev) => !prev);
           setIsLoginPopupOpen(false);
         } catch (error) {
@@ -187,7 +183,7 @@ const ProfilePage = () => {
 
       autoLogin();
     }
-  }, [reload]); // Add reload as a dependency
+  }, [reload]);
 
   if (!user) {
     return (

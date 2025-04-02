@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-// Removed axios import
+
 import { setCookie } from "nookies";
 import {
   Dialog,
@@ -18,13 +18,18 @@ import {
   ToastViewport,
 } from "@/components/ui/toast";
 import { Input } from "@/components/ui/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 const LoginPopup: React.FC<LoginPopupProps> = ({
   isOpen,
   onLogin,
   onCancel,
 }) => {
-  const [isCreating, setIsCreating] = useState(false); // Track whether "Create" mode is active
+  const [isCreating, setIsCreating] = useState(false);
   const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
   const [userid, setUserid] = useState("");
@@ -47,7 +52,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
   const handleLogin = () => {
     if (userid) {
       onLogin({ userid });
-      onCancel(); // Close the popup after successful login
+      onCancel();
     } else {
       addToast({
         title: "Missing userid",
@@ -76,14 +81,14 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
           if (data.status === "success" && data.response.userid) {
             setCookie(null, "userid", data.response.userid, {
               path: "/",
-              maxAge: 30 * 24 * 60 * 60, // 30 days
+              maxAge: 30 * 24 * 60 * 60,
             });
             addToast({
               title: "User Created",
               description: `User ${fullname} has been created successfully.`,
             });
-            onLogin({ userid: data.response.userid }); // Log in with the returned userid
-            onCancel(); // Close the popup after successful creation and login
+            onLogin({ userid: data.response.userid });
+            onCancel();
           } else {
             addToast({
               title: "Error",
@@ -127,13 +132,16 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
       </ToastProvider>
 
       <Dialog open={isOpen} onOpenChange={onCancel}>
-        <DialogContent className="z-50 max-w-sm mx-auto py-8 px-6 md:p-8 overflow-visible">
+        <DialogContent
+          className="z-50 max-w-sm mx-auto py-8 px-6 md:p-8 overflow-visible"
+          aria-describedby="login-description"
+        >
           <DialogHeader>
             <DialogTitle className="mb-4">
               {isCreating ? "Create" : "Login"}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div id="login-description" className="space-y-4">
             {isCreating ? (
               <>
                 <div className="flex justify-center">
@@ -159,42 +167,60 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
               </>
             ) : (
               <div className="flex justify-center">
-                <Input
-                  type="text"
-                  placeholder="UserID"
+                <InputOTP
                   value={userid}
-                  onChange={(e) => setUserid(e.target.value)}
+                  onChange={(value) => {
+                    const upperValue = value.toUpperCase();
+                    setUserid(upperValue);
+                    if (upperValue.length === 6) {
+                      onLogin({ userid: upperValue });
+                      onCancel();
+                    }
+                  }}
                   maxLength={6}
-                  className="p-2 rounded-md w-full"
-                />
+                  pattern="[A-Z0-9]*"
+                  inputMode="text"
+                >
+                  <InputOTPGroup>
+                    {[...Array(6)].map((_, index) => (
+                      <InputOTPSlot
+                        key={index}
+                        index={index}
+                        className="text-foreground bg-background dark:text-foreground dark:bg-background dark:caret-foreground"
+                      />
+                    ))}
+                  </InputOTPGroup>
+                </InputOTP>
               </div>
             )}
           </div>
           <DialogFooter className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-4">
-            {isCreating ? (
+            {isCreating && (
               <Button
                 size="sm"
                 onClick={handleCreate}
-                className="focus-visible:ring-transparent"
+                className="focus-visible:ring-transparent hover:bg-foreground/70"
               >
                 Okay
+              </Button>
+            )}
+            {isCreating ? (
+              <Button
+                size="sm"
+                onClick={() => setIsCreating(!isCreating)}
+                className="focus-visible:ring-transparent text-foreground bg-red-500 hover:bg-red-600"
+              >
+                Cancel
               </Button>
             ) : (
               <Button
                 size="sm"
-                onClick={handleLogin}
-                className="focus-visible:ring-transparent hover:bg-foreground/70"
+                onClick={() => setIsCreating(!isCreating)}
+                className="focus-visible:ring-transparent text-foreground bg-purple-400 hover:bg-purple-600"
               >
-                Login
+                Create
               </Button>
             )}
-            <Button
-              size="sm"
-              onClick={() => setIsCreating(!isCreating)}
-              className="focus-visible:ring-transparent bg-amber-400 hover:bg-amber-600"
-            >
-              {isCreating ? "Cancel" : "Create"}
-            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
