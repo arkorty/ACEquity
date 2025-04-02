@@ -60,13 +60,16 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
   const handleCreate = async () => {
     if (fullname && email) {
       try {
-        const response = await fetch("${process.env.NEXT_PUBLIC_BACKEND_URL}/users", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ fullname, email }),
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/users`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ fullname, email }),
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();
