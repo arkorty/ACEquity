@@ -61,7 +61,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
 
         if (response.ok) {
           const data = await response.json();
-          if (data.status === "success" && data.response.userid === userid) {
+          if (data.status === "success" && data.response.userid) {
             onCancel();
             addToast({
               title: "Login Success",
@@ -225,6 +225,8 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
                     value={userid}
                     onChange={(value) => {
                       setUserid(value.toUpperCase());
+                    }}
+                    onComplete={(value) => {
                       if (value.length === 6) {
                         handleLogin();
                       }
