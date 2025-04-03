@@ -9,13 +9,6 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { useEffect, useState } from "react";
 import { destroyCookie, parseCookies, setCookie } from "nookies";
 import { LoginPopup } from "@/components/login-popup";
-import {
-  ToastProvider,
-  Toast,
-  ToastTitle,
-  ToastDescription,
-  ToastViewport,
-} from "@/components/ui/toast";
 
 const navigation = [
   { name: "Home", href: "/", icon: Home },
@@ -28,27 +21,12 @@ export default function Header() {
   const pathname = usePathname();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
-  const [toasts, setToasts] = useState<
-    {
-      title: string;
-      description: string;
-      variant?: "default" | "destructive";
-    }[]
-  >([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const cookies = parseCookies();
     setIsLoggedIn(!!cookies.userid);
   }, []);
-
-  const addToast = (toast: {
-    title: string;
-    description: string;
-    variant?: "default" | "destructive";
-  }) => {
-    setToasts((prev) => [...prev, toast]);
-  };
 
   const handleLogin = async (credentials: { userid: string }) => {
     try {
@@ -67,17 +45,8 @@ export default function Header() {
 
       setIsLoggedIn(true);
       setIsLoginPopupOpen(false);
-      addToast({
-        title: "Success",
-        description: "Logged in successfully.",
-      });
     } catch (error) {
-      addToast({
-        title: "Error",
-        description:
-          "Failed to log in. Please check your connection or try again later.",
-        variant: "destructive",
-      });
+      console.error("Failed to log in:", error);
     }
   };
 
@@ -161,17 +130,6 @@ export default function Header() {
           <ModeToggle />
         </div>
       </div>
-
-      {/* Toast Notifications */}
-      <ToastProvider>
-        {toasts.map((toast, index) => (
-          <Toast key={index} variant={toast.variant} className="px-8 md:py-11">
-            <ToastTitle>{toast.title}</ToastTitle>
-            <ToastDescription>{toast.description}</ToastDescription>
-          </Toast>
-        ))}
-        <ToastViewport className="md:h-full" />
-      </ToastProvider>
 
       {/* Login Popup */}
       <LoginPopup

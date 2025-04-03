@@ -49,11 +49,51 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
     setToasts((prev) => [...prev, toast]);
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (userid) {
-      onLogin({ userid });
-      onCancel();
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`,
+          {
+            method: "GET",
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status === "success" && data.response.userid === userid) {
+            onCancel();
+            addToast({
+              title: "Login Success",
+              description: `Welcome back, User ${userid}!`,
+            });
+            onLogin({ userid });
+          } else {
+            onCancel();
+            addToast({
+              title: "Login Failed",
+              description: "Invalid userid. Please try again.",
+              variant: "destructive",
+            });
+          }
+        } else {
+          onCancel();
+          addToast({
+            title: "Login Failed",
+            description: "User not found. Please try again.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        onCancel();
+        addToast({
+          title: "Login Failed",
+          description: "An error occurred during login. Please try again.",
+          variant: "destructive",
+        });
+      }
     } else {
+      onCancel();
       addToast({
         title: "Missing userid",
         description: "Please enter your userid.",
@@ -83,13 +123,14 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
               path: "/",
               maxAge: 30 * 24 * 60 * 60,
             });
+            onCancel();
             addToast({
               title: "User Created",
-              description: `User ${fullname} has been created successfully.`,
+              description: `User ${fullname} has been created.`,
             });
             onLogin({ userid: data.response.userid });
-            onCancel();
           } else {
+            onCancel();
             addToast({
               title: "Error",
               description: "Failed to retrieve user ID. Please try again.",
@@ -97,6 +138,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
             });
           }
         } else {
+          onCancel();
           addToast({
             title: "Error",
             description: "Failed to create user. Please try again.",
@@ -104,6 +146,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
           });
         }
       } catch (error) {
+        onCancel();
         addToast({
           title: "Error",
           description: "Failed to create user. Please try again.",
@@ -111,6 +154,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
         });
       }
     } else {
+      onCancel();
       addToast({
         title: "Missing Information",
         description: "Please enter your fullname and email.",
@@ -120,20 +164,24 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
   };
 
   return (
-    <>
+    <div>
       <ToastProvider>
         {toasts.map((toast, index) => (
-          <Toast key={index} variant={toast.variant}>
+          <Toast
+            key={index}
+            variant={toast.variant}
+            className="px-8 md:py-11 mb-2"
+          >
             <ToastTitle>{toast.title}</ToastTitle>
             <ToastDescription>{toast.description}</ToastDescription>
           </Toast>
         ))}
-        <ToastViewport />
+        <ToastViewport className="md:h-full" />
       </ToastProvider>
 
       <Dialog open={isOpen} onOpenChange={onCancel}>
         <DialogContent
-          className="z-50 max-w-sm mx-auto py-8 px-6 md:p-8 overflow-visible"
+          className="z-50 max-w-sm mx-auto py-4 px-6 md:py-6 md:px-8 overflow-visible"
           aria-describedby="login-description"
         >
           <DialogHeader>
@@ -143,7 +191,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
           </DialogHeader>
           <div id="login-description" className="space-y-4">
             {isCreating ? (
-              <>
+              <div className="space-y-2">
                 <div className="flex justify-center">
                   <Input
                     type="text"
@@ -164,37 +212,42 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
                     className="p-2 rounded-md w-full"
                   />
                 </div>
-              </>
+              </div>
             ) : (
-              <div className="flex justify-center">
-                <InputOTP
-                  value={userid}
-                  onChange={(value) => {
-                    const upperValue = value.toUpperCase();
-                    setUserid(upperValue);
-                    if (upperValue.length === 6) {
-                      onLogin({ userid: upperValue });
-                      onCancel();
-                    }
-                  }}
-                  maxLength={6}
-                  pattern="[A-Z0-9]*"
-                  inputMode="text"
-                >
-                  <InputOTPGroup>
-                    {[...Array(6)].map((_, index) => (
-                      <InputOTPSlot
-                        key={index}
-                        index={index}
-                        className="text-foreground bg-background dark:text-foreground dark:bg-background dark:caret-foreground"
-                      />
-                    ))}
-                  </InputOTPGroup>
-                </InputOTP>
+              <div className="space-y-4">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Enter your User ID to log in to your account.
+                  </p>
+                </div>
+                <div className="flex justify-center">
+                  <InputOTP
+                    value={userid}
+                    onChange={(value) => {
+                      setUserid(value.toUpperCase());
+                      if (value.length === 6) {
+                        handleLogin();
+                      }
+                    }}
+                    maxLength={6}
+                    pattern="[A-Z0-9]*"
+                    inputMode="text"
+                  >
+                    <InputOTPGroup>
+                      {[...Array(6)].map((_, index) => (
+                        <InputOTPSlot
+                          key={index}
+                          index={index}
+                          className="text-foreground bg-background dark:text-foreground dark:bg-background dark:caret-foreground"
+                        />
+                      ))}
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
               </div>
             )}
           </div>
-          <DialogFooter className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-4">
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2">
             {isCreating && (
               <Button
                 size="sm"
@@ -213,18 +266,23 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
                 Cancel
               </Button>
             ) : (
-              <Button
-                size="sm"
-                onClick={() => setIsCreating(!isCreating)}
-                className="focus-visible:ring-transparent text-foreground bg-purple-400 hover:bg-purple-600"
-              >
-                Create
-              </Button>
+              <div className="flex flex-col md:flex-row md:space-x-2 items-center">
+                <p className="text-sm text-muted-foreground text-center mb-2 md:mb-0">
+                  or create a new account
+                </p>
+                <Button
+                  size="sm"
+                  onClick={() => setIsCreating(!isCreating)}
+                  className="focus-visible:ring-transparent text-foreground bg-purple-400 hover:bg-purple-600"
+                >
+                  Create
+                </Button>
+              </div>
             )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };
 
