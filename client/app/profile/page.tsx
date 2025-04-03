@@ -18,8 +18,10 @@ import {
   ToastViewport,
 } from "@/components/ui/toast";
 import { setCookie, parseCookies } from "nookies";
+import { useRouter } from "next/navigation";
 
 const ProfilePage = () => {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [holdings, setHoldings] = useState<Holding[]>([]);
@@ -33,6 +35,12 @@ const ProfilePage = () => {
     }[]
   >([]);
   const [reload, setReload] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   const addToast = (toast: {
     title: string;
@@ -99,7 +107,6 @@ const ProfilePage = () => {
       ]);
 
       setIsLoginPopupOpen(false);
-
       setReload((prev) => !prev);
     } catch (error) {
       addToast({
@@ -112,6 +119,9 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
+    
+    if (typeof window === "undefined") return;
+    
     const cookies = parseCookies();
     const userid = cookies.userid;
 
@@ -185,9 +195,15 @@ const ProfilePage = () => {
     }
   }, [reload]);
 
+  
+  if (!hydrated) {
+    return null; 
+  }
+
+  
   if (!user) {
     return (
-      <>
+      <div>
         <ToastProvider>
           {toasts.map((toast, index) => (
             <Toast key={index} variant={toast.variant}>
@@ -200,20 +216,21 @@ const ProfilePage = () => {
         <LoginPopup
           isOpen={isLoginPopupOpen}
           onLogin={handleLogin}
-          onCancel={() =>
+          onCancel={() => {
             addToast({
               title: "Login Required",
               description: "Login is required to proceed.",
               variant: "destructive",
-            })
-          }
+            });
+            router.push("/");
+          }}
         />
-      </>
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-4">
+    <div className="p-4">
       <div className="max-w-7xl mx-auto">
         {/* Bento Grid Layout - Rearranged components */}
         <div className="grid grid-cols-12 gap-4">

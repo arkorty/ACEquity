@@ -199,7 +199,9 @@ export default function WatchlistPage() {
           value={newWatchlist}
           onChange={(e) => setNewWatchlist(e.target.value)}
         />
-        <Button type="submit">Add</Button>
+        <Button type="submit" disabled={!newWatchlist.trim()}>
+          Add
+        </Button>
       </form>
       {watchlists.length > 0 ? (
         <Table>

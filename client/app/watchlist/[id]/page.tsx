@@ -49,7 +49,6 @@ export default function WatchlistDetails() {
           if (data.status === "success") {
             const { name, tickers } = data.response;
 
-            // Fetch stock data for the tickers
             const stocks = tickers.map((ticker: string) => {
               const stockInfo = stockData.find(
                 (stock) => stock.Ticker === ticker
@@ -78,7 +77,6 @@ export default function WatchlistDetails() {
     const cookies = parseCookies();
     const userid = cookies.userid;
     if (userid && watchlist) {
-      // Check if the ticker already exists in the watchlist
       const isDuplicate = watchlist.stocks.some(
         (stock) => stock.ticker.toLowerCase() === ticker.toLowerCase()
       );
@@ -88,7 +86,6 @@ export default function WatchlistDetails() {
       }
 
       try {
-        // Recreate the watchlist body with the new ticker
         const updatedTickers = [
           ...watchlist.stocks.map((stock) => stock.ticker),
           ticker,
@@ -99,7 +96,6 @@ export default function WatchlistDetails() {
           tickers: updatedTickers,
         };
 
-        // Send a PUT request to update the watchlist
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${watchlist.uuid}`,
           {
@@ -121,7 +117,6 @@ export default function WatchlistDetails() {
             change: stockInfo ? stockInfo["Change"] : 0,
           };
 
-          // Update the local state with the new stock
           setWatchlist({
             ...watchlist,
             stocks: [...watchlist.stocks, newStock],
@@ -140,7 +135,6 @@ export default function WatchlistDetails() {
     const userid = cookies.userid;
     if (userid && watchlist) {
       try {
-        // Recreate the watchlist body without the removed ticker
         const updatedTickers = watchlist.stocks
           .map((stock) => stock.ticker)
           .filter((existingTicker) => existingTicker !== ticker);
@@ -150,7 +144,6 @@ export default function WatchlistDetails() {
           tickers: updatedTickers,
         };
 
-        // Send a PUT request to update the watchlist
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${watchlist.uuid}`,
           {
@@ -165,7 +158,6 @@ export default function WatchlistDetails() {
 
         const data = await response.json();
         if (data.status === "success") {
-          // Update the local state by removing the stock
           setWatchlist({
             ...watchlist,
             stocks: watchlist.stocks.filter((stock) => stock.ticker !== ticker),

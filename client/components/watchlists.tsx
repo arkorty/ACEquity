@@ -24,59 +24,94 @@ export function WatchlistsList() {
   const [watchlists, setWatchlists] = useState<
     { uuid: string; name: string; stocks: string[] }[]
   >([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserData = async () => {
       const cookies = parseCookies();
       const userid = cookies.userid;
-      if (userid) {
-        try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`,
-            {
-              headers: {
-                "Content-Type": "application/json",
-                userid: userid,
-              },
-            }
-          );
-          const data = await response.json();
-          if (data.status === "success") {
-            const userWatchlists = await Promise.all(
-              data.response.watchlistIDs.map(async (id: string) => {
-                const watchlistResponse = await fetch(
-                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${id}`,
-                  {
-                    headers: {
-                      "Content-Type": "application/json",
-                      userid: userid,
-                    },
-                  }
-                );
-                const watchlistData = await watchlistResponse.json();
-                if (watchlistData.status === "success") {
-                  return {
-                    uuid: watchlistData.response.id,
-                    name: watchlistData.response.name,
-                    stocks: watchlistData.response.tickers,
-                  };
-                }
-                return null;
-              })
-            );
+      if (!userid) {
+        setIsLoggedIn(false);
+        setLoading(false);
+        return;
+      }
+      setIsLoggedIn(true);
 
-            setWatchlists(
-              userWatchlists.filter((watchlist) => watchlist !== null)
-            );
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              userid: userid,
+            },
           }
-        } catch (error) {
-          console.error("Failed to fetch user data:", error);
+        );
+        const data = await response.json();
+        if (data.status === "success") {
+          const userWatchlists = await Promise.all(
+            data.response.watchlistIDs.map(async (id: string) => {
+              const watchlistResponse = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${id}`,
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    userid: userid,
+                  },
+                }
+              );
+              const watchlistData = await watchlistResponse.json();
+              if (watchlistData.status === "success") {
+                return {
+                  uuid: watchlistData.response.id,
+                  name: watchlistData.response.name,
+                  stocks: watchlistData.response.tickers,
+                };
+              }
+              return null;
+            })
+          );
+
+          setWatchlists(
+            userWatchlists.filter((watchlist) => watchlist !== null)
+          );
         }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUserData();
   }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <div>
+        <h2 className="text-lg font-semibold">Your Watchlists</h2>
+        <p className="text-center text-muted-foreground mt-4">
+          Log in to view your watchlists.
+        </p>
+      </div>
+    );
+  }
+
+  if (watchlists.length === 0) {
+    return (
+      <div>
+        <h2 className="text-lg text-center font-semibold">Your Watchlists</h2>
+        <p className="text-center text-muted-foreground mt-4">
+          You have no watchlists. Create one to get started!
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div>
