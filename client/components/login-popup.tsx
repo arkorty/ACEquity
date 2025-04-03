@@ -56,7 +56,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`,
           {
             method: "GET",
-          }
+          },
         );
 
         if (response.ok) {
@@ -65,7 +65,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
             onCancel();
             addToast({
               title: "Login Success",
-              description: `Welcome back, User ${userid}!`,
+              description: `Welcome back, ${data.response.fullname}!`,
             });
             onLogin({ userid });
           } else {
@@ -113,7 +113,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ fullname, email }),
-          }
+          },
         );
 
         if (response.ok) {

@@ -8,7 +8,7 @@ const UserInfo: React.FC<{ user: User }> = ({ user }) => {
     <div className="border shadow-md rounded-lg p-6 h-full">
       <div className="flex flex-col items-center mb-4">
         <Image
-          src="/cat.jpg"
+          src="/placeholder-user-pfp.jpg"
           alt="Profile"
           width={160}
           height={160}
