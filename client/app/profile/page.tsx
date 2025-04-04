@@ -229,43 +229,53 @@ const ProfilePage = () => {
     );
   }
 
+  const BlurOverlay = () => (
+    <div className="absolute inset-0 backdrop-blur-sm bg-opacity-70 flex items-center justify-center z-10 rounded-md">
+      <span className="text-xl font-bold">Coming Soon</span>
+    </div>
+  );
+
   return (
     <div className="p-4">
       <div className="max-w-7xl mx-auto">
         {/* Bento Grid Layout - Rearranged components */}
         <div className="grid grid-cols-12 gap-4">
-          {/* Holdings - Now at top left */}
-          <div className="col-span-12 md:col-span-12 lg:col-span-4">
+          {/* UserInfo - No blur */}
+          <div className="col-span-12 md:col-span-12 lg:col-span-4 relative">
             <div className="rounded-xl shadow-sm h-full">
               <UserInfo user={user} />
             </div>
           </div>
 
-          {/* TradingInterface - Now at top right */}
-          <div className="col-span-12 md:col-span-8 lg:col-span-5">
+          {/* TradingInterface - With blur */}
+          <div className="col-span-12 md:col-span-8 lg:col-span-5 relative">
             <div className="rounded-xl shadow-sm h-full">
               <TradingInterface />
+              <BlurOverlay />
             </div>
           </div>
 
-          {/* UserInfo - Tall sidebar on right (unchanged position) */}
-          <div className="col-span-12 md:col-span-4 lg:col-span-3 row-span-2">
+          {/* PortfolioOverview - With blur */}
+          <div className="col-span-12 md:col-span-4 lg:col-span-3 row-span-2 relative">
             <div className="rounded-xl shadow-sm h-full">
               {portfolio && <PortfolioOverview portfolio={portfolio} />}
+              <BlurOverlay />
             </div>
           </div>
 
-          {/* PortfolioOverview - Moved down to middle left */}
-          <div className="col-span-12 md:col-span-8 lg:col-span-9">
+          {/* Holdings - With blur */}
+          <div className="col-span-12 md:col-span-8 lg:col-span-9 relative">
             <div className="rounded-xl shadow-sm">
               <Holdings holdings={holdings} />
+              <BlurOverlay />
             </div>
           </div>
 
-          {/* RecentTransactions - Bottom spanning section (unchanged) */}
-          <div className="col-span-12">
+          {/* RecentTransactions - With blur */}
+          <div className="col-span-12 relative">
             <div className="rounded-xl shadow-sm">
               <RecentTransactions transactions={transactions} />
+              <BlurOverlay />
             </div>
           </div>
         </div>
