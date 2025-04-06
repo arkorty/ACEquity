@@ -14,6 +14,7 @@ const navigation = [
   { name: "Home", href: "/", icon: Home },
   { name: "Markets", href: "/markets", icon: BarChart2 },
   { name: "Watchlist", href: "/watchlist", icon: List, requiresAuth: true },
+  { name: "AI Analysis", href: "/analysis", icon: List, requiresAuth: true },
   { name: "Profile", href: "/profile", icon: User, requiresAuth: true },
 ];
 

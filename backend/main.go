@@ -11,6 +11,7 @@ import (
 
 	"acequity/db"
 	"acequity/handlers"
+	"acequity/proxy"
 )
 
 func main() {
@@ -53,5 +54,7 @@ func main() {
 	r.Put("/holdings", handlers.UpdateHolding)
 	r.Delete("/holdings/{id}", handlers.DeleteHolding)
 
-	http.ListenAndServe(fmt.Sprintf("%s", port), r)
+	r.Post("/proxy/gemini", proxy.HandleGeminiProxy)
+
+	http.ListenAndServe(port, r)
 }
