@@ -14,7 +14,7 @@ export function StockSearchBar({
   const [results, setResults] = useState<{ Ticker: string; Name: string }[]>(
     []
   );
-  const [highlightedIndex, setHighlightedIndex] = useState(-1); // Track highlighted index
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   const fuse = new Fuse(TICKERS, {
     keys: ["Ticker", "Name"],
@@ -30,7 +30,7 @@ export function StockSearchBar({
         .slice(0, 5)
         .map(({ item }: { item: { Ticker: string; Name: string } }) => item);
       setResults(result);
-      setHighlightedIndex(-1); // Reset highlighted index
+      setHighlightedIndex(-1);
     } else {
       setResults([]);
     }
@@ -41,12 +41,15 @@ export function StockSearchBar({
       setHighlightedIndex((prev) => Math.min(prev + 1, results.length - 1));
     } else if (e.key === "ArrowUp") {
       setHighlightedIndex((prev) => Math.max(prev - 1, 0));
-    } else if (e.key === "Enter" && highlightedIndex >= 0) {
+    } else if (e.key === "Enter") {
       e.preventDefault();
-      const selectedStock = results[highlightedIndex];
-      setQuery(selectedStock.Ticker);
-      setResults([]);
-      onSelect(selectedStock.Ticker); // Trigger onSelect callback
+      const selectedStock =
+        highlightedIndex >= 0 ? results[highlightedIndex] : results[0];
+      if (selectedStock) {
+        setQuery(selectedStock.Ticker);
+        setResults([]);
+        onSelect(selectedStock.Ticker);
+      }
     }
   };
 
@@ -57,7 +60,7 @@ export function StockSearchBar({
         placeholder="Search stocks..."
         value={query}
         onChange={handleInputChange}
-        onKeyDown={handleKeyDown} // Add keydown handler
+        onKeyDown={handleKeyDown}
       />
       {results.length > 0 && (
         <ul className="absolute top-full mt-2 w-full bg-white dark:bg-black border border-gray-300 dark:border-zinc-800 rounded-md shadow-lg z-10">
@@ -65,16 +68,14 @@ export function StockSearchBar({
             <li
               key={index}
               className={`px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 border-b last:border-b-0 ${
-                highlightedIndex === index
-                  ? "bg-gray-200 dark:bg-gray-600" // Highlight selected stock
-                  : ""
+                highlightedIndex === index ? "bg-gray-200 dark:bg-gray-600" : ""
               }`}
               onClick={() => {
                 setQuery(result.Ticker);
                 setResults([]);
-                onSelect(result.Ticker); // Trigger onSelect callback
+                onSelect(result.Ticker);
               }}
-              onMouseEnter={() => setHighlightedIndex(index)} // Highlight on hover
+              onMouseEnter={() => setHighlightedIndex(index)}
             >
               {result.Ticker} - {result.Name}
             </li>

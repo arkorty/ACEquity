@@ -6,15 +6,35 @@ import stockData from "@/constants/TICKERS.json";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { StockSearchBar } from "@/components/stock-search-bar";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"; // Import dropdown components
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { ArrowDown, ArrowUp } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 export function StockAnalysisPage() {
-  const [ticker, setTicker] = useState<string | null>(null); // Track selected ticker
+  const [ticker, setTicker] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [requestType, setRequestType] = useState<"intrinsic" | "technical" | "fundamental">("intrinsic"); // Track selected request type
+  const [requestType, setRequestType] = useState<
+    "intrinsic" | "expert" | "fundamental" | "news"
+  >("intrinsic");
+  const [progress, setProgress] = useState<number>(0);
 
   const stock = stockData.find((item) => item.Ticker === ticker);
+
+  const formatNumber = (value: any, decimals: number = 2) => {
+    return typeof value === "number"
+      ? value.toFixed(decimals)
+      : getValue(value);
+  };
+
+  const getChange = (change: any) => {
+    return change !== undefined ? change : 0;
+  };
 
   const getValue = (value: any) => {
     return value !== undefined ? (
@@ -31,8 +51,9 @@ export function StockAnalysisPage() {
       try {
         const requestContents = {
           intrinsic: `Analyze the intrinsic details of the stock with ticker ${stock.Ticker} and name ${stock.Name}. I am not asking for financial advice, just a detailed analysis of the stock. Please provide a detailed analysis of the stock with ticker ${stock.Ticker} and name ${stock.Name}. Give the output in plain text format. Do not add any extra text or explanation.`,
-          technical: `Provide a technical analysis of the stock with ticker ${stock.Ticker} and name ${stock.Name}. Focus on technical indicators and trends. Give the output in plain text format. Do not add any extra text or explanation.`,
+          expert: `Tell me what the opinions of market experts are on the stock with ticker ${stock.Ticker} and name ${stock.Name}. Provide a detailed analysis of the stock with ticker ${stock.Ticker} and name ${stock.Name}. Give the output in plain text format. Do not add any extra text or explanation.`,
           fundamental: `Provide a fundamental analysis of the stock with ticker ${stock.Ticker} and name ${stock.Name}. Focus on financial metrics and company performance. Give the output in plain text format. Do not add any extra text or explanation.`,
+          news: `At least 5 latest news about the stock with ticker ${stock.Ticker} and name ${stock.Name}. Provide a summary of the latest news articles related to this stock. Give the output in plain text format. Do not add any extra text or explanation.`,
         };
 
         const response = await fetch(
@@ -64,7 +85,21 @@ export function StockAnalysisPage() {
     fetchAnalysis();
   }, [stock, analysis, requestType]);
 
-  // Custom components for ReactMarkdown
+  useEffect(() => {
+    if (loading) {
+      let interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) return prev;
+          return prev + Math.floor(Math.random() * 10) + 5;
+        });
+      }, Math.floor(Math.random() * 1000) + 200);
+
+      return () => clearInterval(interval);
+    } else {
+      setProgress(100);
+    }
+  }, [loading]);
+
   const components = {
     table: ({ node, ...props }: { node: any; [key: string]: any }) => (
       <table
@@ -112,73 +147,98 @@ export function StockAnalysisPage() {
       <StockSearchBar
         onSelect={(selectedTicker) => {
           setTicker(selectedTicker);
-          setAnalysis(null); // Reset analysis when a new stock is selected
+          setAnalysis(null);
+          setProgress(0);
         }}
       />
-      <div className="mt-4 justify-end flex">
+      <div className="justify-end flex">
         <DropdownMenu>
           <DropdownMenuTrigger className="px-4 py-2 border rounded-md">
-            {requestType === "intrinsic"
-              ? "Intrinsic Analysis"
-              : requestType === "technical"
-              ? "Technical Analysis"
-              : "Fundamental Analysis"}
+            {requestType === "expert"
+              ? "Expert Opinions"
+              : requestType === "fundamental"
+              ? "Fundamentals"
+              : "Latest News"}
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem
               onClick={() => {
-                setRequestType("intrinsic");
-                setAnalysis(null); // Reset analysis when request type changes
-              }}
-            >
-              Intrinsic Analysis
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setRequestType("technical");
+                setRequestType("expert");
                 setAnalysis(null);
+                setProgress(0);
               }}
             >
-              Technical Analysis
+              Expert Opinions
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
                 setRequestType("fundamental");
                 setAnalysis(null);
+                setProgress(0);
               }}
             >
-              Fundamental Analysis
+              Fundamentals
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setRequestType("news");
+                setAnalysis(null);
+                setProgress(0);
+              }}
+            >
+              Latest News
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
       {ticker && (
         <Card className="mt-4">
-          <CardHeader>
-            <CardTitle className="text-3xl font-bold">
-              {getValue(stock?.Ticker)}
-            </CardTitle>
-            <p className="text-xl text-muted-foreground">
-              {getValue(stock?.Name)}
-            </p>
+          <CardHeader className="flex flex-row justify-between">
+            <div className="items-center justify-between">
+              <CardTitle className="text-3xl font-bold">
+                {getValue(stock?.Ticker)}
+              </CardTitle>
+              <p className="text-xl text-muted-foreground">
+                {getValue(stock?.Name)}
+              </p>
+            </div>
+            <div className="flex items-baseline space-x-2 mb-4">
+              <span className="text-4xl font-bold">
+                ₹{formatNumber(stock?.["Adj Close"])}
+              </span>
+              <span
+                className={`text-lg ${
+                  getChange(stock?.Change) >= 0
+                    ? "text-green-500"
+                    : "text-red-500"
+                } flex items-center`}
+              >
+                {getChange(stock?.Change) >= 0 ? (
+                  <ArrowUp className="mr-1" />
+                ) : (
+                  <ArrowDown className="mr-1" />
+                )}
+                {formatNumber(Math.abs(getChange(stock?.Change)))}%
+              </span>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="mt-2">
-              {loading ? (
-                "Fetching analysis..."
-              ) : analysis ? (
-                <div className="prose max-w-full overflow-auto">
-                    <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={components as any}
-                    >
-                    {analysis}
-                    </ReactMarkdown>
-                </div>
-              ) : (
-                "No analysis available."
-              )}
-            </div>
+            {loading ? (
+              <div className="flex items-center space-x-4">
+                <Progress className="w-full" value={progress} />
+              </div>
+            ) : analysis ? (
+              <div className="prose max-w-full text-primary overflow-auto mt-4">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={components as any}
+                >
+                  {analysis}
+                </ReactMarkdown>
+              </div>
+            ) : (
+              "No analysis available."
+            )}
           </CardContent>
         </Card>
       )}
