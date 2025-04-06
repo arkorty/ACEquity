@@ -151,7 +151,7 @@ export function StockAnalysisPage() {
           setProgress(0);
         }}
       />
-      <div className="justify-end flex">
+      <div className="flex mt-2">
         <DropdownMenu>
           <DropdownMenuTrigger className="px-4 py-2 border rounded-md">
             {requestType === "expert"
