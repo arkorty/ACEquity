@@ -6,12 +6,18 @@ import (
 	"io"
 	"net/http"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 func HandleGeminiProxy(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// Forward the request to GEMINI API
+	if err := godotenv.Load(); err != nil {
+		http.Error(w, "Failed to load environment variables", http.StatusInternalServerError)
+		return
+	}
+
 	reqBody := make(map[string]interface{})
 	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
