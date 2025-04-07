@@ -15,8 +15,13 @@ import (
 )
 
 func main() {
-	db.InitDB()
+	db.DB = db.LoadDB()
 	defer db.CloseDB()
+
+	if err := db.DB.Ping(); err != nil {
+		fmt.Println("Database load failed, initializing...")
+		db.InitDB()
+	}
 
 	port := ":8080"
 	fmt.Printf("Starting server on %s\n", port)
