@@ -193,7 +193,7 @@ export function StockAnalysisPage() {
       </div>
       {ticker && (
         <Card className="mt-4">
-          <CardHeader className="flex flex-row justify-between">
+          <CardHeader className="flex flex-col md:flex-row justify-between">
             <div className="items-center justify-between">
               <CardTitle className="text-3xl font-bold">
                 {getValue(stock?.Ticker)}
