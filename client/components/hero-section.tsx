@@ -1,20 +1,15 @@
 "use client";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import LT_INDEXES from "@/constants/TICKERS.json";
+import TICKER from "@/constants/TICKERS.json";
 import { useRouter } from "next/navigation";
-import { Index } from "@/types";
 
-const indices = LT_INDEXES.filter((index) => index.Ticker.startsWith("^")).map(
+const indices = TICKER.filter((index) => index.Ticker.startsWith("^")).map(
   (index) => ({
     name: index.Name,
     value: index.Close !== undefined ? parseFloat(index.Close.toFixed(2)) : NaN,
     change:
-      index.Close !== undefined && index.Open !== undefined
-        ? parseFloat(
-            (((index.Close - index.Open) / index.Open) * 100).toFixed(2)
-          )
-        : NaN,
+      index.Change !== undefined ? parseFloat(index.Change.toFixed(2)) : NaN,
     ticker: index.Ticker,
   })
 );
@@ -27,11 +22,9 @@ export function HeroSection() {
     router.push(`/index/${sanitizedTicker}`);
   };
 
-  // Function to format number with exactly 2 decimal places
   const formatWithTwoDecimals = (value: number): string => {
     if (isNaN(value)) return "Unavailable";
 
-    // Ensure value is a number and has exactly 2 decimal places
     return value.toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
