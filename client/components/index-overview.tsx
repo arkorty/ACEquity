@@ -68,16 +68,6 @@ export const IndexOverview: React.FC<IndexOverviewProps> = ({ ticker }) => {
             <p className="text-sm text-muted-foreground">Low</p>
             <p className="text-lg font-semibold">{formatNumber(index?.Low)}</p>
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Volume</p>
-            <p className="text-lg font-semibold">{getValue(index?.Volume)}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Turnover</p>
-            <p className="text-lg font-semibold">
-              {getValue(index?.Volume) * getValue(index?.["Adj Close"])}
-            </p>
-          </div>
         </div>
       </CardContent>
     </Card>

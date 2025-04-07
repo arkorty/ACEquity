@@ -45,12 +45,14 @@ export function StockOverview({ ticker }: { ticker: string }) {
             <p className="text-lg font-semibold">₹{formatNumber(stock?.Low)}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Market Cap</p>
-            <p className="text-lg font-semibold">{getValue(stock?.marketCap)}</p>
+            <p className="text-sm text-muted-foreground">Volume</p>
+            <p className="text-lg font-semibold">{getValue(stock?.Volume)}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">P/E Ratio</p>
-            <p className="text-lg font-semibold">{getValue(stock?.peRatio)}</p>
+            <p className="text-sm text-muted-foreground">Turnover</p>
+            <p className="text-lg font-semibold">
+              {getValue(stock?.Volume) * getValue(stock?.["Adj Close"])}
+            </p>
           </div>
         </div>
       </CardContent>
