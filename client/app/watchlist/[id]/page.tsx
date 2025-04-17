@@ -1,9 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -12,11 +10,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import stockData from "@/constants/TICKERS.json";
+import { AddBar } from "@/components/watchlist/AddBar";
+import { Ban, LucideSave, Pencil, Trash2 } from "lucide-react";
 import { parseCookies } from "nookies";
-import { AddBar } from "@/components/add-bar";
-import { Trash2, PenTool, Pencil, LucideSave, Ban } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { useRouter, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import stockData from "@/constants/TICKERS.json";
 
 export default function WatchlistDetails() {
   const [watchlist, setWatchlist] = useState<{

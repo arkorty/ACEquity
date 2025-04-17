@@ -1,7 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,8 +11,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import stockData from "@/constants/TICKERS.json";
+import { Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { parseCookies } from "nookies";
-import { Trash } from "lucide-react"; // Import Trash icon
+import { useState, useEffect } from "react";
 
 export default function WatchlistPage() {
   const [watchlists, setWatchlists] = useState<
@@ -40,7 +40,6 @@ export default function WatchlistPage() {
           );
           const data = await response.json();
           if (data.status === "success") {
-            // Fetch and map watchlists correctly
             const userWatchlists = await Promise.all(
               data.response.watchlistIDs.map(async (id: string) => {
                 const watchlistResponse = await fetch(
@@ -64,7 +63,6 @@ export default function WatchlistPage() {
               })
             );
 
-            // Filter out any null values and set the watchlists
             setWatchlists(
               userWatchlists.filter((watchlist) => watchlist !== null)
             );
@@ -132,7 +130,6 @@ export default function WatchlistPage() {
         if (data.status === "success") {
           const { tickers } = data.response;
 
-          // Fetch stock data for the tickers
           const relevantStocks = tickers.map((ticker: string) => {
             const stockInfo = stockData.find(
               (stock) => stock.Ticker === ticker
@@ -140,7 +137,6 @@ export default function WatchlistPage() {
             return stockInfo || { Ticker: ticker, Name: "Unknown", Change: 0 };
           });
 
-          // Navigate to the watchlist page with fetched data
           router.push(`/watchlist/${uuid}`);
         }
       } catch (error) {
@@ -244,7 +240,7 @@ export default function WatchlistPage() {
                   <Trash
                     className="cursor-pointer text-red-500"
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent triggering row click
+                      e.stopPropagation();
                       deleteWatchlist(watchlist.uuid);
                     }}
                   />

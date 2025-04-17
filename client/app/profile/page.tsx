@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import UserInfo from "@/components/user-info";
-import PortfolioOverview from "@/components/portfolio-overview";
-import Holdings from "@/components/holdings";
-import RecentTransactions from "@/components/recent-transactions";
-import TradingInterface from "@/components/trading-interface";
-import { LoginPopup } from "@/components/login-popup";
+import UserInfo from "@/components/profile/UserInfo";
+import PortfolioOverview from "@/components/profile/PortfolioOverview";
+import Holdings from "@/components/profile/Holdings";
+import RecentTransactions from "@/components/profile/RecentTransactions";
+import TradingInterface from "@/components/profile/TradingInterface";
+import { LoginPopup } from "@/components/profile/LoginPopup";
 import { User } from "@/types/user";
 import { Portfolio } from "@/types/portfolio";
 import { Holding } from "@/types/holding";

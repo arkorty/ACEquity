@@ -14,7 +14,7 @@ const indices = TICKER.filter((index) => index.Ticker.startsWith("^")).map(
   })
 );
 
-export function HeroSection() {
+export function PinnedIndexes() {
   const router = useRouter();
 
   const handleCardClick = (ticker: string) => {

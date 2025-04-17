@@ -2,10 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { IndexOverview } from '@/components/index-overview'
-import { PointsChart } from '@/components/points-chart'
+import { IndexOverview } from '@/components/index/IndexOverview'
+import { PointsChart } from '@/components/index/PointsChart'
 import Indexes from '@/constants/TICKERS.json'
-import { SearchBar } from '@/components/search-bar'
+import { SearchBar } from '@/components/SearchBar'
 
 export default function StockDetailsPage() {
   const router = useRouter()

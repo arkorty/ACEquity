@@ -2,10 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { StockOverview } from "@/components/stock-overview";
-import { PriceChart } from "@/components/price-chart";
+import { StockOverview } from "@/components/stock/StockOverview";
+import { PriceChart } from "@/components/stock/PriceChart";
 import Tickers from "@/constants/TICKERS.json";
-import { SearchBar } from "@/components/search-bar";
+import { SearchBar } from "@/components/SearchBar";
+import { RecentNews } from "@/components/stock/RecentNews";
 
 export default function StockDetailsPage() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function StockDetailsPage() {
       <SearchBar />
       <StockOverview ticker={ticker || ""} />
       <PriceChart ticker={ticker || ""} />
+      <RecentNews ticker={ticker || ""} />
     </div>
   );
 }

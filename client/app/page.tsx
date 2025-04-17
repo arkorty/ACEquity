@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SearchBar } from "@/components/search-bar";
-import { HeroSection } from "@/components/hero-section";
-import { TrendingStocks } from "@/components/trending-stocks";
-import { WatchlistsList } from "@/components/watchlists";
-import { ToSPopup } from "@/components/tos-popup";
+import { SearchBar } from "@/components/SearchBar";
+import { PinnedIndexes } from "@/components/home/PinnedIndexes";
+import { TrendingStocks } from "@/components/home/TrendingStocks";
+import { WatchlistsList } from "@/components/home/YourWatchlists";
+import { ToSPopup } from "@/components/TOSPopup";
 
 export default function Home() {
   const [isToSPopupOpen, setIsToSPopupOpen] = useState(false);
@@ -34,7 +34,7 @@ export default function Home() {
         onDecline={handleToSDecline}
       />
       <SearchBar />
-      <HeroSection />
+      <PinnedIndexes />
       <TrendingStocks />
       <WatchlistsList />
     </div>

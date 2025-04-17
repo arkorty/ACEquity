@@ -5,17 +5,16 @@ import { usePathname } from "next/navigation";
 import { BarChart2, Home, List, LogOut, User, UserCircle } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/mode-toggle";
+import { ModeToggle } from "@/components/ThemeToggle";
 import { useEffect, useState } from "react";
 import { destroyCookie, parseCookies, setCookie } from "nookies";
-import { LoginPopup } from "@/components/login-popup";
+import { LoginPopup } from "@/components/profile/LoginPopup";
 
 const navigation = [
-  { name: "Home", href: "/", icon: Home },
-  { name: "Markets", href: "/markets", icon: BarChart2 },
+  { name: "Markets", href: "/markets", icon: BarChart2, requiresAuth: true },
   { name: "Watchlist", href: "/watchlist", icon: List, requiresAuth: true },
-  { name: "AI Analysis", href: "/analysis", icon: List, requiresAuth: true },
-  { name: "Profile", href: "/profile", icon: User, requiresAuth: true },
+  { name: "Gen Assist", href: "/gen-assist", icon: List, requiresAuth: true },
+  { name: "Profile", href: "/profile", icon: User, requiresAuth: false },
 ];
 
 export default function Header() {
