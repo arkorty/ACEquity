@@ -10,13 +10,7 @@ import { User } from "@/types/user";
 import { Portfolio } from "@/types/portfolio";
 import { Holding } from "@/types/holding";
 import { Transaction } from "@/types/transaction";
-import {
-  ToastProvider,
-  Toast,
-  ToastTitle,
-  ToastDescription,
-  ToastViewport,
-} from "@/components/ui/toast";
+import { ToastProvider, Toast, ToastTitle, ToastDescription, ToastViewport } from "@/components/ui/toast";
 import { setCookie, parseCookies } from "nookies";
 import { useRouter } from "next/navigation";
 
@@ -26,7 +20,7 @@ const ProfilePage = () => {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(true);
+  const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
   const [toasts, setToasts] = useState<
     {
       title: string;
@@ -37,24 +31,17 @@ const ProfilePage = () => {
   const [reload, setReload] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
-  
   useEffect(() => {
     setHydrated(true);
   }, []);
 
-  const addToast = (toast: {
-    title: string;
-    description: string;
-    variant?: "default" | "destructive";
-  }) => {
+  const addToast = (toast: { title: string; description: string; variant?: "default" | "destructive" }) => {
     setToasts((prev) => [...prev, toast]);
   };
 
   const handleLogin = async (credentials: { userid: string }) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${credentials.userid}`
-      );
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${credentials.userid}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch user data: ${response.statusText}`);
       }
@@ -111,30 +98,24 @@ const ProfilePage = () => {
     } catch (error) {
       addToast({
         title: "Error",
-        description:
-          "Failed to fetch user data. Please check your connection or try again later.",
+        description: "Failed to fetch user data. Please check your connection or try again later.",
         variant: "destructive",
       });
     }
   };
 
   useEffect(() => {
-    
     if (typeof window === "undefined") return;
-    
+
     const cookies = parseCookies();
     const userid = cookies.userid;
 
     if (userid) {
       const autoLogin = async () => {
         try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`
-          );
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`);
           if (!response.ok) {
-            throw new Error(
-              `Failed to fetch user data: ${response.statusText}`
-            );
+            throw new Error(`Failed to fetch user data: ${response.statusText}`);
           }
           const data = await response.json();
           setUser({
@@ -184,23 +165,23 @@ const ProfilePage = () => {
         } catch (error) {
           addToast({
             title: "Error",
-            description:
-              "Failed to fetch user data. Please check your connection or try again later.",
+            description: "Failed to fetch user data. Please check your connection or try again later.",
             variant: "destructive",
           });
+          setIsLoginPopupOpen(true);
         }
       };
 
       autoLogin();
+    } else {
+      setIsLoginPopupOpen(true);
     }
   }, [reload]);
 
-  
   if (!hydrated) {
-    return null; 
+    return null;
   }
 
-  
   if (!user) {
     return (
       <div>

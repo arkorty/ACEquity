@@ -234,6 +234,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
                     maxLength={6}
                     pattern="[A-Z0-9]*"
                     inputMode="text"
+                    autoFocus={false}
                   >
                     <InputOTPGroup>
                       {[...Array(6)].map((_, index) => (
