@@ -56,7 +56,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`,
           {
             method: "GET",
-          },
+          }
         );
 
         if (response.ok) {
@@ -113,7 +113,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ fullname, email }),
-          },
+          }
         );
 
         if (response.ok) {
@@ -137,6 +137,13 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
               variant: "destructive",
             });
           }
+        } else if (response.status === 409) {
+          const data = await response.json();
+          onCancel();
+          addToast({
+            title: "Email Exists",
+            description: data.message || "User ID sent to your email address.",
+          });
         } else {
           onCancel();
           addToast({

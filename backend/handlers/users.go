@@ -5,6 +5,7 @@ import (
 	"acequity/models"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"math/rand"
 	"net/http"
 
@@ -33,13 +34,37 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		return
 	}
+
+	var existingUserID, existingFullname string
+	checkQuery := "SELECT userid, fullname FROM users WHERE email = ?"
+	err := db.DB.QueryRow(checkQuery, user.Email).Scan(&existingUserID, &existingFullname)
+
+	if err == nil {
+		// User exists, send email with their userID
+		emailErr := sendEmailToExistingUser(user.Email, existingUserID, existingFullname)
+		if emailErr != nil {
+			fmt.Printf("Failed to send email: %v\n", emailErr)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"status":  "success",
+			"message": "Email already registered. User ID sent to your email address.",
+		})
+		return
+	} else if err != sql.ErrNoRows {
+		http.Error(w, "Database error - "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	user.UserID = generateUserID()
 	user.WatchlistIDs = []string{}
 	user.HoldingIDs = []string{}
 
 	watchlistIDsJSON, _ := json.Marshal(user.WatchlistIDs)
 	holdingIDsJSON, _ := json.Marshal(user.HoldingIDs)
-	_, err := db.DB.Exec("INSERT INTO users (userid, fullname, email, watchlistIDs, holdings) VALUES (?, ?, ?, ?, ?)", user.UserID, user.Fullname, user.Email, watchlistIDsJSON, holdingIDsJSON)
+	_, err = db.DB.Exec("INSERT INTO users (userid, fullname, email, watchlistIDs, holdings) VALUES (?, ?, ?, ?, ?)", user.UserID, user.Fullname, user.Email, watchlistIDsJSON, holdingIDsJSON)
 	if err != nil {
 		http.Error(w, "Failed to create user - "+err.Error(), http.StatusInternalServerError)
 		return

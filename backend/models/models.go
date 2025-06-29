@@ -20,3 +20,7 @@ type User struct {
 	WatchlistIDs []string `json:"watchlistIDs"`
 	HoldingIDs   []string `json:"holdingIDs"`
 }
+
+type UserIDRequest struct {
+	Email string `json:"email"`
+}
