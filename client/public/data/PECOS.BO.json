@@ -233,5 +233,10 @@
     "Date": "2025-07-30",
     "Close": null,
     "Adj Close": null
+  },
+  {
+    "Date": "2025-08-04",
+    "Close": 187.5,
+    "Adj Close": 187.5
   }
 ]
