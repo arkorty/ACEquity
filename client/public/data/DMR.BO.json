@@ -458,5 +458,10 @@
     "Date": "2025-08-06",
     "Close": null,
     "Adj Close": null
+  },
+  {
+    "Date": "2025-08-07",
+    "Close": 147.0,
+    "Adj Close": 147.0
   }
 ]
