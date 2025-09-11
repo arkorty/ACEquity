@@ -850,8 +850,23 @@
     "Adj Close": 59.0
   },
   {
+    "Date": "2025-09-08",
+    "Close": null,
+    "Adj Close": null
+  },
+  {
+    "Date": "2025-09-09",
+    "Close": null,
+    "Adj Close": null
+  },
+  {
     "Date": "2025-09-10",
     "Close": 57.150001525878906,
     "Adj Close": 57.150001525878906
+  },
+  {
+    "Date": "2025-09-11",
+    "Close": 57.0,
+    "Adj Close": 57.0
   }
 ]
