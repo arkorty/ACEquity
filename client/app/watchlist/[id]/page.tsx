@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AddBar } from "@/components/watchlist/AddBar";
+import { WatchlistChart } from "@/components/watchlist/WatchlistChart";
 import { Ban, LucideSave, Pencil, Trash2 } from "lucide-react";
 import { parseCookies } from "nookies";
 import { useRouter, useParams } from "next/navigation";
@@ -254,6 +255,15 @@ export default function WatchlistDetails() {
       <div className="mb-4">
         <AddBar onAdd={addStockToWatchlist} />
       </div>
+      
+      {/* Watchlist Chart */}
+      <div className="mb-8 w-full flex justify-center">
+        <WatchlistChart 
+          tickers={watchlist.stocks.map(stock => stock.ticker)} 
+          watchlistName={watchlist.name}
+        />
+      </div>
+      
       <Table>
         <TableHeader>
           <TableRow>

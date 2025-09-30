@@ -17,7 +17,6 @@ const TradingViewHeatmap: React.FC<TradingViewHeatmapProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const widgetIdRef = useRef(`tradingview_${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
     let isMounted = true;
