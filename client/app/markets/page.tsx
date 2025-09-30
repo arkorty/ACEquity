@@ -9,11 +9,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import TradingViewHeatmap from "@/components/markets/TradingViewHeatmap";
+import MarketHeatmap from "@/components/markets/MarketHeatmap";
 
 const MarketsPage = () => {
   const [selectedMarket, setSelectedMarket] = useState<
-    "india" | "us" | undefined
+    "india" | "us"
   >("india");
 
   const marketOptions = [
@@ -33,7 +33,7 @@ const MarketsPage = () => {
         <CardHeader>
           <CardTitle>Market Heatmap</CardTitle>
           <CardDescription>
-            Interactive market heatmap powered by TradingView. Size represents
+            Interactive market heatmap visualization. Size represents
             market cap, color represents daily change.
           </CardDescription>
         </CardHeader>
@@ -41,8 +41,8 @@ const MarketsPage = () => {
           <ToggleGroup
             type="single"
             value={selectedMarket}
-            onValueChange={(value) =>
-              value && setSelectedMarket(value as "india" | "us" | undefined)
+            onValueChange={(value: string) =>
+              value && setSelectedMarket(value as "india" | "us")
             }
             className="justify-start"
           >
@@ -56,7 +56,7 @@ const MarketsPage = () => {
       </Card>
 
       <div className="w-full h-[700px] lg:h-[800px]">
-        <TradingViewHeatmap key={selectedMarket} market={selectedMarket} />
+        <MarketHeatmap key={selectedMarket} market={selectedMarket} />
       </div>
 
       {/* Quick Actions */}
@@ -64,28 +64,14 @@ const MarketsPage = () => {
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Having issues with the embedded heatmap?
+              Having issues with the heatmap display?
             </div>
             <div className="flex gap-2">
-              <a
-                href={
-                  selectedMarket === "india"
-                    ? "https://in.tradingview.com/heatmap/stock/"
-                    : selectedMarket === "us"
-                    ? "https://www.tradingview.com/heatmap/stock/?color=change&dataset=SPX500&group=sector&size=market_cap_basic"
-                    : "https://www.tradingview.com/heatmap/stock/?color=change&dataset=WORLD&group=country&size=market_cap_basic"
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-              >
-                Open in TradingView
-              </a>
               <button
                 onClick={() => window.location.reload()}
                 className="inline-flex items-center justify-center text-sm px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors"
               >
-                Refresh Widget
+                Refresh Heatmap
               </button>
             </div>
           </div>
@@ -121,8 +107,7 @@ const MarketsPage = () => {
               </li>
             </ul>
             <p className="mt-4 text-xs">
-              Market data provided by TradingView. Data is updated in real-time
-              during market hours.
+              Market data is updated in real-time during market hours.
             </p>
           </div>
         </CardContent>

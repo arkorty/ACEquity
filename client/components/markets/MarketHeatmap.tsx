@@ -3,13 +3,13 @@
 import React, { useEffect, useRef, memo } from 'react';
 import { useTheme } from 'next-themes';
 
-interface TradingViewHeatmapProps {
+interface HeatmapProps {
   market?: 'india' | 'us';
   dataSource?: string;
   grouping?: string;
 }
 
-const TradingViewHeatmap: React.FC<TradingViewHeatmapProps> = ({
+const MarketHeatmap: React.FC<HeatmapProps> = ({
   market,
   dataSource,
   grouping,
@@ -83,23 +83,17 @@ const TradingViewHeatmap: React.FC<TradingViewHeatmapProps> = ({
   }, [market, dataSource, grouping, theme]);
 
   return (
-    <div
-      ref={container}
-      className="h-full w-full"
-    >
-      <div className="h-full w-full border-none outline-none"></div>
-      <div className={`tradingview-widget-copyright ${theme === 'dark' ? 'bg-gray-900 text-gray-400' : 'bg-white text-gray-600'}`}>
-        <a
-          href="https://www.tradingview.com/heatmap/stock/"
-          rel="noopener nofollow"
-          target="_blank"
-          className={theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}
-        >
-          <span>Stock Heatmap by TradingView</span>
-        </a>
+    <div className="h-full w-full relative">
+      <div
+        ref={container}
+        className="h-full w-full"
+      >
+        <div className="h-full w-full border-none outline-none"></div>
       </div>
+      {/* Invisible overlay to prevent clicks */}
+      <div className="absolute inset-0 bg-transparent cursor-not-allowed z-10" />
     </div>
   );
 };
 
-export default memo(TradingViewHeatmap);
+export default memo(MarketHeatmap);
