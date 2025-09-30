@@ -78,7 +78,7 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
   
   const [stocksData, setStocksData] = useState<StockChartData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAggregated, setIsAggregated] = useState(false);
+  const [isAggregated, setIsAggregated] = useState(true);
 
   // Load data for all stocks in the watchlist
   useEffect(() => {

@@ -1,32 +1,31 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import TradingViewHeatmap from '@/components/markets/TradingViewHeatmap';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import TradingViewHeatmap from "@/components/markets/TradingViewHeatmap";
 
 const MarketsPage = () => {
-  const [selectedMarket, setSelectedMarket] = useState<'india' | 'us' | 'global'>('india');
+  const [selectedMarket, setSelectedMarket] = useState<
+    "india" | "us" | undefined
+  >("india");
 
   const marketOptions = [
-    { 
-      value: 'india' as const, 
-      label: 'India (NSE)', 
-      description: 'National Stock Exchange of India'
+    {
+      value: "india" as const,
+      label: "India",
     },
-    { 
-      value: 'us' as const, 
-      label: 'US Markets', 
-      description: 'NASDAQ and NYSE stocks'
-    },
-    { 
-      value: 'global' as const, 
-      label: 'Global Markets', 
-      description: 'International stock markets'
+    {
+      value: "us" as const,
+      label: "US",
     },
   ];
-
-  const currentMarket = marketOptions.find(market => market.value === selectedMarket);
 
   return (
     <div className="space-y-6">
@@ -34,14 +33,17 @@ const MarketsPage = () => {
         <CardHeader>
           <CardTitle>Market Heatmap</CardTitle>
           <CardDescription>
-            Interactive market heatmap powered by TradingView. Size represents market cap, color represents daily change.
+            Interactive market heatmap powered by TradingView. Size represents
+            market cap, color represents daily change.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <ToggleGroup
             type="single"
             value={selectedMarket}
-            onValueChange={(value) => value && setSelectedMarket(value as 'india' | 'us' | 'global')}
+            onValueChange={(value) =>
+              value && setSelectedMarket(value as "india" | "us" | undefined)
+            }
             className="justify-start"
           >
             {marketOptions.map((option) => (
@@ -50,23 +52,12 @@ const MarketsPage = () => {
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
-          <p className="text-sm text-muted-foreground mt-2">
-            {currentMarket?.description}
-          </p>
         </CardContent>
       </Card>
 
-      <Card className="w-full">
-        <CardContent className="p-1">
-          <div className="w-full h-[700px] lg:h-[800px]">
-            <TradingViewHeatmap
-              market={selectedMarket}
-              title={`${currentMarket?.label} Market Heatmap`}
-              height="100%"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="w-full h-[700px] lg:h-[800px]">
+        <TradingViewHeatmap key={selectedMarket} market={selectedMarket} />
+      </div>
 
       {/* Quick Actions */}
       <Card>
@@ -78,11 +69,11 @@ const MarketsPage = () => {
             <div className="flex gap-2">
               <a
                 href={
-                  selectedMarket === 'india' 
-                    ? 'https://in.tradingview.com/heatmap/stock/' 
-                    : selectedMarket === 'us'
-                    ? 'https://www.tradingview.com/heatmap/stock/?color=change&dataset=SPX500&group=sector&size=market_cap_basic'
-                    : 'https://www.tradingview.com/heatmap/stock/?color=change&dataset=WORLD&group=country&size=market_cap_basic'
+                  selectedMarket === "india"
+                    ? "https://in.tradingview.com/heatmap/stock/"
+                    : selectedMarket === "us"
+                    ? "https://www.tradingview.com/heatmap/stock/?color=change&dataset=SPX500&group=sector&size=market_cap_basic"
+                    : "https://www.tradingview.com/heatmap/stock/?color=change&dataset=WORLD&group=country&size=market_cap_basic"
                 }
                 target="_blank"
                 rel="noopener noreferrer"
@@ -104,16 +95,34 @@ const MarketsPage = () => {
       <Card>
         <CardContent className="p-4">
           <div className="text-sm text-muted-foreground space-y-2">
-            <p><strong>How to read the heatmap:</strong></p>
+            <p>
+              <strong>How to read the heatmap:</strong>
+            </p>
             <ul className="list-disc pl-5 space-y-1">
-              <li><strong>Size:</strong> Larger rectangles represent companies with higher market capitalization</li>
-              <li><strong>Color:</strong> Green indicates positive price change, red indicates negative price change</li>
-              <li><strong>Intensity:</strong> Darker colors represent larger percentage changes</li>
-              <li><strong>Grouping:</strong> Stocks are grouped by sectors for better visualization</li>
-              <li><strong>Interaction:</strong> Click on any stock rectangle to view detailed information</li>
+              <li>
+                <strong>Size:</strong> Larger rectangles represent companies
+                with higher market capitalization
+              </li>
+              <li>
+                <strong>Color:</strong> Green indicates positive price change,
+                red indicates negative price change
+              </li>
+              <li>
+                <strong>Intensity:</strong> Darker colors represent larger
+                percentage changes
+              </li>
+              <li>
+                <strong>Grouping:</strong> Stocks are grouped by sectors for
+                better visualization
+              </li>
+              <li>
+                <strong>Interaction:</strong> Click on any stock rectangle to
+                view detailed information
+              </li>
             </ul>
             <p className="mt-4 text-xs">
-              Market data provided by TradingView. Data is updated in real-time during market hours.
+              Market data provided by TradingView. Data is updated in real-time
+              during market hours.
             </p>
           </div>
         </CardContent>
