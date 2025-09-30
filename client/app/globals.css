@@ -92,3 +92,24 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* TradingView Heatmap Styling */
+.tradingview-heatmap-container .tradingview-widget-container {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+}
+
+.tradingview-heatmap-container .tradingview-widget-container__widget {
+  width: 100% !important;
+  height: calc(100% - 32px) !important;
+  min-width: 100% !important;
+}
+
+.tradingview-heatmap-container .tradingview-widget-container iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+}

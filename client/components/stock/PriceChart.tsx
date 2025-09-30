@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -28,15 +29,21 @@ ChartJS.register(
 );
 
 const timeframes = [
-  { label: "1D", days: 1 },
-  { label: "1W", days: 7 },
-  { label: "1M", days: 30 },
-  { label: "6M", days: 180 },
-  { label: "1Y", days: 365 },
+  { label: "1D", days: 1, range: "1d" },
+  { label: "1W", days: 7, range: "1w" },
+  { label: "1M", days: 30, range: "1m" },
+  { label: "6M", days: 180, range: "6m" },
+  { label: "1Y", days: 365, range: "1y" },
 ];
 
 export function PriceChart({ ticker }: { ticker: string }) {
-  const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[2]);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const range = searchParams.get("range") || "1m";
+
+  const selectedTimeframe = timeframes.find((tf) => tf.range === range) || timeframes[2];
+
   const { theme } = useTheme();
   const [borderColor, setBorderColor] = useState("rgb(75, 192, 192)");
   const [backgroundColor, setBackgroundColor] = useState(
@@ -61,7 +68,13 @@ export function PriceChart({ ticker }: { ticker: string }) {
       .then((data) => {
         setChartData(data);
       });
-  }, [ticker, selectedTimeframe]);
+  }, [ticker]);
+
+  const handleTimeframeChange = (newRange: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("range", newRange);
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   const filteredData = chartData.slice(-selectedTimeframe.days);
 
@@ -130,8 +143,8 @@ export function PriceChart({ ticker }: { ticker: string }) {
         {timeframes.map((tf) => (
           <Button
             key={tf.label}
-            variant={tf === selectedTimeframe ? "default" : "outline"}
-            onClick={() => setSelectedTimeframe(tf)}
+            variant={tf.range === range ? "default" : "outline"}
+            onClick={() => handleTimeframeChange(tf.range)}
           >
             {tf.label}
           </Button>

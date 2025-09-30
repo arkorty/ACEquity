@@ -1,18 +1,123 @@
-"use client"
+'use client';
 
-import Image from 'next/image';
-import MarketStall from '@/assets/market-stall.svg';
+import { useState } from 'react';
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import TradingViewHeatmap from '@/components/markets/TradingViewHeatmap';
 
 const MarketsPage = () => {
+  const [selectedMarket, setSelectedMarket] = useState<'india' | 'us' | 'global'>('india');
+
+  const marketOptions = [
+    { 
+      value: 'india' as const, 
+      label: 'India (NSE)', 
+      description: 'National Stock Exchange of India'
+    },
+    { 
+      value: 'us' as const, 
+      label: 'US Markets', 
+      description: 'NASDAQ and NYSE stocks'
+    },
+    { 
+      value: 'global' as const, 
+      label: 'Global Markets', 
+      description: 'International stock markets'
+    },
+  ];
+
+  const currentMarket = marketOptions.find(market => market.value === selectedMarket);
+
   return (
-    <div className="absolute inset-0 flex items-center justify-center">
-      <div className="text-center">
-        <Image
-          src={MarketStall}
-          alt="Market Stall"
-          className="w-64"></Image>
-        <h2 className="text-2xl font-bold text-zinc-700">Coming Soon</h2>
-      </div>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Market Heatmap</CardTitle>
+          <CardDescription>
+            Interactive market heatmap powered by TradingView. Size represents market cap, color represents daily change.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ToggleGroup
+            type="single"
+            value={selectedMarket}
+            onValueChange={(value) => value && setSelectedMarket(value as 'india' | 'us' | 'global')}
+            className="justify-start"
+          >
+            {marketOptions.map((option) => (
+              <ToggleGroupItem key={option.value} value={option.value}>
+                {option.label}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+          <p className="text-sm text-muted-foreground mt-2">
+            {currentMarket?.description}
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="w-full">
+        <CardContent className="p-1">
+          <div className="w-full h-[700px] lg:h-[800px]">
+            <TradingViewHeatmap
+              market={selectedMarket}
+              title={`${currentMarket?.label} Market Heatmap`}
+              height="100%"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Having issues with the embedded heatmap?
+            </div>
+            <div className="flex gap-2">
+              <a
+                href={
+                  selectedMarket === 'india' 
+                    ? 'https://in.tradingview.com/heatmap/stock/' 
+                    : selectedMarket === 'us'
+                    ? 'https://www.tradingview.com/heatmap/stock/?color=change&dataset=SPX500&group=sector&size=market_cap_basic'
+                    : 'https://www.tradingview.com/heatmap/stock/?color=change&dataset=WORLD&group=country&size=market_cap_basic'
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+              >
+                Open in TradingView
+              </a>
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center justify-center text-sm px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors"
+              >
+                Refresh Widget
+              </button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-4">
+          <div className="text-sm text-muted-foreground space-y-2">
+            <p><strong>How to read the heatmap:</strong></p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li><strong>Size:</strong> Larger rectangles represent companies with higher market capitalization</li>
+              <li><strong>Color:</strong> Green indicates positive price change, red indicates negative price change</li>
+              <li><strong>Intensity:</strong> Darker colors represent larger percentage changes</li>
+              <li><strong>Grouping:</strong> Stocks are grouped by sectors for better visualization</li>
+              <li><strong>Interaction:</strong> Click on any stock rectangle to view detailed information</li>
+            </ul>
+            <p className="mt-4 text-xs">
+              Market data provided by TradingView. Data is updated in real-time during market hours.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

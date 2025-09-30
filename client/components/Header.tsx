@@ -2,59 +2,82 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart2, Home, List, LogOut, User, UserCircle } from "lucide-react";
+import { toast } from "sonner";
+import { BarChart2, List, LogOut, User, UserCircle } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ThemeToggle";
-import { useEffect, useState } from "react";
-import { destroyCookie, parseCookies, setCookie } from "nookies";
+import { useState } from "react";
 import { LoginPopup } from "@/components/profile/LoginPopup";
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/lib/redux/store';
+import { logout, fetchUser } from '@/lib/redux/slices/authSlice';
 
 const navigation = [
   { name: "Markets", href: "/markets", icon: BarChart2, requiresAuth: true },
   { name: "Watchlist", href: "/watchlist", icon: List, requiresAuth: true },
-  { name: "Gen Assist", href: "/gen-assist", icon: List, requiresAuth: true },
-  { name: "Profile", href: "/profile", icon: User, requiresAuth: false },
+  { name: "AI Assistant", href: "/assistant", icon: List, requiresAuth: true },
+  { name: "Profile", href: "/profile", icon: User, requiresAuth: true },
 ];
 
 export default function Header() {
   const pathname = usePathname();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, isLoading } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
 
-  useEffect(() => {
-    const cookies = parseCookies();
-    setIsLoggedIn(!!cookies.userid);
-  }, []);
+  const handleLogout = () => {
+    dispatch(logout());
+    toast.success("You have been logged out.");
+    window.location.href = "/";
+  };
 
-  const handleLogin = async (credentials: { userid: string }) => {
+  const handleLogin = async (userid: string) => {
+    if (!userid) {
+      toast.error("Please enter your user ID.");
+      return;
+    }
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${credentials.userid}`
-      );
-      if (!response.ok) {
-        throw new Error(`Failed to fetch user data: ${response.statusText}`);
-      }
-      const data = await response.json();
-
-      setCookie(null, "userid", data.response.userid, {
-        maxAge: 30 * 24 * 60 * 60,
-        path: "/",
-      });
-
-      setIsLoggedIn(true);
+      const user = await dispatch(fetchUser(userid)).unwrap();
+      toast.success(`Welcome back, ${user.fullname}!`);
       setIsLoginPopupOpen(false);
     } catch (error) {
-      console.error("Failed to log in:", error);
+      toast.error("Login failed. Please check the user ID and try again.");
     }
   };
 
-  const handleLogout = () => {
-    destroyCookie(null, "userid");
-    setIsLoggedIn(false);
-    window.location.href = "/";
+  const handleCreateUser = async (fullname: string, email: string) => {
+    if (!fullname || !email) {
+      toast.error("Please enter your fullname and email.");
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fullname, email }),
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create user.");
+      }
+
+      await handleLogin(data.response.userid);
+      toast.success(`User ${fullname} created successfully!`);
+
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create user. Please try again.");
+    }
   };
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -89,7 +112,7 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium ml-6">
             {navigation
-              .filter((item) => !item.requiresAuth || isLoggedIn)
+              .filter((item) => !item.requiresAuth || !!user)
               .map((item) => (
                 <Link
                   key={item.href}
@@ -108,7 +131,7 @@ export default function Header() {
 
         {/* Dark Mode Toggle and Login/Logout */}
         <div className="flex items-center space-x-2">
-          {isLoggedIn ? (
+          {user ? (
             <Button
               variant="outline"
               size="icon"
@@ -134,8 +157,9 @@ export default function Header() {
       {/* Login Popup */}
       <LoginPopup
         isOpen={isLoginPopupOpen}
-        onLogin={handleLogin}
         onCancel={() => setIsLoginPopupOpen(false)}
+        onLogin={handleLogin}
+        onCreateUser={handleCreateUser}
       />
     </header>
   );
@@ -143,13 +167,12 @@ export default function Header() {
 
 function MobileNav({ closeNav }: { closeNav: () => void }) {
   const pathname = usePathname();
-  const cookies = parseCookies();
-  const isLoggedIn = !!cookies.userid;
+  const { user } = useSelector((state: RootState) => state.auth);
 
   return (
     <nav className="flex flex-col space-y-8 mt-16">
       {navigation
-        .filter((item) => !item.requiresAuth || isLoggedIn)
+        .filter((item) => !item.requiresAuth || !!user)
         .map((item) => (
           <Link
             key={item.href}

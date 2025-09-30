@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { parseCookies } from "nookies";
 import { ArrowRight, ArrowUp, ArrowDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import stockData from "@/constants/TICKERS.json";
 import { StockData } from "@/types/watchlists";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/redux/store';
 
 function calculateAggregateChange(stocks: string[]): number {
   const changes = stocks.map((stock) => {
@@ -24,27 +24,22 @@ export function WatchlistsList() {
   const [watchlists, setWatchlists] = useState<
     { uuid: string; name: string; stocks: string[] }[]
   >([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { user, isLoading } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const cookies = parseCookies();
-      const userid = cookies.userid;
-      if (!userid) {
-        setIsLoggedIn(false);
-        setLoading(false);
+      if (!user) {
+        setWatchlists([]);
         return;
       }
-      setIsLoggedIn(true);
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${user.userid}`,
           {
             headers: {
               "Content-Type": "application/json",
-              userid: userid,
+              userid: user.userid,
             },
           }
         );
@@ -57,7 +52,7 @@ export function WatchlistsList() {
                 {
                   headers: {
                     "Content-Type": "application/json",
-                    userid: userid,
+                    userid: user.userid,
                   },
                 }
               );
@@ -79,19 +74,19 @@ export function WatchlistsList() {
         }
       } catch (error) {
         console.error("Failed to fetch user data:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchUserData();
-  }, []);
+    if (!isLoading) {
+      fetchUserData();
+    }
+  }, [user, isLoading]);
 
-  if (loading) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!isLoggedIn) {
+  if (!user) {
     return (
       <div>
         <h2 className="text-lg font-semibold">Your Watchlists</h2>
