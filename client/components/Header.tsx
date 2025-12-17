@@ -7,6 +7,7 @@ import { BarChart2, List, LogOut, User, UserCircle } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ThemeToggle";
+import { ServerStatusIndicator } from "@/components/ServerStatusIndicator";
 import { useState } from "react";
 import { LoginPopup } from "@/components/profile/LoginPopup";
 import { useSelector, useDispatch } from 'react-redux';
@@ -130,7 +131,8 @@ export default function Header() {
         </div>
 
         {/* Dark Mode Toggle and Login/Logout */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
+          <ServerStatusIndicator />
           {user ? (
             <Button
               variant="outline"
