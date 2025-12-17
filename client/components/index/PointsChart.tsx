@@ -67,19 +67,9 @@ export function PointsChart({ ticker }: { ticker: string }) {
 
   useEffect(() => {
     fetch(`/data/${ticker}.json`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((data) => {
         setChartData(data);
-      })
-      .catch((error) => {
-        // In production, errors can be handled by an error reporting service
-        // For now, we simply let the chart remain empty on data fetch failure.
-        // console.error("Failed to fetch or parse chart data:", error);
       });
   }, [ticker]);
 
