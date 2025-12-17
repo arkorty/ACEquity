@@ -1,0 +1,47 @@
+name: Update Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 11 * * 1-5" # 5 PM IST (11:30 AM UTC) every weekday
+
+jobs:
+  update-stock-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Git LFS
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+
+      - name: Set Up Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install Python Dependencies
+        run: |
+          cd scraper
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Download and Export Stock Data
+        run: |
+          cd scraper
+          python src/main.py -n 8
+
+      - name: Commit and Push Changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+        run: |
+          git config user.name github-actions
+          git config user.email arkorty@gmail.com
+          git add client/constants/TICKERS.json client/public/data/*.json
+          git commit -m "chore: update data [ $(date -Idate -Ihours -Iminutes -Iseconds) ]" || echo "No changes to commit"
+          git push origin HEAD:main

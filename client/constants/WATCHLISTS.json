@@ -1,0 +1,82 @@
+[
+  {
+    "uuid": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Favourites",
+    "stocks": ["HDFCBANK.BO", "RELIANCE.BO", "SBIN.NS", "TATAMOTORS.BO", "ONGC.BO"]
+  },
+  {
+    "uuid": "550e8400-e29b-41d4-a716-446655440001",
+    "name": "Banking & Finance",
+    "stocks": [
+      "HDFCBANK.BO",
+      "ICICIBANK.BO",
+      "KOTAKBANK.NS",
+      "SBIN.NS",
+      "AXISBANK.NS"
+    ]
+  },
+  {
+    "uuid": "550e8400-e29b-41d4-a716-446655440002",
+    "name": "Pharmaceuticals",
+    "stocks": [
+      "SUNPHARMA.BO",
+      "CIPLA.BO",
+      "DRREDDY.NS",
+      "LUPIN.NS",
+      "AUROPHARMA.NS"
+    ]
+  },
+  {
+    "uuid": "550e8400-e29b-41d4-a716-446655440003",
+    "name": "Automobile",
+    "stocks": [
+      "MARUTI.BO",
+      "TATAMOTORS.BO",
+      "M&M.NS",
+      "BAJAJ-AUTO.NS",
+      "HEROMOTOCO.NS"
+    ]
+  },
+  {
+    "uuid": "550e8400-e29b-41d4-a716-446655440004",
+    "name": "Energy & Power",
+    "stocks": ["RELIANCE.BO", "ONGC.BO", "POWERGRID.NS", "NTPC.NS", "IOC.NS"]
+  },
+  {
+    "uuid": "550e8400-e29b-41d4-a716-446655440005",
+    "name": "Metals & Mining",
+    "stocks": [
+      "TATASTEEL.BO",
+      "HINDALCO.BO",
+      "JSWSTEEL.NS",
+      "VEDL.NS",
+      "SAIL.NS"
+    ]
+  },
+  {
+    "uuid": "550e8400-e29b-41d4-a716-446655440006",
+    "name": "FMCG & Consumer Goods",
+    "stocks": [
+      "HINDUNILVR.BO",
+      "ITC.BO",
+      "DABUR.NS",
+      "NESTLEIND.NS",
+      "BRITANNIA.NS"
+    ]
+  },
+  {
+    "uuid": "550e8400-e29b-41d4-a716-446655440007",
+    "name": "Infrastructure & Real Estate",
+    "stocks": ["L&T.BO", "DLF.BO", "GODREJPROP.NS", "NBCC.NS", "IRCON.NS"]
+  },
+  {
+    "uuid": "550e8400-e29b-41d4-a716-446655440008",
+    "name": "Telecom",
+    "stocks": ["BHARTIARTL.BO", "IDEA.BO", "MTNL.NS", "TATACOMM.NS", "HFCL.NS"]
+  },
+  {
+    "uuid": "550e8400-e29b-41d4-a716-446655440009",
+    "name": "IT & Software",
+    "stocks": ["TCS.BO", "INFY.BO", "WIPRO.NS", "HCLTECH.NS", "LTIM.NS"]
+  }
+]

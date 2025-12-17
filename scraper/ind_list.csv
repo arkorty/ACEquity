@@ -1,0 +1,28 @@
+Symbol,Series,Security Name,Band,Remarks
+^NSEI,INDEX,Nifty 50,N/A,NSE Benchmark
+^BSESN,INDEX,S&P BSE SENSEX,N/A,BSE Benchmark
+^NSEBANK,INDEX,Nifty Bank,N/A,NSE Sectoral
+^NSMIDCP,INDEX,Nifty Midcap 100,N/A,NSE Broad Market
+^BSESMLCAP,INDEX,S&P BSE SmallCap,N/A,BSE Broad Market
+^CNXIT,INDEX,Nifty IT,N/A,NSE Sectoral
+^CNXPHARMA,INDEX,Nifty Pharma,N/A,NSE Sectoral
+^CNXFMCG,INDEX,Nifty FMCG,N/A,NSE Sectoral
+^CNXAUTO,INDEX,Nifty Auto,N/A,NSE Sectoral
+^CNXMETAL,INDEX,Nifty Metal,N/A,NSE Sectoral
+^CNXREALTY,INDEX,Nifty Realty,N/A,NSE Sectoral
+^CNXPSUBANK,INDEX,Nifty PSU Bank,N/A,NSE Sectoral
+^CNXPSE,INDEX,Nifty PSE,N/A,NSE Thematic
+^CNXINFRA,INDEX,Nifty Infrastructure,N/A,NSE Thematic
+^CNXENERGY,INDEX,Nifty Energy,N/A,NSE Sectoral
+^CNX100,INDEX,Nifty 100,N/A,NSE Broad Market
+^CRSLDX,INDEX,Nifty 500,N/A,NSE Broad Market
+^BSE100,INDEX,S&P BSE 100,N/A,BSE Broad Market
+^BSE200,INDEX,S&P BSE 200,N/A,BSE Broad Market
+^BSE500,INDEX,S&P BSE 500,N/A,BSE Broad Market
+^BSEMIDCAP,INDEX,S&P BSE MidCap,N/A,BSE Broad Market
+^BSEBANK,INDEX,S&P BSE BANKEX,N/A,BSE Sectoral
+^CNXMEDIA,INDEX,Nifty Media,N/A,NSE Sectoral
+^CNXCOMMOD,INDEX,Nifty Commodities,N/A,NSE Thematic
+^CNXN50,INDEX,Nifty Next 50,N/A,NSE Broad Market
+^NSEMDCP,INDEX,Nifty Midcap 50,N/A,NSE Broad Market
+^CNXSERVICE,INDEX,Nifty Services Sector,N/A,NSE Thematic
