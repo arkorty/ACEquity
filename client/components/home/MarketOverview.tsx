@@ -67,9 +67,13 @@ export function MarketOverview() {
   const filteredNifty = getFilteredData(niftyData);
 
   const data = {
-    labels: filteredSensex.map((d) =>
-      new Date(d.Date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
-    ),
+    labels: filteredSensex.map((d) => {
+      const options: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
+      if (range === "1Y") {
+        options.year = "numeric";
+      }
+      return new Date(d.Date).toLocaleDateString("en-IN", options);
+    }),
     datasets: [
       {
         label: "SENSEX",

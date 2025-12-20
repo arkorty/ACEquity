@@ -193,7 +193,7 @@ export default function Header() {
 
         {/* Data Source Info (Desktop) */}
         {lastUpdated && (
-          <div className="hidden xl:flex items-center text-xs text-muted-foreground absolute left-1/2 transform -translate-x-1/2">
+          <div className={`hidden ${!user ? "md:flex" : "xl:flex"} items-center text-xs text-muted-foreground absolute left-1/2 transform -translate-x-1/2`}>
             <span>Data Source: Yahoo Finance</span>
             <span className="mx-2">•</span>
             <span>Last Updated: {lastUpdated}</span>
@@ -229,7 +229,7 @@ export default function Header() {
 
       {/* Data Source Info (Mobile/Tablet) */}
       {lastUpdated && (
-        <div className="xl:hidden w-full text-[10px] text-center text-muted-foreground py-1 bg-muted/20 border-t">
+        <div className={`${!user ? "md:hidden" : "xl:hidden"} w-full text-[10px] text-center text-muted-foreground py-1 bg-muted/20 border-t`}>
           <span>Data Source: Yahoo Finance</span>
           <span className="mx-2">•</span>
           <span>Last Updated: {lastUpdated}</span>

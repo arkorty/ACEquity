@@ -84,7 +84,7 @@ export function PointsChart({ ticker }: { ticker: string }) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     if (selectedTimeframe.range === '1y') {
-      return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: '2-digit' });
+      return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
     }
     return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
   };
