@@ -9695,6 +9695,20 @@
     },
     {
         "Datetime": "2025-12-19 00:00:00+05:30",
+        "Open": 131.5,
+        "High": 133.2100067138672,
+        "Low": 131.5,
+        "Close": 133.1999969482422,
+        "Adj Close": 133.1999969482422,
+        "Volume": 45.0,
+        "Dividends": 0.0,
+        "Stock Splits": 0.0,
+        "Ticker": "GOLDBND.BO",
+        "Name": "BANDHAN MUTUAL FUND - BANDHAN GOLD ETF",
+        "Change": -0.03752574240736398
+    },
+    {
+        "Datetime": "2025-12-19 00:00:00+05:30",
         "Open": 117.80000305175781,
         "High": 117.80000305175781,
         "Low": 117.80000305175781,
@@ -19860,20 +19874,6 @@
         "Ticker": "SADHNANIQ.BO",
         "Name": "SADHANA NITROCHEM LIMITED",
         "Change": 0.0
-    },
-    {
-        "Datetime": "2025-12-19 00:00:00+05:30",
-        "Open": 273.79998779296875,
-        "High": 274.8500061035156,
-        "Low": 263.5,
-        "Close": 264.5,
-        "Adj Close": 264.5,
-        "Volume": 230901.0,
-        "Dividends": 0.0,
-        "Stock Splits": 0.0,
-        "Ticker": "STYLEBAAZA.NS",
-        "Name": "BAAZAR STYLE RETAIL LIMITED",
-        "Change": -2.4345282017424625
     },
     {
         "Datetime": "2025-12-19 00:00:00+05:30",
