@@ -316,7 +316,7 @@ def run_save():
                          filename} for individual JSON: {e}", exc_info=True)
             skipped_ind_count += 1
             continue
-        if len(json_data) >= 14:
+        if len(json_data) >= 1:
             json_file_path = os.path.join(
                 PUBLIC_DATA_DIR, f"{ticker.replace('^', '')}.json")
             with open(json_file_path, "w", encoding="utf-8") as f:
@@ -325,7 +325,7 @@ def run_save():
         else:
             skipped_ind_count += 1
             logger.debug(f"Skipped individual JSON for {
-                         filename} (less than 14 records)")
+                         filename} (no data)")
 
     logger.info(f"SAVE  | Processed {
                 processed_ind_count} individual stock JSONs. Skipped: {skipped_ind_count}.")
