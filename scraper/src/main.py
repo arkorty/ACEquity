@@ -257,15 +257,21 @@ def run_save():
         file_path = os.path.join(STOCK_DATA_DIR, filename)
         headers, rows = sanitize_csv(file_path)
 
-        if len(rows) < 2:
+        if len(rows) < 1:
             skipped_insufficient += 1
             logger.debug(
-                f"Skipping {filename}: insufficient data ( < 2 rows).")
+                f"Skipping {filename}: insufficient data (empty).")
             continue
         try:
             latest_day = {k: v for k, v in zip(headers, rows[-1])}
-            previous_day = {k: v for k, v in zip(headers, rows[-2])}
-            for day in [latest_day, previous_day]:
+
+            days_to_process = [latest_day]
+            previous_day = None
+            if len(rows) >= 2:
+                previous_day = {k: v for k, v in zip(headers, rows[-2])}
+                days_to_process.append(previous_day)
+
+            for day in days_to_process:
                 for key, value in day.items():
                     try:
                         if value and value.replace(".", "", 1).isdigit():
@@ -276,7 +282,11 @@ def run_save():
             latest_day["Ticker"] = symbol
             latest_day["Name"] = symbol_names.get(symbol, "Unknown")
             adj_close_latest = float(latest_day.get("Adj Close", 0))
-            adj_close_previous = float(previous_day.get("Adj Close", 0))
+
+            adj_close_previous = 0.0
+            if previous_day:
+                adj_close_previous = float(previous_day.get("Adj Close", 0))
+
             latest_day["Change"] = ((adj_close_latest - adj_close_previous) /
                                     adj_close_previous * 100) if adj_close_previous != 0 else 0
             stock_data.append(latest_day)
