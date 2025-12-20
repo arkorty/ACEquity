@@ -123,25 +123,11 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Calculate normalized data (percentage change from first value) for better comparison
-  const calculateNormalizedData = (data: ChartData[]) => {
-    if (data.length === 0) return [];
-    
-    const filteredData = data.slice(-selectedTimeframe.days);
-    if (filteredData.length === 0) return [];
-    
-    const baseValue = filteredData[0]["Adj Close"];
-    return filteredData.map((item) => ({
-      ...item,
-      normalizedValue: ((item["Adj Close"] - baseValue) / baseValue) * 100,
-    }));
-  };
-
-  // Calculate aggregated data (average of all stocks)
+  // Calculate aggregated data (Sum of prices - Price Weighted)
   const calculateAggregatedData = () => {
     if (stocksData.length === 0) return [];
 
-    // Find all unique dates and sort them
+    // Find all unique dates in the selected range
     const allDates = new Set<string>();
     stocksData.forEach(stock => {
       stock.data.slice(-selectedTimeframe.days).forEach(item => {
@@ -150,25 +136,41 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
     });
 
     const sortedDates = Array.from(allDates).sort();
+    if (sortedDates.length === 0) return [];
 
-    // Calculate average value for each date
+    const startDate = sortedDates[0];
+    
+    // Map to store latest price for each stock
+    // Initialize with the price on or closest before the start date
+    const latestPrices = new Map<string, number>();
+
+    stocksData.forEach(stock => {
+      // Find the last data point before or on startDate
+      const relevantData = stock.data.filter(d => d.Date <= startDate);
+      if (relevantData.length > 0) {
+        latestPrices.set(stock.ticker, relevantData[relevantData.length - 1]["Adj Close"]);
+      }
+    });
+
     return sortedDates.map(date => {
-      const valuesForDate: number[] = [];
+      let totalValue = 0;
       
       stocksData.forEach(stock => {
         const item = stock.data.find(d => d.Date === date);
         if (item) {
-          valuesForDate.push(item["Adj Close"]);
+          latestPrices.set(stock.ticker, item["Adj Close"]);
+        }
+        
+        if (latestPrices.has(stock.ticker)) {
+          totalValue += latestPrices.get(stock.ticker)!;
         }
       });
 
-      if (valuesForDate.length === 0) return null;
+      if (totalValue === 0) return null;
 
-      const avgValue = valuesForDate.reduce((sum, val) => sum + val, 0) / valuesForDate.length;
-      
       return {
         Date: date,
-        "Adj Close": avgValue,
+        "Adj Close": totalValue,
       };
     }).filter(item => item !== null) as ChartData[];
   };
@@ -177,11 +179,18 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
   const prepareChartData = () => {
     if (stocksData.length === 0) return { labels: [], datasets: [] };
 
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString);
+      if (selectedTimeframe.range === '1y') {
+        return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: '2-digit' });
+      }
+      return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+    };
+
     if (isAggregated) {
-      // Show aggregated line
+      // Show aggregated line (Absolute Value)
       const aggregatedData = calculateAggregatedData();
-      const normalizedData = calculateNormalizedData(aggregatedData);
-      const labels = normalizedData.map((d) => new Date(d.Date).toLocaleDateString());
+      const labels = aggregatedData.map((d) => formatDate(d.Date));
       
       const isDark = theme === "dark";
       const color = {
@@ -190,8 +199,8 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
       };
 
       const datasets = [{
-        label: `${watchlistName} (Average)`,
-        data: normalizedData.map((d) => d.normalizedValue),
+        label: `${watchlistName} (Total Value)`,
+        data: aggregatedData.map((d) => d["Adj Close"]),
         borderColor: color.border,
         backgroundColor: color.background,
         borderWidth: 3,
@@ -202,24 +211,24 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
 
       return { labels, datasets };
     } else {
-      // Show individual lines
+      // Show individual lines (Raw Price)
       // Get the longest dataset to use for labels
       const longestDataset = stocksData.reduce((longest, current) => 
         current.data.length > longest.data.length ? current : longest
       );
       
-      const normalizedLongest = calculateNormalizedData(longestDataset.data);
-      const labels = normalizedLongest.map((d) => new Date(d.Date).toLocaleDateString());
+      const filteredLongest = longestDataset.data.slice(-selectedTimeframe.days);
+      const labels = filteredLongest.map((d) => formatDate(d.Date));
       
       const colors = generateColors(stocksData.length, theme);
 
       const datasets = stocksData.map((stock, index) => {
-        const normalizedData = calculateNormalizedData(stock.data);
+        const filteredData = stock.data.slice(-selectedTimeframe.days);
         const color = colors[index];
         
         return {
           label: stock.ticker,
-          data: normalizedData.map((d) => d.normalizedValue),
+          data: filteredData.map((d) => d["Adj Close"]),
           borderColor: color.border,
           backgroundColor: color.background,
           borderWidth: 2,
@@ -245,7 +254,7 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
       },
       title: {
         display: true,
-        text: `${watchlistName} - ${isAggregated ? 'Aggregated' : 'Individual'} Performance (% Change)`,
+        text: `${watchlistName} - ${isAggregated ? 'Aggregate Value' : 'Individual Stock Prices'} (₹)`,
         padding: {
           bottom: 20
         }
@@ -257,9 +266,8 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
           label: function (context: any) {
             const label = context.dataset.label || "";
             const value = Number(context.raw).toFixed(2);
-            const numValue = Number(value);
             const date = context.label;
-            return `${label}: ${numValue >= 0 ? '+' : ''}${value}% on ${date}`;
+            return `${label}: ₹${value} on ${date}`;
           },
         },
       },
@@ -278,7 +286,7 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
       y: {
         title: {
           display: true,
-          text: "Percentage Change (%)",
+          text: isAggregated ? "Total Value (₹)" : "Price (₹)",
         },
       },
     },
@@ -313,7 +321,7 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
+    <div className="w-full max-w-6xl mx-auto h-full flex flex-col">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
         <div className="flex items-center space-x-2">
           <Switch 
@@ -337,16 +345,10 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
           ))}
         </div>
       </div>
-      <div className="w-full h-96 flex items-center justify-center">
+      <div className="flex-grow w-full min-h-[400px]">
         <div className="w-full h-full">
           <Line data={chartData} options={options} />
         </div>
-      </div>
-      <div className="mt-4 text-sm text-muted-foreground text-center">
-        {isAggregated 
-          ? "Chart shows the average performance of all stocks in the watchlist (% change from start)"
-          : "Chart shows percentage change from the start of the selected time period for comparison"
-        }
       </div>
     </div>
   );

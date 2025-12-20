@@ -15,6 +15,8 @@ import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { parseCookies } from "nookies";
 import { useState, useEffect } from "react";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/redux/store';
 
 export default function WatchlistPage() {
   const [watchlists, setWatchlists] = useState<
@@ -22,8 +24,11 @@ export default function WatchlistPage() {
   >([]);
   const [newWatchlist, setNewWatchlist] = useState("");
   const router = useRouter();
+  const { user, isLoading } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
+    if (!user) return;
+    
     const fetchUserData = async () => {
       const cookies = parseCookies();
       const userid = cookies.userid;
@@ -173,21 +178,46 @@ export default function WatchlistPage() {
   };
 
   const calculateAggregateChange = (stocks: string[]) => {
-    const changes = stocks.map((stock) => {
+    if (stocks.length === 0) return 0;
+    
+    let currentTotalValue = 0;
+    let previousTotalValue = 0;
+
+    stocks.forEach((stock) => {
       const stockInfo = stockData.find((data) => data.Ticker === stock);
-      return stockInfo ? stockInfo.Change : 0;
+      if (stockInfo) {
+        const currentPrice = stockInfo["Adj Close"] || 0;
+        const changePercent = stockInfo.Change || 0;
+        // Calculate previous price: Price / (1 + Change%/100)
+        // Example: 110 / (1 + 10/100) = 110 / 1.1 = 100
+        const previousPrice = currentPrice / (1 + changePercent / 100);
+        
+        currentTotalValue += currentPrice;
+        previousTotalValue += previousPrice;
+      }
     });
-    const totalChange = changes.reduce((acc, change) => acc + change, 0);
-    return totalChange / stocks.length;
+
+    if (previousTotalValue === 0) return 0;
+
+    const aggregateChange = ((currentTotalValue - previousTotalValue) / previousTotalValue) * 100;
+    return aggregateChange;
   };
 
   const getChangeColor = (change: number) => {
     return change >= 0 ? "text-green-500" : "text-red-500";
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <div className="h-[calc(100vh-12rem)] flex items-center justify-center text-muted-foreground">Please log in to view your watchlists.</div>;
+  }
+
   return (
     <div className="py-2">
-      <h1 className="text-3xl font-bold mb-6">Your Watchlist</h1>
+      <h1 className="text-3xl font-bold mb-6">Your Watchlists</h1>
       <form onSubmit={addWatchlist} className="flex space-x-2 mb-4">
         <Input
           type="text"
@@ -234,7 +264,7 @@ export default function WatchlistPage() {
                   )} text-right`}
                   onClick={() => viewWatchlist(watchlist.uuid)}
                 >
-                  {calculateAggregateChange(watchlist.stocks).toFixed(2)}%
+                  {watchlist.stocks.length > 0 ? calculateAggregateChange(watchlist.stocks).toFixed(2) : 0}%
                 </TableCell>
                 <TableCell className="flex justify-end">
                   <Trash

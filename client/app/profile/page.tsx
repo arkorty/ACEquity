@@ -22,14 +22,11 @@ const ProfilePage = () => {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
 
   useEffect(() => {
     if (isLoading) return; // Do nothing while loading
 
     if (user) {
-      // If user is logged in, ensure popup is closed and load data
-      setIsLoginPopupOpen(false);
       // Mock data for now, as per original component
       setPortfolio({
         totalValue: 7500000,
@@ -44,63 +41,15 @@ const ProfilePage = () => {
         { date: "2023-10-01", symbol: "RELIANCE", type: "Buy", shares: 50, price: 2500 },
         { date: "2023-10-02", symbol: "TCS", type: "Buy", shares: 30, price: 3500 },
       ]);
-    } else {
-      // If not loading and no user, show the login popup
-      setIsLoginPopupOpen(true);
     }
   }, [user, isLoading]);
-
-  const handleLogin = async (userid: string) => {
-    if (!userid) {
-      toast.error("Please enter your user ID.");
-      return;
-    }
-    try {
-      const user = await dispatch(fetchUser(userid)).unwrap();
-      toast.success(`Welcome back, ${user.fullname}!`);
-    } catch (error) {
-      toast.error("Login failed. Please check the user ID and try again.");
-    }
-  };
-
-  const handleCreateUser = async (fullname: string, email: string) => {
-    if (!fullname || !email) {
-      toast.error("Please enter your fullname and email.");
-      return;
-    }
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fullname, email }),
-        }
-      );
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to create user.");
-      }
-      await handleLogin(data.response.userid);
-      toast.success(`User ${fullname} created successfully!`);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to create user. Please try again.");
-    }
-  };
 
   if (isLoading) {
     return <div>Loading...</div>; // Or a spinner component
   }
 
   if (!user) {
-    return (
-      <LoginPopup
-        isOpen={isLoginPopupOpen}
-        onCancel={() => router.push("/")}
-        onLogin={handleLogin}
-        onCreateUser={handleCreateUser}
-      />
-    );
+    return <div className="h-[calc(100vh-3.5rem)] flex items-center justify-center text-muted-foreground">Please log in to view your profile.</div>;
   }
 
   const BlurOverlay = () => (

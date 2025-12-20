@@ -87,14 +87,7 @@ export function WatchlistsList() {
   }
 
   if (!user) {
-    return (
-      <div>
-        <h2 className="text-lg font-semibold">Your Watchlists</h2>
-        <p className="text-center text-muted-foreground mt-4">
-          Log in to view your watchlists.
-        </p>
-      </div>
-    );
+    return null;
   }
 
   if (watchlists.length === 0) {

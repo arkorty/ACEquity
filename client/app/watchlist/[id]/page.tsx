@@ -216,100 +216,119 @@ export default function WatchlistDetails() {
   };
 
   return (
-    <div className="py-2">
-      <div className="flex items-center mb-4 min-h-[2.5rem]">
-        {isEditing ? (
-          <div className="flex items-center gap-2">
-            <Input
-              type="text"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              className="border rounded px-1 py-0.5 text-sm"
-            />
-            <Button className="h-6 px-1 text-xs" onClick={updateWatchlistName}>
-              <LucideSave className="w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              className="h-6 px-1 text-xs bg-destructive"
-              onClick={() => setIsEditing(false)}
-            >
-              <Ban className="w-4" />
-            </Button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold">{watchlist.name}</h1>
-            <Button
-              className="h-6 px-1 text-xs"
-              onClick={() => {
-                setNewName(watchlist.name);
-                setIsEditing(true);
-              }}
-            >
-              <Pencil className="w-4" />
-            </Button>
-          </div>
-        )}
-      </div>
-      <div className="mb-4">
-        <AddBar onAdd={addStockToWatchlist} />
-      </div>
-      
-      {/* Watchlist Chart */}
-      <div className="mb-8 w-full flex justify-center">
-        <WatchlistChart 
-          tickers={watchlist.stocks.map(stock => stock.ticker)} 
-          watchlistName={watchlist.name}
-        />
-      </div>
-      
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Ticker</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead className="text-right">Change</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {watchlist.stocks.map((stock, index) => (
-            <TableRow
-              key={stock.ticker}
-              className={`cursor-pointer ${
-                index % 2 === 0 ? "bg-foreground/10" : "bg-background"
-              }`}
-            >
-              <TableCell
-                className="font-medium"
-                onClick={() => viewStock(stock.ticker)}
-              >
-                {stock.ticker}
-              </TableCell>
-              <TableCell onClick={() => viewStock(stock.ticker)}>
-                ₹{stock.price.toFixed(2)}
-              </TableCell>
-              <TableCell
-                className={`${
-                  stock.change >= 0 ? "text-green-500" : "text-red-500"
-                } text-right`}
-                onClick={() => viewStock(stock.ticker)}
-              >
-                {stock.change.toFixed(2)}%
-              </TableCell>
-              <TableCell className="flex justify-end">
-                <Trash2
-                  className="w-5 text-red-500 cursor-pointer"
-                  onClick={() => removeStockFromWatchlist(stock.ticker)}
+    <div className="h-[calc(100vh-12rem)] w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8 h-full">
+        {/* Left Column: List and Controls */}
+        <div className="lg:col-span-1 flex flex-col h-full overflow-hidden">
+          <div className="shrink-0 mb-4 min-h-[2.5rem] flex items-center">
+            {isEditing ? (
+              <div className="flex items-center gap-2 w-full">
+                <Input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="border rounded px-2 py-1 text-sm h-8"
                 />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <Button className="mt-4" onClick={() => router.push("/watchlist")}>
-        Back to Watchlists
-      </Button>
+                <Button className="h-8 w-8 p-0" onClick={updateWatchlistName}>
+                  <LucideSave className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-8 w-8 p-0 bg-destructive/10 hover:bg-destructive/20 text-destructive"
+                  onClick={() => setIsEditing(false)}
+                >
+                  <Ban className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold truncate">{watchlist.name}</h1>
+                <Button
+                  variant="ghost"
+                  className="h-8 w-8 p-0"
+                  onClick={() => {
+                    setNewName(watchlist.name);
+                    setIsEditing(true);
+                  }}
+                >
+                  <Pencil className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+          
+          <div className="shrink-0 mb-4">
+            <AddBar onAdd={addStockToWatchlist} />
+          </div>
+
+          <div className="flex-1 overflow-y-auto min-h-0 border rounded-md">
+            <Table>
+              <TableHeader className="sticky top-0 bg-background z-10">
+                <TableRow>
+                  <TableHead>Ticker</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead className="text-right">Change</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {watchlist.stocks.map((stock, index) => (
+                  <TableRow
+                    key={stock.ticker}
+                    className={`cursor-pointer ${
+                      index % 2 === 0 ? "bg-muted/50" : "bg-background"
+                    }`}
+                  >
+                    <TableCell
+                      className="font-medium"
+                      onClick={() => viewStock(stock.ticker)}
+                    >
+                      {stock.ticker}
+                    </TableCell>
+                    <TableCell onClick={() => viewStock(stock.ticker)}>
+                      ₹{stock.price.toFixed(2)}
+                    </TableCell>
+                    <TableCell
+                      className={`${
+                        stock.change >= 0 ? "text-green-500" : "text-red-500"
+                      } text-right`}
+                      onClick={() => viewStock(stock.ticker)}
+                    >
+                      {stock.change.toFixed(2)}%
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive/90"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeStockFromWatchlist(stock.ticker);
+                        }}
+                      >
+                         <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          
+          <div className="shrink-0 mt-4">
+            <Button variant="outline" className="w-full" onClick={() => router.push("/watchlist")}>
+              Back to Watchlists
+            </Button>
+          </div>
+        </div>
+
+        {/* Right Column: Chart */}
+        <div className="lg:col-span-2 h-full min-h-0 flex flex-col">
+          <WatchlistChart 
+            tickers={watchlist.stocks.map(stock => stock.ticker)} 
+            watchlistName={watchlist.name}
+          />
+        </div>
+      </div>
     </div>
   );
 }

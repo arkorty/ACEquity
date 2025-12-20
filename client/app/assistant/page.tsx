@@ -9,6 +9,8 @@ import { StockSearchBar } from "@/components/gen-assist/SearchBar";
 import { Progress } from "@/components/ui/progress";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Lightbulb, Search } from "lucide-react";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/redux/store';
 
 const requestTypes = [
   { id: "technical", label: "Technical Analysis" },
@@ -38,16 +40,20 @@ export function StockAnalysisPage() {
     Record<string, Record<string, string>>
   >({});
 
+  const { user, isLoading } = useSelector((state: RootState) => state.auth);
+
   const stock = stockData.find((item) => item.Ticker === ticker);
 
   useEffect(() => {
     async function fetchAnalysis() {
-      if (!stock) return;
+      if (!stock || !user) return; // Prevent fetch if no user
 
       if (responseCache[stock.Ticker]?.[requestType]) {
         setAnalysis(responseCache[stock.Ticker][requestType]);
         return;
       }
+// ... existing code ...
+
 
       setLoading(true);
       setAnalysis(null);
@@ -126,6 +132,14 @@ export function StockAnalysisPage() {
     ul: (props: any) => <ul className="list-disc pl-6 my-4 space-y-2" {...props} />,
     ol: (props: any) => <ol className="list-decimal pl-6 my-4 space-y-2" {...props} />,
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <div className="h-[calc(100vh-12rem)] flex items-center justify-center text-muted-foreground">Please log in to use the AI Assistant.</div>;
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

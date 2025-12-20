@@ -1,5 +1,6 @@
 export interface LoginPopupProps {
   isOpen: boolean;
-  onLogin: (credentials: { userid: string }) => void;
   onCancel: () => void;
+  onLogin: (email: string, otp: string, type: "login" | "signup") => Promise<void>;
+  onRequestOtp: (email: string, type: "login" | "signup", fullname?: string) => Promise<void>;
 }

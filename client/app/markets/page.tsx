@@ -2,19 +2,24 @@
 
 import { useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 import MarketHeatmap from "@/components/markets/MarketHeatmap";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/redux/store';
 
 const MarketsPage = () => {
-  const [selectedMarket, setSelectedMarket] = useState<
-    "india" | "us"
-  >("india");
+  const [selectedMarket, setSelectedMarket] = useState<"india" | "us">("india");
+  const { user, isLoading } = useSelector((state: RootState) => state.auth);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <div className="h-[calc(100vh-12rem)] flex items-center justify-center text-muted-foreground">Please log in to view market data.</div>;
+  }
 
   const marketOptions = [
     {
@@ -28,90 +33,41 @@ const MarketsPage = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Market Heatmap</CardTitle>
-          <CardDescription>
-            Interactive market heatmap visualization. Size represents
-            market cap, color represents daily change.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ToggleGroup
-            type="single"
-            value={selectedMarket}
-            onValueChange={(value: string) =>
-              value && setSelectedMarket(value as "india" | "us")
-            }
-            className="justify-start"
+    <div className="h-[calc(100vh-12rem)] flex flex-col gap-4">
+      <Card className="shrink-0">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-6">
+            <h1 className="font-semibold text-lg">Market Heatmap</h1>
+            <ToggleGroup
+              type="single"
+              value={selectedMarket}
+              onValueChange={(value: string) =>
+                value && setSelectedMarket(value as "india" | "us")
+              }
+              className="justify-start"
+            >
+              {marketOptions.map((option) => (
+                <ToggleGroupItem key={option.value} value={option.value} className="h-8 px-3 text-xs">
+                  {option.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => window.location.reload()}
+            className="h-8 text-xs"
           >
-            {marketOptions.map((option) => (
-              <ToggleGroupItem key={option.value} value={option.value}>
-                {option.label}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-        </CardContent>
+            <RefreshCw className="w-3.5 h-3.5 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </Card>
 
-      <div className="w-full h-[700px] lg:h-[800px]">
+      <div className="flex-1 w-full min-h-0 border rounded-lg overflow-hidden relative">
         <MarketHeatmap key={selectedMarket} market={selectedMarket} />
       </div>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              Having issues with the heatmap display?
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => window.location.reload()}
-                className="inline-flex items-center justify-center text-sm px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors"
-              >
-                Refresh Heatmap
-              </button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-4">
-          <div className="text-sm text-muted-foreground space-y-2">
-            <p>
-              <strong>How to read the heatmap:</strong>
-            </p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>
-                <strong>Size:</strong> Larger rectangles represent companies
-                with higher market capitalization
-              </li>
-              <li>
-                <strong>Color:</strong> Green indicates positive price change,
-                red indicates negative price change
-              </li>
-              <li>
-                <strong>Intensity:</strong> Darker colors represent larger
-                percentage changes
-              </li>
-              <li>
-                <strong>Grouping:</strong> Stocks are grouped by sectors for
-                better visualization
-              </li>
-              <li>
-                <strong>Interaction:</strong> Click on any stock rectangle to
-                view detailed information
-              </li>
-            </ul>
-            <p className="mt-4 text-xs">
-              Market data is updated in real-time during market hours.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

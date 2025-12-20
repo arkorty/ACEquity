@@ -30,7 +30,7 @@ export const IndexOverview: React.FC<IndexOverviewProps> = ({ ticker }) => {
   };
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle className="text-3xl font-bold">
           {getValue(index?.Ticker)}
@@ -55,7 +55,7 @@ export const IndexOverview: React.FC<IndexOverviewProps> = ({ ticker }) => {
             {formatNumber(Math.abs(getChange(index?.Change)))}%
           </span>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-4">
           <div>
             <p className="text-sm text-muted-foreground">Open</p>
             <p className="text-lg font-semibold">{formatNumber(index?.Open)}</p>

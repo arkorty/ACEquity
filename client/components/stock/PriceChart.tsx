@@ -80,8 +80,16 @@ export function PriceChart({ ticker }: { ticker: string }) {
 
   const filteredData = chartData.slice(-selectedTimeframe.days);
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    if (selectedTimeframe.range === '1y') {
+      return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: '2-digit' });
+    }
+    return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  };
+
   const data = {
-    labels: filteredData.map((d) => new Date(d.Date).toLocaleDateString()),
+    labels: filteredData.map((d) => formatDate(d.Date)),
     datasets: [
       {
         label: ticker,
@@ -98,6 +106,7 @@ export function PriceChart({ ticker }: { ticker: string }) {
 
   const options: ChartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         display: false,
@@ -140,7 +149,7 @@ export function PriceChart({ ticker }: { ticker: string }) {
   };
 
   return (
-    <div>
+    <div className="h-full flex flex-col">
       <div className="flex justify-center space-x-2 mb-4">
         {timeframes.map((tf) => (
           <Button
@@ -152,7 +161,9 @@ export function PriceChart({ ticker }: { ticker: string }) {
           </Button>
         ))}
       </div>
-      <Line data={data} options={options} />
+      <div className="flex-grow min-h-[300px]">
+         <Line data={data} options={options} />
+      </div>
     </div>
   );
 }

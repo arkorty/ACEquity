@@ -57,7 +57,7 @@ const PinnedIndexesSelector = ({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Select Pinned Indexes</DialogTitle>
+          <DialogTitle>Select Indexes</DialogTitle>
           <DialogDescription>
             Choose up to 3 indexes to display on your dashboard.
           </DialogDescription>
@@ -86,7 +86,7 @@ const PinnedIndexesSelector = ({
           ))}
         </div>
         <DialogFooter>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave} disabled={selected.length < 3}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -148,7 +148,7 @@ export function PinnedIndexes() {
   return (
     <div>
       <div className="flex justify-start items-center mb-4">
-        <h1 className="text-2xl font-bold mr-2">Indexes</h1>
+        <h1 className="text-2xl font-bold mr-2">Pinned Indices</h1>
         <PinnedIndexesSelector
           pinned={pinnedTickers}
           onSave={handleSavePins}
@@ -161,19 +161,19 @@ export function PinnedIndexes() {
             className="cursor-pointer hover:shadow-lg transition-shadow duration-300"
             onClick={() => handleCardClick(index.ticker)}
           >
-            <CardContent className="flex items-center justify-between p-4 md:p-6">
-              <div>
-                <h2 className="text-sm font-bold md:text-2xl truncate" title={index.name}>{index.name}</h2>
+            <CardContent className="flex items-center justify-between p-4 md:p-6 gap-2">
+              <div className="min-w-0">
+                <h2 className="text-sm font-bold md:text-xl truncate" title={index.name}>{index.name}</h2>
                 <p
                   className={`text-3xl ${
                     isNaN(index.value) ? "text-red-500" : ""
-                  } text-sm md:text-3xl`}
+                  } text-sm md:text-2xl`}
                 >
                   {formatWithTwoDecimals(index.value)}
                 </p>
               </div>
               <div
-                className={`flex items-center ${
+                className={`flex items-center shrink-0 ${
                   isNaN(index.change)
                     ? "text-red-500"
                     : index.change >= 0

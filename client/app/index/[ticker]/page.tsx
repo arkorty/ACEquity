@@ -28,10 +28,23 @@ export default function StockDetailsPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <SearchBar />
-      <IndexOverview ticker={ticker || ''} />
-      <PointsChart ticker={ticker || ''} />
+    <div className="h-[calc(100vh-12rem)] w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8 h-full">
+        {/* Left Column: Details */}
+        <div className="lg:col-span-1 flex flex-col h-full overflow-hidden">
+          <div className="mb-4">
+            <SearchBar />
+          </div>
+          <div className="flex-1 overflow-y-auto min-h-0">
+            <IndexOverview ticker={ticker || ''} />
+          </div>
+        </div>
+
+        {/* Right Column: Chart */}
+        <div className="lg:col-span-2 h-full min-h-0 flex flex-col">
+          <PointsChart ticker={ticker || ''} />
+        </div>
+      </div>
     </div>
   )
 }

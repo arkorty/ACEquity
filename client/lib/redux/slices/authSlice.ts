@@ -29,6 +29,26 @@ export const fetchUser = createAsyncThunk('auth/fetchUser', async (userid: strin
   }
 });
 
+export const verifyOtp = createAsyncThunk('auth/verifyOtp', async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/verify-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp }),
+    });
+
+    if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'OTP verification failed');
+    }
+    const data = await response.json();
+    setCookie(null, 'userid', data.response.userid, { maxAge: 30 * 24 * 60 * 60, path: '/' });
+    return data.response as User;
+  } catch (error: any) {
+    return rejectWithValue(error.message);
+  }
+});
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -52,6 +72,19 @@ const authSlice = createSlice({
         state.user = action.payload;
       })
       .addCase(fetchUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.user = null;
+        state.error = action.payload as string;
+      })
+      .addCase(verifyOtp.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyOtp.fulfilled, (state, action: PayloadAction<User>) => {
+        state.isLoading = false;
+        state.user = action.payload;
+      })
+      .addCase(verifyOtp.rejected, (state, action) => {
         state.isLoading = false;
         state.user = null;
         state.error = action.payload as string;

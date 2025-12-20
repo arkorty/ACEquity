@@ -3,4 +3,5 @@ export interface Stock {
   Name: string;
   Close: number;
   Change: number;
+  Volume: number;
 }

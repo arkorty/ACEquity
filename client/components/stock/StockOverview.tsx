@@ -24,7 +24,7 @@ export function StockOverview({ ticker }: { ticker: string }) {
   };
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle className="text-3xl font-bold">
           {getValue(stock?.Ticker)}
@@ -49,7 +49,7 @@ export function StockOverview({ ticker }: { ticker: string }) {
             {formatNumber(Math.abs(getChange(stock?.Change)))}%
           </span>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-4">
           <div>
             <p className="text-sm text-muted-foreground">Open</p>
             <p className="text-lg font-semibold">
