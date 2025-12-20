@@ -6,17 +6,17 @@ on:
     - cron: "30 11 * * 1-5" # 5 PM IST (11:30 AM UTC) every weekday
 
 jobs:
-  update-stock-data:
+  update-data:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Install Git LFS
+      - name: Install Git LFS and Curl
         run: |
           sudo apt-get update
-          sudo apt-get install -y git-lfs
+          sudo apt-get install -y git-lfs curl
           git lfs install
 
       - name: Set Up Python Environment
@@ -30,10 +30,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Download and Export Stock Data
+      - name: Get Latest Securities List
         run: |
           cd scraper
-          python src/main.py -n 8
+          curl -LJO --compressed -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" "https://nsearchives.nseindia.com/content/equities/sec_list.csv"
+
+      - name: Download, Export Stock Data and Clean Up Stale JSON Files
+        run: |
+          cd scraper
+          python src/main.py -n 8 --cleanup
 
       - name: Commit and Push Changes
         env:
@@ -43,5 +48,5 @@ jobs:
           git config user.name github-actions
           git config user.email arkorty@gmail.com
           git add client/constants/TICKERS.json client/public/data/*.json
-          git commit -m "chore: update data [ $(date -Idate -Ihours -Iminutes -Iseconds) ]" || echo "No changes to commit"
+          git commit -m "[AUTO] chore: update data" || echo "No changes to commit"
           git push origin HEAD:main
