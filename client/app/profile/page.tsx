@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import UserInfo from "@/components/profile/UserInfo";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
@@ -14,28 +15,37 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUp, ArrowDown, TrendingUp, Wallet, PieChart, List, Briefcase, ExternalLink } from "lucide-react";
+import {
+  ArrowUp,
+  ArrowDown,
+  TrendingUp,
+  Wallet,
+  PieChart,
+  List,
+  Briefcase,
+  ExternalLink,
+} from "lucide-react";
 import TICKERS from "@/constants/TICKERS.json";
 import { formatPrice, formatNumberIN } from "@/lib/utils";
-
-interface WatchlistItem {
-  uuid: string;
-  name: string;
-  stocks: string[];
-}
-
-interface StockData {
-  Ticker: string;
-  Name: string;
-  "Adj Close": number;
-  Change: number;
-}
+import { groupHoldingsByBase, getStockInfoByBase, getTicker } from "@/lib/holdings";
+import type { StockData } from "@/lib/holdings";
+import { 
+  fetchUserWatchlists, 
+  calculateWatchlistChange, 
+  type WatchlistItem 
+} from "@/lib/watchlists";
 
 const ProfilePage = () => {
+  const router = useRouter();
   const { user, isLoading } = useSelector((state: RootState) => state.auth);
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [watchlists, setWatchlists] = useState<WatchlistItem[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+
+  const groupedHoldings = React.useMemo(
+    () => groupHoldingsByBase(holdings),
+    [holdings]
+  );
 
   useEffect(() => {
     if (isLoading || !user) return;
@@ -43,7 +53,6 @@ const ProfilePage = () => {
     const fetchData = async () => {
       setDataLoading(true);
       try {
-        // Fetch holdings
         const holdingsResponse = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/holdings`,
           {
@@ -56,38 +65,8 @@ const ProfilePage = () => {
           setHoldings(holdingsData.response || []);
         }
 
-        // Fetch user to get watchlist IDs
-        const userResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${user.userid}`,
-          {
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-          }
-        );
-        const userData = await userResponse.json();
-        if (userData.status === "success") {
-          const userWatchlists = await Promise.all(
-            userData.response.watchlistIDs.map(async (id: string) => {
-              const watchlistResponse = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${id}`,
-                {
-                  headers: { "Content-Type": "application/json" },
-                  credentials: "include",
-                }
-              );
-              const watchlistData = await watchlistResponse.json();
-              if (watchlistData.status === "success") {
-                return {
-                  uuid: watchlistData.response.id,
-                  name: watchlistData.response.name,
-                  stocks: watchlistData.response.tickers,
-                };
-              }
-              return null;
-            })
-          );
-          setWatchlists(userWatchlists.filter((w) => w !== null));
-        }
+        const userWatchlists = await fetchUserWatchlists(user.userid);
+        setWatchlists(userWatchlists);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
@@ -98,18 +77,21 @@ const ProfilePage = () => {
     fetchData();
   }, [user, isLoading]);
 
-  // Calculate portfolio metrics
+  // Calculate portfolio metrics using grouped holdings (merge .BO/.NS)
   const calculatePortfolioValue = () => {
-    return holdings.reduce((total, holding) => {
-      const stockInfo = TICKERS.find((stock) => stock.Ticker === holding.ticker);
+    return groupedHoldings.reduce((total, holding) => {
+      const stockInfo = getStockInfoByBase(
+        holding.base,
+        TICKERS as StockData[]
+      );
       const currentPrice = stockInfo?.["Adj Close"] || 0;
       return total + currentPrice * holding.quantity;
     }, 0);
   };
 
   const calculateTotalInvestment = () => {
-    return holdings.reduce((total, holding) => {
-      return total + holding.price * holding.quantity;
+    return groupedHoldings.reduce((total, holding) => {
+      return total + holding.investedValue;
     }, 0);
   };
 
@@ -117,31 +99,29 @@ const ProfilePage = () => {
     return calculatePortfolioValue() - calculateTotalInvestment();
   };
 
-  const calculateWatchlistChange = (stocks: string[]): number => {
-    if (!stocks || stocks.length === 0) return 0;
-    const stocksWithData = stocks.map((ticker) =>
-      (TICKERS as StockData[]).find((stock) => stock.Ticker === ticker)
-    ).filter(Boolean) as StockData[];
-    if (stocksWithData.length === 0) return 0;
-    const totalChange = stocksWithData.reduce((sum, stock) => sum + stock.Change, 0);
-    return totalChange / stocksWithData.length;
-  };
+
 
   const getTopHoldings = () => {
-    return holdings
-      .map((holding) => {
-        const stockInfo = TICKERS.find((stock) => stock.Ticker === holding.ticker);
+    return groupedHoldings
+      .map((g) => {
+        const stockInfo = getStockInfoByBase(g.base, TICKERS as StockData[]);
         const currentPrice = stockInfo?.["Adj Close"] || 0;
-        const currentValue = currentPrice * holding.quantity;
-        const investedValue = holding.price * holding.quantity;
-        const change = ((currentPrice - holding.price) / holding.price) * 100;
+        const currentValue = currentPrice * g.quantity;
+        const investedValue = g.investedValue;
+        const change =
+          investedValue > 0
+            ? ((currentPrice - g.averagePrice) / g.averagePrice) * 100
+            : 0;
         return {
-          ...holding,
+          id: g.base,
+          ticker: g.base,
+          quantity: g.quantity,
+          averagePrice: g.averagePrice,
           currentPrice,
           currentValue,
           investedValue,
           change,
-          name: stockInfo?.Name || holding.ticker,
+          name: stockInfo?.Name || g.base,
         };
       })
       .sort((a, b) => b.currentValue - a.currentValue)
@@ -236,7 +216,7 @@ const ProfilePage = () => {
                     {holdings.length}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {new Set(holdings.map((h) => h.ticker)).size} unique stocks
+                    {groupedHoldings.length} unique stocks
                   </p>
                 </CardContent>
               </Card>
@@ -283,7 +263,7 @@ const ProfilePage = () => {
                         <TableHead>Stock</TableHead>
                         <TableHead className="text-right">Qty</TableHead>
                         <TableHead className="text-right hidden md:table-cell">
-                          Avg Price
+                          Price
                         </TableHead>
                         <TableHead className="text-right hidden sm:table-cell">
                           Current
@@ -294,13 +274,8 @@ const ProfilePage = () => {
                     <TableBody>
                       {topHoldings.map((holding) => (
                         <TableRow key={holding.id}>
-                          <TableCell>
-                            <Link
-                              href={`/stock/${holding.ticker}`}
-                              className="font-medium hover:text-primary hover:underline"
-                            >
-                              {holding.ticker}
-                            </Link>
+                          <TableCell onClick={() => router.push(`/stock/${getTicker(holding.ticker, TICKERS)}`)} className="font-medium cursor-pointer hover:text-primary transition-colors">
+                            {holding.ticker}
                             <p className="text-xs text-muted-foreground truncate max-w-[100px] md:max-w-[150px]">
                               {holding.name}
                             </p>
@@ -309,7 +284,7 @@ const ProfilePage = () => {
                             {holding.quantity}
                           </TableCell>
                           <TableCell className="text-right hidden md:table-cell">
-                            ₹{formatPrice(holding.price)}
+                            ₹{formatPrice(holding.averagePrice)}
                           </TableCell>
                           <TableCell className="text-right hidden sm:table-cell">
                             ₹{formatPrice(holding.currentPrice)}
@@ -383,7 +358,9 @@ const ProfilePage = () => {
                         >
                           <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                             <div className="min-w-0 flex-1">
-                              <p className="font-medium truncate">{watchlist.name}</p>
+                              <p className="font-medium truncate">
+                                {watchlist.name}
+                              </p>
                               <p className="text-xs text-muted-foreground">
                                 {watchlist.stocks?.length || 0} stocks
                               </p>
@@ -412,7 +389,6 @@ const ProfilePage = () => {
             </Card>
           </div>
 
-          {/* Sidebar - User Info */}
           <div className="col-span-12 lg:col-span-4">
             <UserInfo user={user} />
           </div>

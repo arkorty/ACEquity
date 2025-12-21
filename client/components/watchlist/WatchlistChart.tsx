@@ -72,9 +72,10 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const range = searchParams.get("range") || "1m";
+  const initialRange = searchParams.get("range") || "1m";
+  const [rangeState, setRangeState] = useState(initialRange);
 
-  const selectedTimeframe = timeframes.find((tf) => tf.range === range) || timeframes[2];
+  const selectedTimeframe = timeframes.find((tf) => tf.range === rangeState) || timeframes[2];
   const { theme } = useTheme();
   
   const [stocksData, setStocksData] = useState<StockChartData[]>([]);
@@ -119,9 +120,21 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
   }, [tickers]);
 
   const handleTimeframeChange = (newRange: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("range", newRange);
-    router.push(`${pathname}?${params.toString()}`);
+    // update local state to avoid triggering a navigation (which remounts the component)
+    setRangeState(newRange);
+
+    // update the URL query string without causing a Next.js navigation/remount
+    try {
+      const params = new URLSearchParams(searchParams as any);
+      params.set("range", newRange);
+      const newUrl = `${pathname}?${params.toString()}`;
+      window.history.replaceState(null, "", newUrl);
+    } catch (e) {
+      // fallback to router navigation if history API isn't available
+      const params = new URLSearchParams(searchParams as any);
+      params.set("range", newRange);
+      router.push(`${pathname}?${params.toString()}`);
+    }
   };
 
   // Calculate aggregated data (Sum of prices - Price Weighted)
@@ -338,7 +351,7 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
           {timeframes.map((tf) => (
             <Button
               key={tf.label}
-              variant={tf.range === range ? "default" : "outline"}
+              variant={tf.range === rangeState ? "default" : "outline"}
               onClick={() => handleTimeframeChange(tf.range)}
             >
               {tf.label}

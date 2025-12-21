@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -14,6 +15,7 @@ import { formatPrice } from "@/lib/utils";
 
 export default function HoldingsPage() {
   const [holdings, setHoldings] = useState<Holding[]>([]);
+  const [grouped, setGrouped] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { user, isLoading } = useSelector((state: RootState) => state.auth);
 
@@ -128,7 +130,10 @@ export default function HoldingsPage() {
     <div className="container mx-auto p-4 md:p-6 max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2">My Holdings</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold mb-2">My Holdings</h1>
+            <Switch id="grouped-toggle" checked={grouped} onCheckedChange={setGrouped}/>
+          </div>
           <p className="text-muted-foreground">
             Track and manage My stock portfolio
           </p>
@@ -158,7 +163,7 @@ export default function HoldingsPage() {
         </div>
       </div>
 
-      <HoldingsTable holdings={holdings} onDelete={handleDeleteHolding} />
+      <HoldingsTable holdings={holdings} onDelete={handleDeleteHolding} grouped={grouped} />
 
       <CreateHoldingDialog
         open={isCreateDialogOpen}

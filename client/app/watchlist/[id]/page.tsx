@@ -15,7 +15,14 @@ import { WatchlistChart } from "@/components/watchlist/WatchlistChart";
 import { Ban, LucideSave, Pencil, Trash2 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import stockData from "@/constants/TICKERS.json";
+import { 
+  fetchWatchlist, 
+  addStockToWatchlist as addStockApi, 
+  removeStockFromWatchlist as removeStockApi, 
+  renameWatchlist as renameWatchlistApi, 
+  getStockData, 
+  type WatchlistItem 
+} from "@/lib/watchlists";
 
 export default function WatchlistDetails() {
   const [watchlist, setWatchlist] = useState<{
@@ -32,33 +39,18 @@ export default function WatchlistDetails() {
   useEffect(() => {
     const fetchWatchlistDetails = async () => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${id}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: 'include',
-          }
-        );
-        const data = await response.json();
-        if (data.status === "success") {
-          const { name, tickers } = data.response;
-
-          const stocks = tickers.map((ticker: string) => {
-            const stockInfo = stockData.find(
-              (stock) => stock.Ticker === ticker
-            );
-            return {
-              ticker,
-              price: stockInfo ? stockInfo["Adj Close"] : 0,
-              change: stockInfo ? stockInfo["Change"] : 0,
-            };
-          });
-          setWatchlist({ uuid: watchlistId, name, stocks });
-        } else {
-          router.push("/404");
-        }
+        if (!watchlistId) return;
+        const data = await fetchWatchlist(watchlistId);
+        
+        const stocks = data.stocks.map((ticker) => {
+          const stockInfo = getStockData(ticker);
+          return {
+            ticker,
+            price: stockInfo ? stockInfo["Adj Close"] : 0,
+            change: stockInfo ? stockInfo["Change"] : 0,
+          };
+        });
+        setWatchlist({ uuid: data.uuid, name: data.name, stocks });
       } catch (error) {
         console.error("Failed to fetch watchlist details:", error);
         router.push("/404");
@@ -66,57 +58,30 @@ export default function WatchlistDetails() {
     };
 
     fetchWatchlistDetails();
-  }, [id, router]);
+  }, [watchlistId, router]);
 
   const addStockToWatchlist = async (ticker: string) => {
     if (watchlist) {
-      const isDuplicate = watchlist.stocks.some(
-        (stock) => stock.ticker.toLowerCase() === ticker.toLowerCase()
-      );
-      if (isDuplicate) {
-        console.error("Ticker already exists in the watchlist");
-        return;
-      }
-
       try {
-        const updatedTickers = [
-          ...watchlist.stocks.map((stock) => stock.ticker),
+        const currentWatchlist: WatchlistItem = {
+            uuid: watchlist.uuid,
+            name: watchlist.name,
+            stocks: watchlist.stocks.map(s => s.ticker)
+        };
+        
+        await addStockApi(currentWatchlist, ticker);
+
+        const stockInfo = getStockData(ticker);
+        const newStock = {
           ticker,
-        ];
-        const updatedWatchlist = {
-          uuid: watchlist.uuid,
-          name: watchlist.name,
-          tickers: updatedTickers,
+          price: stockInfo ? stockInfo["Adj Close"] : 0,
+          change: stockInfo ? stockInfo["Change"] : 0,
         };
 
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${watchlist.uuid}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: 'include',
-            body: JSON.stringify(updatedWatchlist),
-          }
-        );
-
-        const data = await response.json();
-        if (data.status === "success") {
-          const stockInfo = stockData.find((stock) => stock.Ticker === ticker);
-          const newStock = {
-            ticker,
-            price: stockInfo ? stockInfo["Adj Close"] : 0,
-            change: stockInfo ? stockInfo["Change"] : 0,
-          };
-
-          setWatchlist({
-            ...watchlist,
-            stocks: [...watchlist.stocks, newStock],
-          });
-        } else {
-          console.error("Failed to update watchlist:", data.error);
-        }
+        setWatchlist({
+          ...watchlist,
+          stocks: [...watchlist.stocks, newStock],
+        });
       } catch (error) {
         console.error("Error updating watchlist:", error);
       }
@@ -126,36 +91,18 @@ export default function WatchlistDetails() {
   const removeStockFromWatchlist = async (ticker: string) => {
     if (watchlist) {
       try {
-        const updatedTickers = watchlist.stocks
-          .map((stock) => stock.ticker)
-          .filter((existingTicker) => existingTicker !== ticker);
-        const updatedWatchlist = {
-          uuid: watchlist.uuid,
-          name: watchlist.name,
-          tickers: updatedTickers,
+        const currentWatchlist: WatchlistItem = {
+            uuid: watchlist.uuid,
+            name: watchlist.name,
+            stocks: watchlist.stocks.map(s => s.ticker)
         };
+        
+        await removeStockApi(currentWatchlist, ticker);
 
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${watchlist.uuid}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: 'include',
-            body: JSON.stringify(updatedWatchlist),
-          }
-        );
-
-        const data = await response.json();
-        if (data.status === "success") {
-          setWatchlist({
-            ...watchlist,
-            stocks: watchlist.stocks.filter((stock) => stock.ticker !== ticker),
-          });
-        } else {
-          console.error("Failed to update watchlist:", data.error);
-        }
+        setWatchlist({
+          ...watchlist,
+          stocks: watchlist.stocks.filter((stock) => stock.ticker !== ticker),
+        });
       } catch (error) {
         console.error("Error updating watchlist:", error);
       }
@@ -165,31 +112,16 @@ export default function WatchlistDetails() {
   const updateWatchlistName = async () => {
     if (watchlist) {
       try {
-        const updatedWatchlist = {
-          uuid: watchlist.uuid,
-          name: newName,
-          tickers: watchlist.stocks.map((stock) => stock.ticker),
+        const currentWatchlist: WatchlistItem = {
+            uuid: watchlist.uuid,
+            name: watchlist.name,
+            stocks: watchlist.stocks.map(s => s.ticker)
         };
+        
+        await renameWatchlistApi(currentWatchlist, newName);
 
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${watchlist.uuid}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: 'include',
-            body: JSON.stringify(updatedWatchlist),
-          }
-        );
-
-        const data = await response.json();
-        if (data.status === "success") {
-          setWatchlist({ ...watchlist, name: newName });
-          setIsEditing(false);
-        } else {
-          console.error("Failed to update watchlist name:", data.error);
-        }
+        setWatchlist({ ...watchlist, name: newName });
+        setIsEditing(false);
       } catch (error) {
         console.error("Error updating watchlist name:", error);
       }
@@ -209,43 +141,6 @@ export default function WatchlistDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8 h-full">
         {/* Left Column: List and Controls */}
         <div className="lg:col-span-1 flex flex-col h-full overflow-hidden">
-          <div className="shrink-0 mb-4 min-h-[2.5rem] flex items-center">
-            {isEditing ? (
-              <div className="flex items-center gap-2 w-full">
-                <Input
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  className="border rounded px-2 py-1 text-sm h-8"
-                />
-                <Button className="h-8 w-8 p-0" onClick={updateWatchlistName}>
-                  <LucideSave className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-8 w-8 p-0 bg-destructive/10 hover:bg-destructive/20 text-destructive"
-                  onClick={() => setIsEditing(false)}
-                >
-                  <Ban className="w-4 h-4" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold truncate">{watchlist.name}</h1>
-                <Button
-                  variant="ghost"
-                  className="h-8 w-8 p-0"
-                  onClick={() => {
-                    setNewName(watchlist.name);
-                    setIsEditing(true);
-                  }}
-                >
-                  <Pencil className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-          </div>
-          
           <div className="shrink-0 mb-4">
             <AddBar onAdd={addStockToWatchlist} />
           </div>

@@ -56,3 +56,4 @@ export function formatNumberIN(num: number | undefined): string {
     return value.toLocaleString("en-IN");
   }
 }
+
