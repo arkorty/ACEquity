@@ -13,7 +13,6 @@ import {
 import { AddBar } from "@/components/watchlist/AddBar";
 import { WatchlistChart } from "@/components/watchlist/WatchlistChart";
 import { Ban, LucideSave, Pencil, Trash2 } from "lucide-react";
-import { parseCookies } from "nookies";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import stockData from "@/constants/TICKERS.json";
@@ -32,41 +31,37 @@ export default function WatchlistDetails() {
 
   useEffect(() => {
     const fetchWatchlistDetails = async () => {
-      const cookies = parseCookies();
-      const userid = cookies.userid;
-      if (userid) {
-        try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${id}`,
-            {
-              headers: {
-                "Content-Type": "application/json",
-                userid: userid,
-              },
-            }
-          );
-          const data = await response.json();
-          if (data.status === "success") {
-            const { name, tickers } = data.response;
-
-            const stocks = tickers.map((ticker: string) => {
-              const stockInfo = stockData.find(
-                (stock) => stock.Ticker === ticker
-              );
-              return {
-                ticker,
-                price: stockInfo ? stockInfo["Adj Close"] : 0,
-                change: stockInfo ? stockInfo["Change"] : 0,
-              };
-            });
-            setWatchlist({ uuid: watchlistId, name, stocks });
-          } else {
-            router.push("/404");
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${id}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: 'include',
           }
-        } catch (error) {
-          console.error("Failed to fetch watchlist details:", error);
+        );
+        const data = await response.json();
+        if (data.status === "success") {
+          const { name, tickers } = data.response;
+
+          const stocks = tickers.map((ticker: string) => {
+            const stockInfo = stockData.find(
+              (stock) => stock.Ticker === ticker
+            );
+            return {
+              ticker,
+              price: stockInfo ? stockInfo["Adj Close"] : 0,
+              change: stockInfo ? stockInfo["Change"] : 0,
+            };
+          });
+          setWatchlist({ uuid: watchlistId, name, stocks });
+        } else {
           router.push("/404");
         }
+      } catch (error) {
+        console.error("Failed to fetch watchlist details:", error);
+        router.push("/404");
       }
     };
 
@@ -74,9 +69,7 @@ export default function WatchlistDetails() {
   }, [id, router]);
 
   const addStockToWatchlist = async (ticker: string) => {
-    const cookies = parseCookies();
-    const userid = cookies.userid;
-    if (userid && watchlist) {
+    if (watchlist) {
       const isDuplicate = watchlist.stocks.some(
         (stock) => stock.ticker.toLowerCase() === ticker.toLowerCase()
       );
@@ -102,8 +95,8 @@ export default function WatchlistDetails() {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              userid: userid,
             },
+            credentials: 'include',
             body: JSON.stringify(updatedWatchlist),
           }
         );
@@ -122,7 +115,7 @@ export default function WatchlistDetails() {
             stocks: [...watchlist.stocks, newStock],
           });
         } else {
-          console.error("Failed to update watchlist:", data.message);
+          console.error("Failed to update watchlist:", data.error);
         }
       } catch (error) {
         console.error("Error updating watchlist:", error);
@@ -131,9 +124,7 @@ export default function WatchlistDetails() {
   };
 
   const removeStockFromWatchlist = async (ticker: string) => {
-    const cookies = parseCookies();
-    const userid = cookies.userid;
-    if (userid && watchlist) {
+    if (watchlist) {
       try {
         const updatedTickers = watchlist.stocks
           .map((stock) => stock.ticker)
@@ -150,8 +141,8 @@ export default function WatchlistDetails() {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              userid: userid,
             },
+            credentials: 'include',
             body: JSON.stringify(updatedWatchlist),
           }
         );
@@ -163,7 +154,7 @@ export default function WatchlistDetails() {
             stocks: watchlist.stocks.filter((stock) => stock.ticker !== ticker),
           });
         } else {
-          console.error("Failed to update watchlist:", data.message);
+          console.error("Failed to update watchlist:", data.error);
         }
       } catch (error) {
         console.error("Error updating watchlist:", error);
@@ -172,9 +163,7 @@ export default function WatchlistDetails() {
   };
 
   const updateWatchlistName = async () => {
-    const cookies = parseCookies();
-    const userid = cookies.userid;
-    if (userid && watchlist) {
+    if (watchlist) {
       try {
         const updatedWatchlist = {
           uuid: watchlist.uuid,
@@ -188,8 +177,8 @@ export default function WatchlistDetails() {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              userid: userid,
             },
+            credentials: 'include',
             body: JSON.stringify(updatedWatchlist),
           }
         );
@@ -199,7 +188,7 @@ export default function WatchlistDetails() {
           setWatchlist({ ...watchlist, name: newName });
           setIsEditing(false);
         } else {
-          console.error("Failed to update watchlist name:", data.message);
+          console.error("Failed to update watchlist name:", data.error);
         }
       } catch (error) {
         console.error("Error updating watchlist name:", error);

@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { User } from '@/types/user';
-import { setCookie, destroyCookie, parseCookies } from 'nookies';
 
 interface AuthState {
   user: User | null;
@@ -14,17 +13,24 @@ const initialState: AuthState = {
   error: null,
 };
 
-export const fetchUser = createAsyncThunk('auth/fetchUser', async (userid: string, { rejectWithValue }) => {
+export const fetchUser = createAsyncThunk('auth/fetchUser', async (_, { rejectWithValue }) => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`);
+    // We must use credentials: 'include' to send the httpOnly cookie
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/me`, {
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
     if (!response.ok) {
-      throw new Error('User not found');
+      let errorMessage = 'User not found';
+      try {
+        const errorData = await response.json();
+        if (errorData.error) errorMessage = errorData.error;
+      } catch (e) {}
+      throw new Error(errorMessage);
     }
     const data = await response.json();
-    setCookie(null, 'userid', data.response.userid, { maxAge: 30 * 24 * 60 * 60, path: '/' });
     return data.response as User;
   } catch (error: any) {
-    destroyCookie(null, 'userid', { path: '/' });
     return rejectWithValue(error.message);
   }
 });
@@ -35,17 +41,31 @@ export const verifyOtp = createAsyncThunk('auth/verifyOtp', async ({ email, otp 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, otp }),
+      credentials: 'include',
     });
 
     if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'OTP verification failed');
+        throw new Error(data.error || data.message || 'OTP verification failed');
     }
     const data = await response.json();
-    setCookie(null, 'userid', data.response.userid, { maxAge: 30 * 24 * 60 * 60, path: '/' });
     return data.response as User;
   } catch (error: any) {
     return rejectWithValue(error.message);
+  }
+});
+
+export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
+  try {
+    await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+    return;
+  } catch (error: any) {
+    console.error("Logout failed", error);
+    // Even if server call fails, we clear local state
+    return;
   }
 });
 
@@ -53,10 +73,6 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    logout: (state) => {
-      state.user = null;
-      destroyCookie(null, 'userid', { path: '/' });
-    },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     }
@@ -88,9 +104,12 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = null;
         state.error = action.payload as string;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.user = null;
       });
   },
 });
 
-export const { logout, setLoading } = authSlice.actions;
+export const { setLoading } = authSlice.actions;
 export default authSlice.reducer;

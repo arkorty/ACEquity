@@ -13,7 +13,6 @@ import {
 import stockData from "@/constants/TICKERS.json";
 import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { parseCookies } from "nookies";
 import { useState, useEffect } from "react";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/redux/store';
@@ -30,17 +29,15 @@ export default function WatchlistPage() {
     if (!user) return;
     
     const fetchUserData = async () => {
-      const cookies = parseCookies();
-      const userid = cookies.userid;
-      if (userid) {
+      if (user.userid) {
         try {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userid}`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${user.userid}`,
             {
               headers: {
                 "Content-Type": "application/json",
-                userid: userid,
               },
+              credentials: 'include',
             }
           );
           const data = await response.json();
@@ -52,8 +49,8 @@ export default function WatchlistPage() {
                   {
                     headers: {
                       "Content-Type": "application/json",
-                      userid: userid,
                     },
+                    credentials: 'include',
                   }
                 );
                 const watchlistData = await watchlistResponse.json();
@@ -79,14 +76,12 @@ export default function WatchlistPage() {
     };
 
     fetchUserData();
-  }, []);
+  }, [user]);
 
   const addWatchlist = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newWatchlist && !watchlists.find((w) => w.name === newWatchlist)) {
-      const cookies = parseCookies();
-      const userid = cookies.userid;
-      if (userid) {
+      if (user?.userid) {
         try {
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists`,
@@ -94,8 +89,8 @@ export default function WatchlistPage() {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                userid: userid,
               },
+              credentials: 'include',
               body: JSON.stringify({
                 name: newWatchlist,
                 tickers: [],
@@ -118,17 +113,15 @@ export default function WatchlistPage() {
   };
 
   const viewWatchlist = async (uuid: string) => {
-    const cookies = parseCookies();
-    const userid = cookies.userid;
-    if (userid) {
+    if (user?.userid) {
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${uuid}`,
           {
             headers: {
               "Content-Type": "application/json",
-              userid: userid,
             },
+            credentials: 'include',
           }
         );
         const data = await response.json();
@@ -151,9 +144,7 @@ export default function WatchlistPage() {
   };
 
   const deleteWatchlist = async (uuid: string) => {
-    const cookies = parseCookies();
-    const userid = cookies.userid;
-    if (userid) {
+    if (user?.userid) {
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${uuid}`,
@@ -161,8 +152,8 @@ export default function WatchlistPage() {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
-              userid: userid,
             },
+            credentials: 'include',
           }
         );
         const data = await response.json();

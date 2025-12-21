@@ -84,8 +84,8 @@ export default function Header() {
     }
   }, [user, isServerOnline, isLoading, pathname]);
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    await dispatch(logout());
     toast.success("You have been logged out.");
     window.location.href = "/";
   };
@@ -103,8 +103,8 @@ export default function Header() {
         toast.success(`Welcome back, ${user.fullname || user.email}!`);
       }
       setIsLoginPopupOpen(false);
-    } catch (error) {
-      toast.error("Login failed. Invalid OTP.");
+    } catch (error: any) {
+      toast.error(error || "Login failed. Invalid OTP.");
     }
   };
 
@@ -127,7 +127,7 @@ export default function Header() {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || "Failed to request OTP.");
+        throw new Error(data.error || "Failed to request OTP.");
       }
 
       toast.success(`OTP sent to ${email}`);

@@ -39,8 +39,8 @@ export function WatchlistsList() {
           {
             headers: {
               "Content-Type": "application/json",
-              userid: user.userid,
             },
+            credentials: 'include',
           }
         );
         const data = await response.json();
@@ -52,8 +52,8 @@ export function WatchlistsList() {
                 {
                   headers: {
                     "Content-Type": "application/json",
-                    userid: user.userid,
                   },
+                  credentials: 'include',
                 }
               );
               const watchlistData = await watchlistResponse.json();
