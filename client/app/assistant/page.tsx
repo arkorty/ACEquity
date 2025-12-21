@@ -22,7 +22,7 @@ const requestTypes = [
 const AssistantEmptyState = () => (
   <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-background rounded-lg">
     <Search size={48} className="text-muted-foreground mb-4" />
-    <h2 className="text-2xl font-semibold mb-2">Start Your Analysis</h2>
+    <h2 className="text-2xl font-semibold mb-2">Start My Analysis</h2>
     <p className="text-muted-foreground">
       Search for a stock or index to get started with the AI Assistant.
     </p>

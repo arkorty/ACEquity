@@ -93,7 +93,7 @@ export function WatchlistsList() {
   if (watchlists.length === 0) {
     return (
       <div>
-        <h2 className="text-lg text-center font-semibold">Your Watchlists</h2>
+        <h2 className="text-lg text-center font-semibold">My Watchlists</h2>
         <p className="text-center text-muted-foreground mt-4">
           You have no watchlists. Create one to get started!
         </p>
@@ -104,7 +104,7 @@ export function WatchlistsList() {
   return (
     <div>
       <div className="mb-4">
-        <h2 className="text-lg font-semibold">Your Watchlists</h2>
+        <h2 className="text-lg font-semibold">My Watchlists</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {watchlists.slice(0, 6).map((watchlist) => {

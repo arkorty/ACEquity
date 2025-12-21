@@ -88,7 +88,7 @@ export function TrendingStocks() {
                                 </div>
                                 <div className="text-right shrink-0">
                                     <p className="font-semibold text-sm md:text-lg">
-                                        ₹{stock.Close.toFixed(2)}
+                                        ₹ {stock.Close.toFixed(2)}
                                     </p>
                                     <span
                                         className={`text-xs md:text-sm ${stock.Change >= 0 ? "text-green-500" : "text-red-500"

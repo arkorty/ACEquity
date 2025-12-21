@@ -91,7 +91,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
           <Image src="/logo.png" alt="ACEquity Logo" width={48} height={48} className="mb-2 rounded-full" />
           <DialogTitle className="text-2xl font-bold">Welcome to ACEquity</DialogTitle>
           <DialogDescription>
-            Your free stock market tracker.
+            My free stock market tracker.
           </DialogDescription>
         </DialogHeader>
 
@@ -107,7 +107,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
                 <CardHeader>
                   <CardTitle>Sign In</CardTitle>
                   <CardDescription>
-                    Enter your email to receive a login code.
+                    Enter My email to receive a login code.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -135,7 +135,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({
                 <CardHeader>
                   <CardTitle>Sign Up</CardTitle>
                   <CardDescription>
-                    Create a new account to start tracking your portfolio.
+                    Create a new account to start tracking My portfolio.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">

@@ -275,7 +275,7 @@ export default function WatchlistDetails() {
                       {stock.ticker}
                     </TableCell>
                     <TableCell onClick={() => viewStock(stock.ticker)}>
-                      ₹{stock.price.toFixed(2)}
+                      ₹ {stock.price.toFixed(2)}
                     </TableCell>
                     <TableCell
                       className={`${

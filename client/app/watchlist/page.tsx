@@ -203,12 +203,12 @@ export default function WatchlistPage() {
   }
 
   if (!user) {
-    return <div className="h-[calc(100vh-12rem)] flex items-center justify-center text-muted-foreground">Please log in to view your watchlists.</div>;
+    return <div className="h-[calc(100vh-12rem)] flex items-center justify-center text-muted-foreground">Please log in to view My watchlists.</div>;
   }
 
   return (
     <div className="py-2">
-      <h1 className="text-3xl font-bold mb-6">Your Watchlists</h1>
+      <h1 className="text-3xl font-bold mb-6">My Watchlists</h1>
       <form onSubmit={addWatchlist} className="flex space-x-2 mb-4">
         <Input
           type="text"

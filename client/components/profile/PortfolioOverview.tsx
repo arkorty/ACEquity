@@ -1,5 +1,6 @@
 import React from 'react';
 import { Portfolio } from '@/types/portfolio';
+import { formatPrice } from '@/lib/utils';
 
 const PortfolioOverview = ({ portfolio }: { portfolio: Portfolio }) => {
   return (
@@ -10,15 +11,15 @@ const PortfolioOverview = ({ portfolio }: { portfolio: Portfolio }) => {
           <tbody>
             <tr>
               <td className="py-2 px-4 text-sm text-left border-b">Total Value</td>
-              <td className="py-2 px-4 text-sm text-left border-b">₹{portfolio.totalValue}</td>
+              <td className="py-2 px-4 text-sm text-left border-b">₹{formatPrice(portfolio.totalValue)}</td>
             </tr>
             <tr>
               <td className="py-2 px-4 text-sm text-left border-b">Cash Balance</td>
-              <td className="py-2 px-4 text-sm text-left border-b">₹{portfolio.cashBalance}</td>
+              <td className="py-2 px-4 text-sm text-left border-b">₹{formatPrice(portfolio.cashBalance)}</td>
             </tr>
             <tr>
               <td className="py-2 px-4 text-sm text-left">Profit/Loss</td>
-              <td className="py-2 px-4 text-sm text-left">₹{portfolio.profitLoss}</td>
+              <td className="py-2 px-4 text-sm text-left">₹{formatPrice(portfolio.profitLoss)}</td>
             </tr>
           </tbody>
         </table>

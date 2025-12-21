@@ -1,7 +1,7 @@
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import stockData from "@/constants/TICKERS.json";
-import { formatNumberIN } from "@/lib/utils";
+import { formatNumberIN, formatPrice } from "@/lib/utils";
 
 export function StockOverview({ ticker }: { ticker: string }) {
   const stock = stockData.find((item) => item.Ticker === ticker);
@@ -12,12 +12,6 @@ export function StockOverview({ ticker }: { ticker: string }) {
     ) : (
       <span className="text-amber-500">Coming Soon</span>
     );
-  };
-
-  const formatNumber = (value: any, decimals: number = 2) => {
-    return typeof value === "number"
-      ? value.toFixed(decimals)
-      : getValue(value);
   };
 
   const getChange = (change: any) => {
@@ -35,7 +29,7 @@ export function StockOverview({ ticker }: { ticker: string }) {
       <CardContent>
         <div className="flex items-baseline space-x-2 mb-4">
           <span className="text-4xl font-bold">
-            ₹{formatNumber(stock?.Close)}
+            ₹{formatPrice(stock?.Close)}
           </span>
           <span
             className={`text-lg ${
@@ -47,25 +41,25 @@ export function StockOverview({ ticker }: { ticker: string }) {
             ) : (
               <ArrowDown className="mr-1" />
             )}
-            {formatNumber(Math.abs(getChange(stock?.Change)))}%
+            {Math.abs(getChange(stock?.Change)).toFixed(2)}%
           </span>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-muted-foreground">Open</p>
             <p className="text-lg font-semibold">
-              ₹{formatNumber(stock?.Open)}
+              ₹{formatPrice(stock?.Open)}
             </p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">High</p>
             <p className="text-lg font-semibold">
-              ₹{formatNumber(stock?.High)}
+              ₹{formatPrice(stock?.High)}
             </p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Low</p>
-            <p className="text-lg font-semibold">₹{formatNumber(stock?.Low)}</p>
+            <p className="text-lg font-semibold">₹{formatPrice(stock?.Low)}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Volume</p>
@@ -74,8 +68,7 @@ export function StockOverview({ ticker }: { ticker: string }) {
           <div>
             <p className="text-sm text-muted-foreground">Turnover</p>
             <p className="text-lg font-semibold">
-              ₹
-              {stock && formatNumberIN(
+              ₹{stock && formatNumberIN(
                 stock?.Volume * stock?.["Adj Close"]
               )}
             </p>

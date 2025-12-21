@@ -1,5 +1,6 @@
 import React from 'react';
 import { Transaction } from '@/types/transaction';
+import { formatPrice } from '@/lib/utils';
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
@@ -27,7 +28,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions })
                 <td className={`py-2 px-4 text-left ${index !== transactions.length - 1 ? 'border-b' : ''}`}>{transaction.type}</td>
                 <td className={`py-2 px-4 text-left ${index !== transactions.length - 1 ? 'border-b' : ''}`}>{transaction.shares}</td>
                 <td className={`py-2 px-4 text-left ${index !== transactions.length - 1 ? 'border-b' : ''}`}>{transaction.symbol}</td>
-                <td className={`py-2 px-4 text-left ${index !== transactions.length - 1 ? 'border-b' : ''}`}>₹{transaction.price}</td>
+                <td className={`py-2 px-4 text-left ${index !== transactions.length - 1 ? 'border-b' : ''}`}>₹{formatPrice(transaction.price)}</td>
               </tr>
             ))}
           </tbody>

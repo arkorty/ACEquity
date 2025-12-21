@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { useTheme } from "next-themes";
 import { ChartData } from "@/types/watchlists";
 import type { ChartOptions as ChartJSOptions } from "chart.js";
+import { formatPrice } from "@/lib/utils";
 
 ChartJS.register(
   CategoryScale,
@@ -254,7 +255,7 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
       },
       title: {
         display: true,
-        text: `${watchlistName} - ${isAggregated ? 'Aggregate Value' : 'Individual Stock Prices'} (₹)`,
+        text: `${watchlistName} - ${isAggregated ? 'Aggregate Value' : 'Individual Stock Prices'} (₹ )`,
         padding: {
           bottom: 20
         }
@@ -265,7 +266,7 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
         callbacks: {
           label: function (context: any) {
             const label = context.dataset.label || "";
-            const value = Number(context.raw).toFixed(2);
+            const value = formatPrice(Number(context.raw));
             const date = context.label;
             return `${label}: ₹${value} on ${date}`;
           },
@@ -286,7 +287,7 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
       y: {
         title: {
           display: true,
-          text: isAggregated ? "Total Value (₹)" : "Price (₹)",
+          text: isAggregated ? "Total Value (₹ )" : "Price (₹ )",
         },
       },
     },
@@ -304,7 +305,7 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-lg text-muted-foreground">
-          Add stocks to your watchlist to see the performance chart
+          Add stocks to My watchlist to see the performance chart
         </div>
       </div>
     );

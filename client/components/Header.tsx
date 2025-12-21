@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { BarChart2, List, LogOut, User, UserCircle } from "lucide-react";
+import { BarChart2, List, LogOut, User, UserCircle, Briefcase } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ThemeToggle";
@@ -12,11 +12,12 @@ import { LoginPopup } from "@/components/profile/LoginPopup";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/lib/redux/store';
 import { logout, fetchUser, verifyOtp } from '@/lib/redux/slices/authSlice';
+import { openLoginPopup, closeLoginPopup } from '@/lib/redux/slices/CTASlice';
 
 const navigation = [
   { name: "Markets", href: "/markets", icon: BarChart2, requiresAuth: true },
   { name: "Watchlist", href: "/watchlist", icon: List, requiresAuth: true },
-  { name: "AI Assistant", href: "/assistant", icon: List, requiresAuth: true },
+  { name: "Holdings", href: "/holdings", icon: Briefcase, requiresAuth: true },
   { name: "Profile", href: "/profile", icon: User, requiresAuth: true },
 ];
 
@@ -24,10 +25,10 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
   const [isServerOnline, setIsServerOnline] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const { user, isLoading } = useSelector((state: RootState) => state.auth);
+  const { isLoginPopupOpen } = useSelector((state: RootState) => state.cta);
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
@@ -74,12 +75,16 @@ export default function Header() {
       const currentNavItem = navigation.find(item => item.href === pathname);
       
       if (currentNavItem?.requiresAuth) {
-        setIsLoginPopupOpen(true);
+        dispatch(openLoginPopup());
       } else {
-        const timer = setTimeout(() => {
-          setIsLoginPopupOpen(true);
-        }, 15000);
-        return () => clearTimeout(timer);
+        const hasShownLoginCTA = localStorage.getItem('loginCTA') === 'true';
+        if (!hasShownLoginCTA) {
+          const timer = setTimeout(() => {
+            dispatch(openLoginPopup());
+            localStorage.setItem('loginCTA', 'true');
+          }, 15000);
+          return () => clearTimeout(timer);
+        }
       }
     }
   }, [user, isServerOnline, isLoading, pathname]);
@@ -102,7 +107,7 @@ export default function Header() {
       } else {
         toast.success(`Welcome back, ${user.fullname || user.email}!`);
       }
-      setIsLoginPopupOpen(false);
+      dispatch(closeLoginPopup());
     } catch (error: any) {
       toast.error(error || "Login failed. Invalid OTP.");
     }
@@ -110,7 +115,7 @@ export default function Header() {
 
   const handleRequestOtp = async (email: string, type: "login" | "signup", fullname?: string) => {
     if (!email) {
-      toast.error("Please provide your email.");
+      toast.error("Please provide My email.");
       throw new Error("Missing email");
     }
     try {
@@ -145,14 +150,14 @@ export default function Header() {
           {/* Mobile View - Sheet Trigger */}
           <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
             <SheetContent side="left" className="pr-0">
-              <MobileNav closeNav={() => setIsMobileNavOpen(false)} onLoginClick={() => setIsLoginPopupOpen(true)} />
+              <MobileNav closeNav={() => setIsMobileNavOpen(false)} onLoginClick={() => dispatch(openLoginPopup())} />
             </SheetContent>
           </Sheet>
           <BarChart2
             className="flex items-center md:hidden cursor-pointer h-6 w-6"
             onClick={() => {
               if (!user) {
-                setIsLoginPopupOpen(true);
+                dispatch(openLoginPopup());
               } else {
                 setIsMobileNavOpen(true);
               }
@@ -216,7 +221,7 @@ export default function Header() {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => setIsLoginPopupOpen(true)}
+                onClick={() => dispatch(openLoginPopup())}
                 className="relative flex items-center justify-center overflow-hidden"
               >
                 <UserCircle className="h-6 w-6" />
@@ -239,7 +244,7 @@ export default function Header() {
       {/* Login Popup */}
       <LoginPopup
         isOpen={isLoginPopupOpen}
-        onCancel={() => setIsLoginPopupOpen(false)}
+        onCancel={() => dispatch(closeLoginPopup())}
         onLogin={handleLogin}
         onRequestOtp={handleRequestOtp}
       />

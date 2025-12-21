@@ -59,7 +59,7 @@ const PinnedIndexesSelector = ({
         <DialogHeader>
           <DialogTitle>Select Indexes</DialogTitle>
           <DialogDescription>
-            Choose up to 3 indexes to display on your dashboard.
+            Choose up to 3 indexes to display on My dashboard.
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 py-4">

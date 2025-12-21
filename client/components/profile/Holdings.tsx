@@ -1,8 +1,9 @@
 import React from "react";
-import { Holding } from "../types/holding";
+import { HoldingDisplay } from "@/types/holding";
+import { formatPrice } from "@/lib/utils";
 
 interface HoldingsProps {
-  holdings: Holding[];
+  holdings: HoldingDisplay[];
 }
 
 const Holdings: React.FC<HoldingsProps> = ({ holdings }) => {
@@ -20,12 +21,12 @@ const Holdings: React.FC<HoldingsProps> = ({ holdings }) => {
             </tr>
           </thead>
           <tbody>
-            {holdings.map((holding: Holding, index: number) => (
+            {holdings.map((holding: HoldingDisplay, index: number) => (
               <tr key={index}>
                 <td className={`py-2 px-4 text-primary/90 text-left ${index !== holdings.length - 1 ? 'border-b' : ''}`}>{holding.symbol}</td>
                 <td className={`py-2 px-4 text-primary/90 text-left ${index !== holdings.length - 1 ? 'border-b' : ''}`}>{holding.shares}</td>
-                <td className={`py-2 px-4 text-primary/90 text-left ${index !== holdings.length - 1 ? 'border-b' : ''}`}>₹{holding.currentPrice}</td>
-                <td className={`py-2 px-4 text-primary/90 text-left ${index !== holdings.length - 1 ? 'border-b' : ''}`}>₹{holding.totalValue}</td>
+                <td className={`py-2 px-4 text-primary/90 text-left ${index !== holdings.length - 1 ? 'border-b' : ''}`}>₹{formatPrice(holding.currentPrice)}</td>
+                <td className={`py-2 px-4 text-primary/90 text-left ${index !== holdings.length - 1 ? 'border-b' : ''}`}>₹{formatPrice(holding.totalValue)}</td>
               </tr>
             ))}
           </tbody>

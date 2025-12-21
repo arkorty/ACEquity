@@ -26,14 +26,14 @@ const ToSPage: React.FC = () => {
         the accuracy, completeness, or timeliness of any data, including stock
         prices, wishlist items, or other financial information. Stock market
         data may be outdated, incorrect, or unavailable at times. Use the
-        information at your own risk.
+        information at My own risk.
         <br />
         <br />
         <strong>No Liability</strong>
         <br />
         To the maximum extent permitted by law, <strong>ACEquity</strong> and
         its operators shall not be liable for any direct, indirect, incidental,
-        special, or consequential damages resulting from your use of the
+        special, or consequential damages resulting from My use of the
         Service. This includes, but is not limited to, losses incurred from
         investment decisions based on information provided by the Service.
         <br />
@@ -59,8 +59,8 @@ const ToSPage: React.FC = () => {
         <strong>Changes to terms</strong>
         <br />
         We may modify these terms at any time. Continued use of the Service
-        after changes constitute your acceptance of the updated terms. It is
-        your responsibility to review these terms periodically.
+        after changes constitute My acceptance of the updated terms. It is
+        My responsibility to review these terms periodically.
         <br />
         <br />
         <strong>Contact</strong>

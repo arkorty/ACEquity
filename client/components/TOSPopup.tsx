@@ -79,7 +79,7 @@ const ToSPopup: React.FC<ToSPopupProps> = ({ isOpen, onAccept, onDecline }) => {
             guarantee the accuracy, completeness, or timeliness of any data,
             including stock prices, wishlist items, or other financial
             information. Stock market data may be outdated, incorrect, or
-            unavailable at times. Use the information at your own risk.
+            unavailable at times. Use the information at My own risk.
             <br />
             <br />
             <strong>No Liability</strong>
@@ -116,8 +116,8 @@ const ToSPopup: React.FC<ToSPopupProps> = ({ isOpen, onAccept, onDecline }) => {
             <strong>Changes to terms</strong>
             <br />
             We may modify these terms at any time. Continued use of the Service
-            after changes constitute your acceptance of the updated terms. It is
-            your responsibility to review these terms periodically.
+            after changes constitute My acceptance of the updated terms. It is
+            My responsibility to review these terms periodically.
             <br />
             <br />
             <strong>Contact</strong>

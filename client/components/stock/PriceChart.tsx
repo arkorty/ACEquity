@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { ChartData, ChartOptions } from "@/types";
+import { formatPrice } from "@/lib/utils";
 
 ChartJS.register(
   CategoryScale,
@@ -121,7 +122,7 @@ export function PriceChart({ ticker }: { ticker: string }) {
         callbacks: {
           label: function (context) {
             const label = context.dataset.label || "";
-            const value = context.raw.toFixed(2);
+            const value = formatPrice(context.raw as number);
             const date = context.label;
             return `${label}: ₹${value} on ${date}`;
           },
@@ -142,7 +143,7 @@ export function PriceChart({ ticker }: { ticker: string }) {
       y: {
         title: {
           display: true,
-          text: "Price (₹)",
+          text: "Price (₹ )",
         },
       },
     },
