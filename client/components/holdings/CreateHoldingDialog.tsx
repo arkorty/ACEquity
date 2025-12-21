@@ -97,6 +97,7 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
     lowerCircuit: number;
   } | null>(null);
   const [availableDates, setAvailableDates] = useState<Set<string>>(new Set());
+  const [dateRange, setDateRange] = useState<{ minDate: Date | null; maxDate: Date | null }>({ minDate: null, maxDate: null });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const fuse = new Fuse(TICKERS, {
@@ -146,9 +147,23 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
         data.map((d: any) => format(new Date(d.Date), "yyyy-MM-dd"))
       );
       setAvailableDates(dates);
+      
+      // Calculate min and max dates from the data
+      if (data.length > 0) {
+        const sortedDates = data
+          .map((d: any) => new Date(d.Date))
+          .sort((a: Date, b: Date) => a.getTime() - b.getTime());
+        setDateRange({
+          minDate: sortedDates[0],
+          maxDate: sortedDates[sortedDates.length - 1]
+        });
+      } else {
+        setDateRange({ minDate: null, maxDate: null });
+      }
     } catch (error) {
       console.error("Error fetching available dates:", error);
       setAvailableDates(new Set());
+      setDateRange({ minDate: null, maxDate: null });
     }
   };
 
@@ -279,7 +294,7 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           {/* Stock Search */}
           <div className="space-y-2">
-            <Label htmlFor="stock">Stock / Security *</Label>
+            <Label htmlFor="stock">Stock / Security <span className="text-red-500">*</span></Label>
             {selectedStock ? (
               <div className="flex items-center justify-between border rounded-md p-3 bg-muted">
                 <div>
@@ -332,7 +347,7 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
 
           {/* Date Picker */}
           <div className="space-y-2">
-            <Label>Purchase Date *</Label>
+            <Label>Purchase Date <span className="text-red-500">*</span></Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -356,10 +371,27 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
                     setErrors({ ...errors, date: "" });
                   }}
                   disabled={(date) => {
-                    if (!selectedStock || availableDates.size === 0) return true;
+                    if (!selectedStock) return true;
+                    
                     const dateStr = format(date, "yyyy-MM-dd");
-                    return !availableDates.has(dateStr);
+                    
+                    // If we have a date range and the date falls within it
+                    if (dateRange.minDate && dateRange.maxDate) {
+                      const dateTime = date.getTime();
+                      const minTime = dateRange.minDate.getTime();
+                      const maxTime = dateRange.maxDate.getTime();
+                      
+                      if (dateTime >= minTime && dateTime <= maxTime) {
+                        // Within data range: only enable dates we have data for
+                        return !availableDates.has(dateStr);
+                      }
+                    }
+                    
+                    // Outside data range: enable all weekdays (disable weekends)
+                    const dayOfWeek = date.getDay();
+                    return dayOfWeek === 0 || dayOfWeek === 6; // 0 = Sunday, 6 = Saturday
                   }}
+                  captionLayout="dropdown-buttons"
                   initialFocus
                 />
               </PopoverContent>
@@ -369,7 +401,7 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
 
           {/* Quantity */}
           <div className="space-y-2">
-            <Label htmlFor="quantity">Quantity *</Label>
+            <Label htmlFor="quantity">Quantity <span className="text-red-500">*</span></Label>
             <Input
               id="quantity"
               type="number"
@@ -400,7 +432,7 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
           {/* Price */}
           <div className="space-y-2">
             <Label htmlFor="price">
-              Purchase Price (₹ ) *
+              Purchase Price (₹) <span className="text-red-500">*</span>
               {!manualPriceMode && priceRange && (
                 <span className="text-sm text-muted-foreground ml-2">
                   (Range: ₹{formatPriceToTick(priceRange.lowerCircuit)} - ₹{formatPriceToTick(priceRange.upperCircuit)})
@@ -456,7 +488,7 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
                 setPrice("");
                 setManualPriceMode(false);
                 setPriceRange(null);
-                setAvailableDates(new Set());
+                setAvailableDates(new Set());              setDateRange({ minDate: null, maxDate: null });                setDateRange({ minDate: null, maxDate: null });
                 setErrors({});
               }}
             >

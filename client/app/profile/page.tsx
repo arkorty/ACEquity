@@ -213,7 +213,7 @@ const ProfilePage = () => {
                       profitLoss >= 0 ? "text-green-500" : "text-red-500"
                     }`}
                   >
-                    {profitLoss >= 0 ? "+" : "-"}₹{formatNumberIN(Math.abs(profitLoss))}
+                    ₹{formatNumberIN(Math.abs(profitLoss))}
                   </p>
                   <p
                     className={`text-xs ${

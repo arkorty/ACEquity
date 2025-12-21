@@ -16,7 +16,7 @@ import { openLoginPopup, closeLoginPopup } from '@/lib/redux/slices/CTASlice';
 
 const navigation = [
   { name: "Markets", href: "/markets", icon: BarChart2, requiresAuth: true },
-  { name: "Watchlist", href: "/watchlist", icon: List, requiresAuth: true },
+  { name: "Watchlists", href: "/watchlist", icon: List, requiresAuth: true },
   { name: "Holdings", href: "/holdings", icon: Briefcase, requiresAuth: true },
   { name: "Profile", href: "/profile", icon: User, requiresAuth: true },
 ];

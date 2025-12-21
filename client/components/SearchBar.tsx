@@ -7,17 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import TICKERS from "@/constants/TICKERS.json";
 import Fuse from "fuse.js";
-import { useTheme } from "next-themes";
-import { Sankofa_Display } from "next/font/google";
 
 export function SearchBar() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<{ Ticker: string; Name: string }[]>(
     []
   );
-  const [highlightedIndex, setHighlightedIndex] = useState(-1); // Track highlighted index
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
 
   const fuse = new Fuse(TICKERS, {
     keys: ["Ticker", "Name"],
@@ -43,7 +40,6 @@ export function SearchBar() {
     } else {
       console.log("Stock not found");
     }
-    setTheme(theme === "light" ? "dark" : "light");
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
