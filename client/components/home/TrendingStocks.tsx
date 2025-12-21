@@ -20,8 +20,39 @@ export function TrendingStocks() {
 
         const allStocks = stockData as unknown as Stock[];
 
+        // Group by base ticker to handle duplicates like [ticker].NS and [ticker].BO
+        const stockGroups = new Map<string, Stock[]>();
+
+        allStocks.forEach((stock) => {
+            const baseTicker = stock.Ticker.split('.')[0];
+            if (!stockGroups.has(baseTicker)) {
+                stockGroups.set(baseTicker, []);
+            }
+            stockGroups.get(baseTicker)!.push(stock);
+        });
+
+        const uniqueStocks: Stock[] = [];
+
+        stockGroups.forEach((group) => {
+            // Choose the best variant: prioritize valid name, then higher volume
+            const bestStock = group.reduce((prev, current) => {
+                const prevHasName = prev.Name !== "Unknown";
+                const currentHasName = current.Name !== "Unknown";
+
+                if (prevHasName && !currentHasName) return prev;
+                if (!prevHasName && currentHasName) return current;
+
+                return prev.Volume > current.Volume ? prev : current;
+            });
+
+            uniqueStocks.push({
+                ...bestStock,
+                Name: bestStock.Name === "Unknown" ? "..." : bestStock.Name,
+            });
+        });
+
         // Sort by Volume descending and take top
-        const topVolumeStocks = [...allStocks]
+        const topVolumeStocks = uniqueStocks
             .sort((a, b) => b.Volume - a.Volume)
             .slice(0, 12);
 
