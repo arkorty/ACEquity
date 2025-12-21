@@ -371,27 +371,12 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
                     setErrors({ ...errors, date: "" });
                   }}
                   disabled={(date) => {
-                    if (!selectedStock) return true;
-                    
-                    const dateStr = format(date, "yyyy-MM-dd");
-                    
-                    // If we have a date range and the date falls within it
-                    if (dateRange.minDate && dateRange.maxDate) {
-                      const dateTime = date.getTime();
-                      const minTime = dateRange.minDate.getTime();
-                      const maxTime = dateRange.maxDate.getTime();
-                      
-                      if (dateTime >= minTime && dateTime <= maxTime) {
-                        // Within data range: only enable dates we have data for
-                        return !availableDates.has(dateStr);
-                      }
-                    }
-                    
-                    // Outside data range: enable all weekdays (disable weekends)
-                    const dayOfWeek = date.getDay();
-                    return dayOfWeek === 0 || dayOfWeek === 6; // 0 = Sunday, 6 = Saturday
+                    if (!selectedStock || !dateRange.minDate || !dateRange.maxDate) return true;
+                    const dateTime = date.getTime();
+                    const minTime = dateRange.minDate.getTime();
+                    const maxTime = dateRange.maxDate.getTime();
+                    return dateTime < minTime || dateTime > maxTime || !availableDates.has(format(date, "yyyy-MM-dd"));
                   }}
-                  captionLayout="dropdown-buttons"
                   initialFocus
                 />
               </PopoverContent>
