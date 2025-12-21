@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatIndianNumber(num: number | undefined): string {
+export function formatNumberIN(num: number | undefined): string {
   if (num === undefined || num === null) return "0";
   
   const value = Number(num);

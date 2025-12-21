@@ -6,7 +6,7 @@ import { ArrowUp, ArrowDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import stockData from "@/constants/TICKERS.json";
 import { Stock } from "@/types/stock";
-import { formatIndianNumber } from "@/lib/utils";
+import { formatNumberIN } from "@/lib/utils";
 
 
 
@@ -105,7 +105,7 @@ export function TrendingStocks() {
                             </div>
                             <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
                                 <p className="text-xs text-muted-foreground">
-                                    Volume: {formatIndianNumber(stock.Volume)}
+                                    Volume: {formatNumberIN(stock.Volume)}
                                 </p>
                             </div>
                         </CardContent>

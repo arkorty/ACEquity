@@ -1,6 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowDown, ArrowUp } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import stockData from "@/constants/TICKERS.json";
+import { formatNumberIN } from "@/lib/utils";
 
 export function StockOverview({ ticker }: { ticker: string }) {
   const stock = stockData.find((item) => item.Ticker === ticker);
@@ -49,7 +50,7 @@ export function StockOverview({ ticker }: { ticker: string }) {
             {formatNumber(Math.abs(getChange(stock?.Change)))}%
           </span>
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-muted-foreground">Open</p>
             <p className="text-lg font-semibold">
@@ -68,14 +69,14 @@ export function StockOverview({ ticker }: { ticker: string }) {
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Volume</p>
-            <p className="text-lg font-semibold">{getValue(stock?.Volume)}</p>
+            <p className="text-lg font-semibold">{formatNumberIN(stock?.Volume)}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Turnover</p>
             <p className="text-lg font-semibold">
               ₹
-              {formatNumber(
-                getValue(stock?.Volume) * getValue(stock?.["Adj Close"])
+              {stock && formatNumberIN(
+                stock?.Volume * stock?.["Adj Close"]
               )}
             </p>
           </div>

@@ -28,10 +28,10 @@ export default function StockDetailsPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-12rem)] w-full">
-      <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8 h-full">
+    <div className="lg:h-[calc(100vh-12rem)] h-auto w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:h-full h-auto">
         {/* Left Column: Details */}
-        <div className="lg:col-span-1 flex flex-col h-full overflow-hidden">
+        <div className="lg:col-span-1 flex flex-col lg:h-full h-auto overflow-hidden">
           <div className="mb-4">
             <SearchBar />
           </div>
@@ -41,7 +41,7 @@ export default function StockDetailsPage() {
         </div>
 
         {/* Right Column: Chart */}
-        <div className="lg:col-span-2 h-full min-h-0 flex flex-col">
+        <div className="lg:col-span-2 lg:h-full h-auto min-h-0 flex flex-col">
           <PointsChart ticker={ticker || ''} />
         </div>
       </div>
