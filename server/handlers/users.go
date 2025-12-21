@@ -48,7 +48,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 		RespondWithJSON(w, http.StatusConflict, map[string]interface{}{
 			"status":  "success",
-			"message": "Email already registered. User ID sent to your email address.",
+			"message": "Email already registered. User ID sent to My email address.",
 		})
 		return
 	} else if err != sql.ErrNoRows {

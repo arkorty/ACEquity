@@ -61,9 +61,9 @@ func sendEmailToExistingUser(email, userid, fullname string) error {
 	params := &resend.SendEmailRequest{
 		From:    "ACEquity <acequity@noreply.webark.in>",
 		To:      []string{email},
-		Subject: "Your ACEquity User ID",
+		Subject: "My ACEquity User ID",
 		Html:    htmlContent,
-		Text:    "Hello " + fullname + ",\n\nYour ACEquity User ID is: " + userid + "\n\nUse this ID to log into your account.\n\nBest regards,\nACEquity Team",
+		Text:    "Hello " + fullname + ",\n\nMy ACEquity User ID is: " + userid + "\n\nUse this ID to log into My account.\n\nBest regards,\nACEquity Team",
 	}
 
 	_, err = client.Emails.Send(params)
@@ -120,9 +120,9 @@ func SendOTP(email, otp, fullname string) error {
 	params := &resend.SendEmailRequest{
 		From:    "ACEquity <acequity@noreply.webark.in>",
 		To:      []string{email},
-		Subject: "Your ACEquity Login Code",
+		Subject: "My ACEquity Login Code",
 		Html:    htmlContent,
-		Text:    "Hello " + fullname + ",\n\nYour ACEquity verification code is: " + otp + "\n\nThis code will expire in 10 minutes. Do not share this code with anyone.\n\nBest regards,\nACEquity Team",
+		Text:    "Hello " + fullname + ",\n\nMy ACEquity verification code is: " + otp + "\n\nThis code will expire in 10 minutes. Do not share this code with anyone.\n\nBest regards,\nACEquity Team",
 	}
 
 	_, err = client.Emails.Send(params)

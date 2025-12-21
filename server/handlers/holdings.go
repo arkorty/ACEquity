@@ -25,6 +25,24 @@ func CreateHolding(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate required fields
+	if holding.Ticker == "" {
+		RespondWithError(w, http.StatusBadRequest, "Ticker is required")
+		return
+	}
+	if holding.Quantity <= 0 {
+		RespondWithError(w, http.StatusBadRequest, "Quantity must be greater than 0")
+		return
+	}
+	if holding.Price <= 0 {
+		RespondWithError(w, http.StatusBadRequest, "Price must be greater than 0")
+		return
+	}
+	if holding.Date == "" {
+		RespondWithError(w, http.StatusBadRequest, "Date is required")
+		return
+	}
+
 	holding.ID = uuid.New().String()
 
 	// Insert the holding into a separate table
