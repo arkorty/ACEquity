@@ -371,11 +371,16 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
                     setErrors({ ...errors, date: "" });
                   }}
                   disabled={(date) => {
-                    if (!selectedStock || !dateRange.minDate || !dateRange.maxDate) return true;
-                    const dateTime = date.getTime();
-                    const minTime = dateRange.minDate.getTime();
-                    const maxTime = dateRange.maxDate.getTime();
-                    return dateTime < minTime || dateTime > maxTime || !availableDates.has(format(date, "yyyy-MM-dd"));
+                    if (!selectedStock) return true;
+                    // Only disable if we have date range data and date is outside it
+                    if (dateRange.minDate && dateRange.maxDate) {
+                      const dateTime = date.getTime();
+                      const minTime = dateRange.minDate.getTime();
+                      const maxTime = dateRange.maxDate.getTime();
+                      return dateTime < minTime || dateTime > maxTime;
+                    }
+                    // If data hasn't loaded yet, allow selection and validate later
+                    return false;
                   }}
                   initialFocus
                 />
@@ -473,7 +478,8 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
                 setPrice("");
                 setManualPriceMode(false);
                 setPriceRange(null);
-                setAvailableDates(new Set());              setDateRange({ minDate: null, maxDate: null });                setDateRange({ minDate: null, maxDate: null });
+                setAvailableDates(new Set());
+                setDateRange({ minDate: null, maxDate: null });
                 setErrors({});
               }}
             >
