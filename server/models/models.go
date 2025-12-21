@@ -8,9 +8,10 @@ type Watchlist struct {
 
 type Holding struct {
 	ID       string  `json:"id"`
-	Symbol   string  `json:"symbol"`
+	Ticker   string  `json:"ticker"`
 	Quantity float64 `json:"quantity"`
 	Price    float64 `json:"price"`
+	Date     string  `json:"date"`
 }
 
 type User struct {

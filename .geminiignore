@@ -1,0 +1,5 @@
+client/.next
+client/node_modules
+client/public/
+client/constants/
+

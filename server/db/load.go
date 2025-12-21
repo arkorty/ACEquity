@@ -7,7 +7,18 @@ import (
 )
 
 func LoadDB() *sql.DB {
-	dbFile := "./data.db"
+	if _, err := os.Stat("./.ignore"); os.IsNotExist(err) {
+		err := os.Mkdir("./.ignore", 0755)
+		if err != nil {
+			log.Fatal("Failed to create .ignore directory:", err)
+		}
+	}
+
+	dbFile := os.Getenv("DB_PATH")
+	if dbFile == "" {
+		dbFile = "./.ignore/sqlite.db"
+	}
+
 	_, err := os.Stat(dbFile)
 	dbExists := !os.IsNotExist(err)
 

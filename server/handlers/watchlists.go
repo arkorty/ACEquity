@@ -12,15 +12,16 @@ import (
 )
 
 func CreateWatchlist(w http.ResponseWriter, r *http.Request) {
-	userID := r.Header.Get("userid")
-	if userID == "" {
-		http.Error(w, "Missing userid in header", http.StatusBadRequest)
+	cookie, err := r.Cookie("userid")
+	if err != nil {
+		RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
+	userID := cookie.Value
 
 	var wl models.Watchlist
 	if err := json.NewDecoder(r.Body).Decode(&wl); err != nil {
-		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		RespondWithError(w, http.StatusBadRequest, "Invalid JSON payload")
 		return
 	}
 	wl.ID = uuid.New().String()
@@ -31,16 +32,16 @@ func CreateWatchlist(w http.ResponseWriter, r *http.Request) {
 	var watchlistIDsJSON string
 	if err := row.Scan(&watchlistIDsJSON); err != nil {
 		if err == sql.ErrNoRows {
-			http.Error(w, "User not found", http.StatusNotFound)
+			RespondWithError(w, http.StatusNotFound, "User not found")
 		} else {
-			http.Error(w, "Failed to fetch user - "+err.Error(), http.StatusInternalServerError)
+			RespondWithError(w, http.StatusInternalServerError, "Failed to fetch user - "+err.Error())
 		}
 		return
 	}
 
-	_, err := db.DB.Exec("INSERT INTO watchlists (id, name, tickers, userid) VALUES (?, ?, ?, ?)", wl.ID, wl.Name, tickersJSON, userID)
+	_, err = db.DB.Exec("INSERT INTO watchlists (id, name, tickers, userid) VALUES (?, ?, ?, ?)", wl.ID, wl.Name, tickersJSON, userID)
 	if err != nil {
-		http.Error(w, "Failed to create watchlist - "+err.Error(), http.StatusInternalServerError)
+		RespondWithError(w, http.StatusInternalServerError, "Failed to create watchlist - "+err.Error())
 		return
 	}
 
@@ -53,20 +54,20 @@ func CreateWatchlist(w http.ResponseWriter, r *http.Request) {
 	updatedWatchlistIDsJSON, _ := json.Marshal(watchlistIDs)
 	_, err = db.DB.Exec("UPDATE users SET watchlistIDs = ? WHERE userid = ?", updatedWatchlistIDsJSON, userID)
 	if err != nil {
-		http.Error(w, "Failed to update user's watchlist IDs - "+err.Error(), http.StatusInternalServerError)
+		RespondWithError(w, http.StatusInternalServerError, "Failed to update user's watchlist IDs - "+err.Error())
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{"status": "success", "response": wl})
+	RespondWithJSON(w, http.StatusOK, map[string]interface{}{"status": "success", "response": wl})
 }
 
 func GetWatchlist(w http.ResponseWriter, r *http.Request) {
-	userID := r.Header.Get("userid")
-	if userID == "" {
-		http.Error(w, "Missing userid in header", http.StatusBadRequest)
+	cookie, err := r.Cookie("userid")
+	if err != nil {
+		RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
+	userID := cookie.Value
 
 	id := chi.URLParam(r, "id")
 	row := db.DB.QueryRow("SELECT id, name, tickers FROM watchlists WHERE id = ? AND userid = ?", id, userID)
@@ -75,29 +76,29 @@ func GetWatchlist(w http.ResponseWriter, r *http.Request) {
 	var tickers string
 	if err := row.Scan(&wl.ID, &wl.Name, &tickers); err != nil {
 		if err == sql.ErrNoRows {
-			http.Error(w, "Watchlist not found", http.StatusNotFound)
+			RespondWithError(w, http.StatusNotFound, "Watchlist not found")
 		} else {
-			http.Error(w, "Failed to fetch watchlist - "+err.Error(), http.StatusInternalServerError)
+			RespondWithError(w, http.StatusInternalServerError, "Failed to fetch watchlist - "+err.Error())
 		}
 		return
 	}
 
 	json.Unmarshal([]byte(tickers), &wl.Tickers)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{"status": "success", "response": wl})
+	RespondWithJSON(w, http.StatusOK, map[string]interface{}{"status": "success", "response": wl})
 }
 
 func UpdateWatchlist(w http.ResponseWriter, r *http.Request) {
-	userID := r.Header.Get("userid")
-	if userID == "" {
-		http.Error(w, "Missing userid in header", http.StatusBadRequest)
+	cookie, err := r.Cookie("userid")
+	if err != nil {
+		RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
+	userID := cookie.Value
 
 	id := chi.URLParam(r, "id")
 	var wl models.Watchlist
 	if err := json.NewDecoder(r.Body).Decode(&wl); err != nil {
-		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		RespondWithError(w, http.StatusBadRequest, "Invalid JSON payload")
 		return
 	}
 	wl.ID = id
@@ -105,26 +106,26 @@ func UpdateWatchlist(w http.ResponseWriter, r *http.Request) {
 	tickersJSON, _ := json.Marshal(wl.Tickers)
 	result, err := db.DB.Exec("UPDATE watchlists SET name = ?, tickers = ? WHERE id = ? AND userid = ?", wl.Name, tickersJSON, id, userID)
 	if err != nil {
-		http.Error(w, "Failed to update watchlist - "+err.Error(), http.StatusInternalServerError)
+		RespondWithError(w, http.StatusInternalServerError, "Failed to update watchlist - "+err.Error())
 		return
 	}
 
 	rowsAffected, _ := result.RowsAffected()
 	if rowsAffected == 0 {
-		http.Error(w, "Watchlist not found", http.StatusNotFound)
+		RespondWithError(w, http.StatusNotFound, "Watchlist not found")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{"status": "success", "response": wl})
+	RespondWithJSON(w, http.StatusOK, map[string]interface{}{"status": "success", "response": wl})
 }
 
 func DeleteWatchlist(w http.ResponseWriter, r *http.Request) {
-	userID := r.Header.Get("userid")
-	if userID == "" {
-		http.Error(w, "Missing userid in header", http.StatusBadRequest)
+	cookie, err := r.Cookie("userid")
+	if err != nil {
+		RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
+	userID := cookie.Value
 
 	id := chi.URLParam(r, "id")
 
@@ -132,40 +133,40 @@ func DeleteWatchlist(w http.ResponseWriter, r *http.Request) {
 	var dbUserID string
 	if err := row.Scan(&dbUserID); err != nil {
 		if err == sql.ErrNoRows {
-			http.Error(w, "Watchlist not found", http.StatusNotFound)
+			RespondWithError(w, http.StatusNotFound, "Watchlist not found")
 		} else {
-			http.Error(w, "Failed to fetch watchlist - "+err.Error(), http.StatusInternalServerError)
+			RespondWithError(w, http.StatusInternalServerError, "Failed to fetch watchlist - "+err.Error())
 		}
 		return
 	}
 
 	if dbUserID != userID {
-		http.Error(w, "Unauthorized access", http.StatusUnauthorized)
+		RespondWithError(w, http.StatusUnauthorized, "Unauthorized access")
 		return
 	}
 
 	result, err := db.DB.Exec("DELETE FROM watchlists WHERE id = ?", id)
 	if err != nil {
-		http.Error(w, "Failed to delete watchlist - "+err.Error(), http.StatusInternalServerError)
+		RespondWithError(w, http.StatusInternalServerError, "Failed to delete watchlist - "+err.Error())
 		return
 	}
 
 	rowsAffected, _ := result.RowsAffected()
 	if rowsAffected == 0 {
-		http.Error(w, "Watchlist not found", http.StatusNotFound)
+		RespondWithError(w, http.StatusNotFound, "Watchlist not found")
 		return
 	}
 
 	row = db.DB.QueryRow("SELECT watchlistIDs FROM users WHERE userid = ?", userID)
 	var watchlistIDsJSON string
 	if err := row.Scan(&watchlistIDsJSON); err != nil {
-		http.Error(w, "Failed to fetch user's watchlist IDs - "+err.Error(), http.StatusInternalServerError)
+		RespondWithError(w, http.StatusInternalServerError, "Failed to fetch user's watchlist IDs - "+err.Error())
 		return
 	}
 
 	var watchlistIDs []string
 	if err := json.Unmarshal([]byte(watchlistIDsJSON), &watchlistIDs); err != nil {
-		http.Error(w, "Failed to parse watchlist IDs - "+err.Error(), http.StatusInternalServerError)
+		RespondWithError(w, http.StatusInternalServerError, "Failed to parse watchlist IDs - "+err.Error())
 		return
 	}
 
@@ -179,10 +180,9 @@ func DeleteWatchlist(w http.ResponseWriter, r *http.Request) {
 	updatedWatchlistIDsJSON, _ := json.Marshal(watchlistIDs)
 	_, err = db.DB.Exec("UPDATE users SET watchlistIDs = ? WHERE userid = ?", updatedWatchlistIDsJSON, userID)
 	if err != nil {
-		http.Error(w, "Failed to update user's watchlist IDs - "+err.Error(), http.StatusInternalServerError)
+		RespondWithError(w, http.StatusInternalServerError, "Failed to update user's watchlist IDs - "+err.Error())
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{"status": "success", "response": "Watchlist deleted successfully"})
+	RespondWithJSON(w, http.StatusOK, map[string]interface{}{"status": "success", "response": "Watchlist deleted successfully"})
 }

@@ -25,6 +25,11 @@ func InitDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Migrations: Add otp and otp_expiry if they don't exist
+	// Ignoring errors as they might already exist
+	DB.Exec("ALTER TABLE users ADD COLUMN otp TEXT")
+	DB.Exec("ALTER TABLE users ADD COLUMN otp_expiry DATETIME")
 }
 
 func CloseDB() {

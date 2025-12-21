@@ -19,9 +19,10 @@ func main() {
 	defer db.CloseDB()
 
 	if err := db.DB.Ping(); err != nil {
-		fmt.Println("Database load failed, initializing...")
-		db.InitDB()
+		fmt.Printf("Database connection failed: %v\n", err)
 	}
+
+	db.InitDB()
 
 	port := ":8080"
 	fmt.Printf("Starting server on %s\n", port)
@@ -29,7 +30,7 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins:   []string{"http://localhost:3000", "https://ace.webark.in"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "userid"},
 		ExposedHeaders:   []string{"Link"},
@@ -44,10 +45,22 @@ func main() {
 		json.NewEncoder(w).Encode(response)
 	})
 
-	r.Post("/users", handlers.CreateUser)
+	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		response := map[string]string{"response": "OK", "status": "success"}
+		json.NewEncoder(w).Encode(response)
+	})
+
+	r.Post("/signup", handlers.SignUp)
+	r.Post("/signin", handlers.SignIn)
+	r.Post("/verify-otp", handlers.VerifyOTP)
+	r.Post("/logout", handlers.Logout)
+
 	r.Get("/users/{userid}", handlers.GetUser)
 	r.Put("/users/{userid}", handlers.UpdateUser)
 	r.Delete("/users/{userid}", handlers.DeleteUser)
+	r.Get("/users/me", handlers.GetCurrentUser)
 
 	r.Post("/watchlists", handlers.CreateWatchlist)
 	r.Get("/watchlists/{id}", handlers.GetWatchlist)

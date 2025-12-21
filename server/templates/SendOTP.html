@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ACEquity User ID</title>
+    <title>ACEquity Login OTP</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
         
@@ -31,33 +31,22 @@
             margin-bottom: 12px;
         }
         
-        .user-id {
+        .otp-code {
             font-family: monospace;
-            font-size: 16px;
+            font-size: 24px;
+            letter-spacing: 4px;
+            text-align: center;
             background: hsl(240 10% 12%);
-            padding: 12px;
+            padding: 16px;
             border-radius: 4px;
-            margin: 12px 0;
-            word-break: break-all;
+            margin: 16px 0;
+            font-weight: bold;
         }
         
         .text {
             font-size: 13px;
             color: hsl(0 0% 70%);
             margin: 8px 0;
-        }
-        
-        .button {
-            display: block;
-            background: hsl(0 0% 95%);
-            color: hsl(240 10% 10%);
-            text-align: center;
-            text-decoration: none;
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 500;
-            margin: 16px 0 8px;
         }
         
         .footer {
@@ -72,13 +61,11 @@
 <body>
     <div class="card">
         <div class="logo">ACEquity</div>
-        <div class="text">Hello {{.Fullname}}, your user ID:</div>
+        <div class="text">Hello {{.Fullname}}, your verification code is:</div>
         
-        <div class="user-id">{{.UserID}}</div>
+        <div class="otp-code">{{.OTP}}</div>
         
-        <div class="text">Use this to access your investment portfolio.</div>
-        
-        <a href="https://ace.webark.in/" class="button">Login to Account</a>
+        <div class="text">This code will expire in 10 minutes. Do not share this code with anyone.</div>
         
         <div class="footer">
             <div>Automated message - please don't reply</div>
