@@ -11,10 +11,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn, formatPrice, formatPriceToTick, roundToTick } from "@/lib/utils";
-import { CalendarIcon, Search } from "lucide-react";
+import { formatPrice, formatPriceToTick, roundToTick } from "@/lib/utils";
+import { Search } from "lucide-react";
+import { DatePicker } from "../ui/date-picker";
 import { format } from "date-fns";
 import TICKERS from "@/constants/TICKERS.json";
 import Fuse from "fuse.js";
@@ -87,6 +86,23 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
   const [date, setDate] = useState<Date>();
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState("");
+
+  // Helper: limit numeric string to max 2 decimal places
+  const clampTwoDecimals = (val: string) => {
+    if (!val) return val;
+    // Allow leading '-' only removed by input constraints; trim non-numeric except dot
+    const match = val.match(/^(-?\d+)(\.(\d*))?$/);
+    if (!match) {
+      // fallback: try to parse float and format
+      const n = parseFloat(val);
+      if (isNaN(n)) return "";
+      return n.toFixed(2);
+    }
+    const intPart = match[1];
+    const frac = match[3] || "";
+    if (frac.length <= 2) return frac ? `${intPart}.${frac}` : intPart;
+    return `${intPart}.${frac.slice(0, 2)}`;
+  };
   const [manualPriceMode, setManualPriceMode] = useState(false);
   const [priceRange, setPriceRange] = useState<{ 
     open: number; 
@@ -204,8 +220,8 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
           upperCircuit,
           lowerCircuit,
         });
-        // Set default price to adjusted close price
-        setPrice(closingPrice.toString() || "");
+        // Set default price to adjusted close price (rounded to tick/2 decimals)
+        setPrice(formatPriceToTick(closingPrice));
       } else {
         setPriceRange(null);
         setPrice("");
@@ -227,7 +243,7 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
       newErrors.date = "Please select a date";
     }
 
-    if (!quantity || parseFloat(quantity) <= 0) {
+    if (!quantity || parseInt(quantity, 10) <= 0) {
       newErrors.quantity = "Please enter a valid quantity";
     }
 
@@ -256,7 +272,7 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
     if (selectedStock && date && quantity && price) {
       onCreateHolding({
         ticker: selectedStock.Ticker,
-        quantity: parseFloat(quantity),
+        quantity: parseInt(quantity, 10),
         price: parseFloat(price),
         date: format(date, "yyyy-MM-dd"),
       });
@@ -348,46 +364,22 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
           {/* Date Picker */}
           <div className="space-y-2">
             <Label>Purchase Date <span className="text-red-500">*</span></Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !date && "text-muted-foreground",
-                    errors.date && "border-red-500"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" onOpenAutoFocus={(e) => e.preventDefault()}>
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={(newDate) => {
-                    if (newDate) {
-                      setDate(newDate);
-                      setErrors({ ...errors, date: "" });
-                    }
-                  }}
-                  disabled={(date) => {
-                    if (!selectedStock) return true;
-                    // Only disable if we have date range data and date is outside it
-                    if (dateRange.minDate && dateRange.maxDate) {
-                      const dateTime = date.getTime();
-                      const minTime = dateRange.minDate.getTime();
-                      const maxTime = dateRange.maxDate.getTime();
-                      return dateTime < minTime || dateTime > maxTime;
-                    }
-                    // If data hasn't loaded yet, allow selection and validate later
-                    return false;
-                  }}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <DatePicker
+              value={date}
+              onChange={(newDate) => {
+                setDate(newDate);
+                setErrors({ ...errors, date: "" });
+              }}
+              disabled={(date) => {
+                if (!selectedStock) return true;
+                // We'll still return true here only to block clicks entirely when no stock is selected
+                // per-date disabling (outside range) is handled in DatePicker via minDate/maxDate logic
+                return false;
+              }}
+              minDate={dateRange.minDate || undefined}
+              maxDate={dateRange.maxDate || undefined}
+              error={!!errors.date}
+            />
             {errors.date && <p className="text-sm text-red-500">{errors.date}</p>}
           </div>
 
@@ -397,11 +389,17 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
             <Input
               id="quantity"
               type="number"
-              step="0.01"
+              step="1"
+              min="1"
               placeholder="Enter quantity"
               value={quantity}
               onChange={(e) => {
-                setQuantity(e.target.value);
+                // Ensure quantity remains an integer string
+                const raw = e.target.value;
+                const intPart = raw.includes('.') ? raw.split('.')[0] : raw;
+                const parsed = parseInt(intPart || "0", 10);
+                const sanitized = parsed > 0 ? String(parsed) : "";
+                setQuantity(sanitized);
                 setErrors({ ...errors, quantity: "" });
               }}
               className={errors.quantity ? "border-red-500" : ""}
@@ -438,15 +436,9 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
               placeholder={manualPriceMode ? "Enter price manually" : "Enter price or use suggested"}
               value={price}
               onChange={(e) => {
-                let value = e.target.value;
-                // Limit to 2 decimal places in manual price mode
-                if (manualPriceMode && value) {
-                  const parts = value.split('.');
-                  if (parts.length > 1 && parts[1].length > 2) {
-                    value = formatPrice(parseFloat(value));
-                  }
-                }
-                setPrice(value);
+                // Always clamp to 2 decimals
+                const sanitized = clampTwoDecimals(e.target.value);
+                setPrice(sanitized);
                 setErrors({ ...errors, price: "" });
               }}
               className={errors.price ? "border-red-500" : ""}
