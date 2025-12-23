@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,53 +14,81 @@ import { ToSPopupProps } from "../types/tos-popup";
 
 const ToSPopup: React.FC<ToSPopupProps> = ({ isOpen, onAccept, onDecline }) => {
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
-  const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(
-    null
-  );
+  // Attach ref to the actual scrollable div inside ScrollArea
+  const scrollableDivRef = useRef<HTMLDivElement | null>(null);
+  const acceptButtonRef = useRef<HTMLButtonElement | null>(null);
+  const statusLiveRef = useRef<HTMLSpanElement | null>(null);
 
   useEffect(() => {
-    if (!isOpen) return; // Reset state when dialog closes
+    if (!isOpen) return;
+
+    // Attach scroll listener to the actual scrollable div
+    const el = scrollableDivRef.current;
 
     const checkScroll = () => {
-      if (scrollContainer) {
-        const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+      if (el) {
+        const { scrollTop, scrollHeight, clientHeight } = el;
         setIsScrolledToBottom(scrollTop + clientHeight >= scrollHeight - 5);
       }
     };
 
-    // Delay execution to ensure ScrollArea is mounted
-    setTimeout(() => {
-      const container = document.querySelector(".tos-scroll-area div");
-      if (container) {
-        setScrollContainer(container as HTMLElement);
-        container.addEventListener("scroll", checkScroll);
-        checkScroll(); // Check immediately in case already scrolled
-      }
-    }, 100);
+    // If element isn't ready yet (component mount timing), try again shortly.
+    if (!el) {
+      const t = setTimeout(() => checkScroll(), 50);
+      return () => clearTimeout(t);
+    }
+
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    checkScroll();
+
+    // Move focus into the dialog for keyboard users. Focus the Accept button.
+    const prevActive = document.activeElement as HTMLElement | null;
+    const focusTimeout = setTimeout(() => {
+      acceptButtonRef.current?.focus();
+    }, 0);
 
     return () => {
-      if (scrollContainer)
-        scrollContainer.removeEventListener("scroll", checkScroll);
+      el.removeEventListener("scroll", checkScroll);
+      clearTimeout(focusTimeout);
+      prevActive?.focus?.();
     };
-  }, [isOpen, scrollContainer]);
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onDecline}>
-      {isOpen && <div className="fixed inset-0 backdrop-blur-sm z-50"></div>}
+      {isOpen && <div className="fixed inset-0 backdrop-blur-sm z-50" aria-hidden="true"></div>}
       <DialogContent
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tos-title"
         className="z-50 max-w-md mx-auto py-8 px-6 md:p-8"
         aria-describedby="tos-description"
+        onKeyDown={(e) => {
+          // allow keyboard users to press Enter to accept once they've scrolled
+          if (e.key === "Enter" && isScrolledToBottom) {
+            onAccept();
+          }
+        }}
       >
         <DialogHeader>
-          <DialogTitle>Terms of Service</DialogTitle>
+          <DialogTitle id="tos-title">Terms of Service</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="max-h-96 tos-scroll-area">
-          <DialogDescription
-            id="tos-description"
-            className="text-primary/80 text-justify sm:mr-3"
+        <div className="relative">
+          <ScrollArea
+            className="max-h-96 tos-scroll-area"
+            role="region"
+            aria-label="Terms of Service content"
           >
-            By accessing or using our experimental Stock Market Tracker{" "}
-            <strong>ACEquity</strong>, you agree to be bound by these terms of
+            <div
+              ref={scrollableDivRef}
+              tabIndex={0}
+              className="max-h-96 overflow-y-auto outline-none focus:outline-none bg-transparent border-none shadow-none"
+            >
+              <DialogDescription
+                id="tos-description"
+                className="text-primary/80 text-justify sm:mr-3"
+              >
+            By accessing or using our experimental Stock Market Tracker <strong>ACEquity</strong>, you agree to be bound by these terms of
             Service. If you do not agree to these terms, please do not use the
             Service.
             <br />
@@ -80,6 +108,7 @@ const ToSPopup: React.FC<ToSPopupProps> = ({ isOpen, onAccept, onDecline }) => {
             including stock prices, wishlist items, or other financial
             information. Stock market data may be outdated, incorrect, or
             unavailable at times. Use the information at My own risk.
+            unavailable at times. Use the information at your own risk.
             <br />
             <br />
             <strong>No Liability</strong>
@@ -131,13 +160,35 @@ const ToSPopup: React.FC<ToSPopupProps> = ({ isOpen, onAccept, onDecline }) => {
             <br />
             By using the Service, you acknowledge that you have read and
             understood these terms and agree to be bound by them.
-          </DialogDescription>
-        </ScrollArea>
+
+              </DialogDescription>
+            </div>
+          </ScrollArea>
+          {!isScrolledToBottom && (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute bottom-0 left-0 w-full flex flex-col items-center z-20"
+            >
+              <div className="w-full h-12 bg-gradient-to-t from-background to-transparent" />
+              <span className="-mt-8 mb-2 px-3 py-1 rounded bg-background/80 text-xs text-muted-foreground shadow">
+                Scroll to read more
+              </span>
+            </div>
+          )}
+        </div>
+
+        <span ref={statusLiveRef} className="sr-only" aria-live="polite">
+          {isScrolledToBottom ? "You have reached the end of the terms." : "Scroll to the end to accept."}
+        </span>
+
         <DialogFooter className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2">
           <Button
+            ref={acceptButtonRef}
             size="sm"
             onClick={onAccept}
             disabled={!isScrolledToBottom}
+            aria-disabled={!isScrolledToBottom}
+            aria-describedby={!isScrolledToBottom ? "tos-description" : undefined}
             className="focus-visible:ring-transparent"
           >
             Accept
@@ -146,6 +197,7 @@ const ToSPopup: React.FC<ToSPopupProps> = ({ isOpen, onAccept, onDecline }) => {
             size="sm"
             variant="destructive"
             onClick={onDecline}
+            aria-label="Decline terms"
             className="focus-visible:ring-transparent bg-red-600 hover:bg-red-800"
           >
             Decline

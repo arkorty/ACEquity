@@ -17,7 +17,7 @@ import {
 } from "chart.js";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
-import { ChartData, ChartOptions } from "@/types";
+import { ChartData, ChartOptions } from "@/types/stock";
 import { formatPrice } from "@/lib/utils";
 
 ChartJS.register(
@@ -120,7 +120,7 @@ export function PriceChart({ ticker }: { ticker: string }) {
         mode: "index" as keyof InteractionModeMap,
         intersect: false,
         callbacks: {
-          label: function (context) {
+          label: function (context: any) {
             const label = context.dataset.label || "";
             const value = formatPrice(context.raw as number);
             const date = context.label;
@@ -143,7 +143,7 @@ export function PriceChart({ ticker }: { ticker: string }) {
       y: {
         title: {
           display: true,
-          text: "Price (₹ )",
+          text: "Price (₹)",
         },
       },
     },
@@ -151,19 +151,22 @@ export function PriceChart({ ticker }: { ticker: string }) {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex justify-center space-x-2 mb-4">
-        {timeframes.map((tf) => (
-          <Button
-            key={tf.label}
-            variant={tf.range === range ? "default" : "outline"}
-            onClick={() => handleTimeframeChange(tf.range)}
-          >
-            {tf.label}
-          </Button>
-        ))}
-      </div>
       <div className="flex-grow min-h-[300px]">
-         <Line data={data} options={options} />
+        <Line data={data} options={options} />
+      </div>
+      <div className="flex w-full max-w-md sm:max-w-none overflow-x-auto py-1 px-1 gap-2 scrollbar-hide justify-center sm:justify-start mt-4 mb-2">
+        {timeframes.map((tf) => (
+          <div key={tf.label} className="flex-shrink-0">
+            <Button
+              variant={tf.range === range ? "default" : "outline"}
+              onClick={() => handleTimeframeChange(tf.range)}
+              className="whitespace-nowrap min-w-[48px]"
+              size="sm"
+            >
+              {tf.label}
+            </Button>
+          </div>
+        ))}
       </div>
     </div>
   );

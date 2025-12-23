@@ -15,12 +15,11 @@ import {
   InteractionModeMap,
 } from "chart.js";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { useTheme } from "next-themes";
 import { ChartData } from "@/types/watchlists";
 import type { ChartOptions as ChartJSOptions } from "chart.js";
 import { formatPrice } from "@/lib/utils";
+import { BarChart3, BarChart } from "lucide-react";
 
 ChartJS.register(
   CategoryScale,
@@ -72,22 +71,18 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const initialRange = searchParams.get("range") || "1m";
-  const [rangeState, setRangeState] = useState(initialRange);
-
-  const selectedTimeframe = timeframes.find((tf) => tf.range === rangeState) || timeframes[2];
+  const range = searchParams.get("range") || "1m";
+  const selectedTimeframe = timeframes.find((tf) => tf.range === range) || timeframes[2];
   const { theme } = useTheme();
-  
+  const [isAggregated, setIsAggregated] = useState(true);
   const [stocksData, setStocksData] = useState<StockChartData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAggregated, setIsAggregated] = useState(true);
 
-  // Load data for all stocks in the watchlist
   useEffect(() => {
     const loadWatchlistData = async () => {
       setLoading(true);
       try {
-        const dataPromises = tickers.map(async (ticker) => {
+        const dataPromises = tickers.map(async (ticker: string) => {
           try {
             const response = await fetch(`/data/${ticker}.json`);
             if (!response.ok) {
@@ -101,16 +96,14 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
             return { ticker, data: [] };
           }
         });
-
         const results = await Promise.all(dataPromises);
-        setStocksData(results.filter(result => result.data.length > 0));
+        setStocksData((results as StockChartData[]).filter((result) => result.data.length > 0));
       } catch (error) {
         console.error("Error loading watchlist data:", error);
       } finally {
         setLoading(false);
       }
     };
-
     if (tickers.length > 0) {
       loadWatchlistData();
     } else {
@@ -120,21 +113,9 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
   }, [tickers]);
 
   const handleTimeframeChange = (newRange: string) => {
-    // update local state to avoid triggering a navigation (which remounts the component)
-    setRangeState(newRange);
-
-    // update the URL query string without causing a Next.js navigation/remount
-    try {
-      const params = new URLSearchParams(searchParams as any);
-      params.set("range", newRange);
-      const newUrl = `${pathname}?${params.toString()}`;
-      window.history.replaceState(null, "", newUrl);
-    } catch (e) {
-      // fallback to router navigation if history API isn't available
-      const params = new URLSearchParams(searchParams as any);
-      params.set("range", newRange);
-      router.push(`${pathname}?${params.toString()}`);
-    }
+    const params = new URLSearchParams(searchParams as any);
+    params.set("range", newRange);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   // Calculate aggregated data (Sum of prices - Price Weighted)
@@ -268,7 +249,7 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
       },
       title: {
         display: true,
-        text: `${watchlistName} - ${isAggregated ? 'Aggregate Value' : 'Individual Stock Prices'} (₹ )`,
+        text: `${watchlistName} - ${isAggregated ? 'Aggregate Value' : 'Individual Stock Prices'} (₹)`,
         padding: {
           bottom: 20
         }
@@ -300,7 +281,7 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
       y: {
         title: {
           display: true,
-          text: isAggregated ? "Total Value (₹ )" : "Price (₹ )",
+          text: isAggregated ? "Total Value (₹)" : "Price (₹)",
         },
       },
     },
@@ -335,34 +316,35 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto h-full flex flex-col">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-        <div className="flex items-center space-x-2">
-          <Switch 
-            id="aggregate-mode" 
-            checked={isAggregated}
-            onCheckedChange={setIsAggregated}
-          />
-          <Label htmlFor="aggregate-mode" className="text-sm font-medium">
-            {isAggregated ? 'Show Break-up' : 'Show Aggregate'}
-          </Label>
+    <div className="h-full flex flex-col">
+      <div className="flex-grow min-h-[300px]">
+        <Line data={chartData} options={options} />
+      </div>
+      <div className="flex w-full max-w-md sm:max-w-none overflow-x-auto py-1 px-1 gap-2 scrollbar-hide justify-center sm:justify-start mt-4 mb-2">
+        {/* Aggregation toggle button */}
+        <div className="flex-shrink-0">
+          <Button
+            variant={isAggregated ? "default" : "outline"}
+            onClick={() => setIsAggregated(!isAggregated)}
+            className="whitespace-nowrap min-w-[48px]"
+            size="sm"
+          >
+            {isAggregated ? <BarChart3 className="h-4 w-4" /> : <BarChart className="h-4 w-4" />}
+          </Button>
         </div>
-        <div className="flex justify-center space-x-2">
-          {timeframes.map((tf) => (
+        {/* Timeframe buttons */}
+        {timeframes.map((tf) => (
+          <div key={tf.label} className="flex-shrink-0">
             <Button
-              key={tf.label}
-              variant={tf.range === rangeState ? "default" : "outline"}
+              variant={tf.range === range ? "default" : "outline"}
               onClick={() => handleTimeframeChange(tf.range)}
+              className="whitespace-nowrap min-w-[48px]"
+              size="sm"
             >
               {tf.label}
             </Button>
-          ))}
-        </div>
-      </div>
-      <div className="flex-grow w-full min-h-[400px]">
-        <div className="w-full h-full">
-          <Line data={chartData} options={options} />
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );

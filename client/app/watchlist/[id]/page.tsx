@@ -140,11 +140,15 @@ export default function WatchlistDetails() {
     <div className="h-[calc(100vh-12rem)] w-full">
       <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8 h-full">
         {/* Left Column: List and Controls */}
-        <div className="lg:col-span-1 flex flex-col h-full overflow-hidden">
+        <div className="lg:col-span-1 flex flex-col h-full overflow-hidden mb-4 lg:mb-0">
           <div className="shrink-0 mb-4">
             <AddBar onAdd={addStockToWatchlist} />
           </div>
-
+          <div className="shrink-0 mb-4">
+            <Button variant="outline" className="w-full" onClick={() => router.push("/watchlist")}> 
+              Back to Watchlists
+            </Button>
+          </div>
           <div className="flex-1 overflow-y-auto min-h-0 border rounded-md">
             <Table>
               <TableHeader className="sticky top-0 bg-background z-10">
@@ -170,7 +174,7 @@ export default function WatchlistDetails() {
                       {stock.ticker}
                     </TableCell>
                     <TableCell onClick={() => viewStock(stock.ticker)}>
-                      ₹ {stock.price.toFixed(2)}
+                      ₹{stock.price.toFixed(2)}
                     </TableCell>
                     <TableCell
                       className={`${
@@ -197,16 +201,10 @@ export default function WatchlistDetails() {
               </TableBody>
             </Table>
           </div>
-          
-          <div className="shrink-0 mt-4">
-            <Button variant="outline" className="w-full" onClick={() => router.push("/watchlist")}>
-              Back to Watchlists
-            </Button>
-          </div>
         </div>
 
         {/* Right Column: Chart */}
-        <div className="lg:col-span-2 h-full min-h-0 flex flex-col">
+        <div className="lg:col-span-2 h-full min-h-0 flex flex-col mt-4 lg:mt-0">
           <WatchlistChart 
             tickers={watchlist.stocks.map(stock => stock.ticker)} 
             watchlistName={watchlist.name}
