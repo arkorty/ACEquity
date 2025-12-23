@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,46 +13,7 @@ import Link from "next/link";
 import { ToSPopupProps } from "../types/tos-popup";
 
 const ToSPopup: React.FC<ToSPopupProps> = ({ isOpen, onAccept, onDecline }) => {
-  const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
-  // Attach ref to the actual scrollable div inside ScrollArea
-  const scrollableDivRef = useRef<HTMLDivElement | null>(null);
-  const acceptButtonRef = useRef<HTMLButtonElement | null>(null);
-  const statusLiveRef = useRef<HTMLSpanElement | null>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    // Attach scroll listener to the actual scrollable div
-    const el = scrollableDivRef.current;
-
-    const checkScroll = () => {
-      if (el) {
-        const { scrollTop, scrollHeight, clientHeight } = el;
-        setIsScrolledToBottom(scrollTop + clientHeight >= scrollHeight - 5);
-      }
-    };
-
-    // If element isn't ready yet (component mount timing), try again shortly.
-    if (!el) {
-      const t = setTimeout(() => checkScroll(), 50);
-      return () => clearTimeout(t);
-    }
-
-    el.addEventListener("scroll", checkScroll, { passive: true });
-    checkScroll();
-
-    // Move focus into the dialog for keyboard users. Focus the Accept button.
-    const prevActive = document.activeElement as HTMLElement | null;
-    const focusTimeout = setTimeout(() => {
-      acceptButtonRef.current?.focus();
-    }, 0);
-
-    return () => {
-      el.removeEventListener("scroll", checkScroll);
-      clearTimeout(focusTimeout);
-      prevActive?.focus?.();
-    };
-  }, [isOpen]);
+  // No scroll tracking or focus management needed
 
   return (
     <Dialog open={isOpen} onOpenChange={onDecline}>
@@ -65,7 +26,7 @@ const ToSPopup: React.FC<ToSPopupProps> = ({ isOpen, onAccept, onDecline }) => {
         aria-describedby="tos-description"
         onKeyDown={(e) => {
           // allow keyboard users to press Enter to accept once they've scrolled
-          if (e.key === "Enter" && isScrolledToBottom) {
+          if (e.key === "Enter") {
             onAccept();
           }
         }}
@@ -80,8 +41,6 @@ const ToSPopup: React.FC<ToSPopupProps> = ({ isOpen, onAccept, onDecline }) => {
             aria-label="Terms of Service content"
           >
             <div
-              ref={scrollableDivRef}
-              tabIndex={0}
               className="max-h-96 overflow-y-auto outline-none focus:outline-none bg-transparent border-none shadow-none"
             >
               <DialogDescription
@@ -164,31 +123,14 @@ const ToSPopup: React.FC<ToSPopupProps> = ({ isOpen, onAccept, onDecline }) => {
               </DialogDescription>
             </div>
           </ScrollArea>
-          {!isScrolledToBottom && (
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute bottom-0 left-0 w-full flex flex-col items-center z-20"
-            >
-              <div className="w-full h-12 bg-gradient-to-t from-background to-transparent" />
-              <span className="-mt-8 mb-2 px-3 py-1 rounded bg-background/80 text-xs text-muted-foreground shadow">
-                Scroll to read more
-              </span>
-            </div>
-          )}
         </div>
 
-        <span ref={statusLiveRef} className="sr-only" aria-live="polite">
-          {isScrolledToBottom ? "You have reached the end of the terms." : "Scroll to the end to accept."}
-        </span>
+
 
         <DialogFooter className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2">
           <Button
-            ref={acceptButtonRef}
             size="sm"
             onClick={onAccept}
-            disabled={!isScrolledToBottom}
-            aria-disabled={!isScrolledToBottom}
-            aria-describedby={!isScrolledToBottom ? "tos-description" : undefined}
             className="focus-visible:ring-transparent"
           >
             Accept
