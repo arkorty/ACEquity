@@ -1,34 +1,33 @@
 import React from "react";
 import Image from "next/image";
 import { User } from "@/types/user";
+import { Card, CardContent } from "@/components/ui/card";
 
 const UserInfo: React.FC<{ user: User }> = ({ user }) => {
   return (
-    <div className="border shadow-md rounded-lg p-6 h-full">
-      <div className="flex flex-col items-center mb-4">
-        <Image
-          src="/placeholder-user-pfp.jpg"
-          alt="Profile"
-          width={160}
-          height={160}
-          className="rounded-full mb-4 w-5/6"
-          priority
-        />
-        <div className="text-center">
-          <div className="flex items-center justify-center space-x-2">
-            <h2 className="text-2xl font-bold">{user.fullname}</h2>
-          </div>
-          <hr className="m-2 border-primary/20" />
-          <div className="flex items-center justify-center space-x-2 font-mono">
-            <p className="font-bold">{user.userid}</p>
-          </div>
-          <hr className="m-2 border-primary/20" />
-          <div className="flex items-center justify-center space-x-2">
-            <p className="truncate max-w-64 overflow-hidden">{user.email}</p>
+    <Card className="border shadow-sm h-full flex flex-col">
+      <CardContent className="p-4 md:p-6 flex-1 flex items-center justify-center">
+        <div className="flex flex-col items-center w-full">
+          <Image
+            src="/placeholder-user-pfp.jpg"
+            alt="Profile"
+            width={320}
+            height={320}
+            className="rounded-full mb-4 object-cover"
+            priority
+          />
+          <div className="text-center w-full space-y-2">
+            <h2 className="text-lg md:text-xl font-bold">{user.fullname}</h2>
+            <div className="text-sm font-mono text-muted-foreground">
+              {user.userid}
+            </div>
+            <div className="text-sm text-muted-foreground truncate max-w-full px-2">
+              {user.email}
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

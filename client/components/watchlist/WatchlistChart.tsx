@@ -115,7 +115,7 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
   const handleTimeframeChange = (newRange: string) => {
     const params = new URLSearchParams(searchParams as any);
     params.set("range", newRange);
-    router.push(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   // Calculate aggregated data (Sum of prices - Price Weighted)

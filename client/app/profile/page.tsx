@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import UserInfo from "@/components/profile/UserInfo";
+import { PortfolioChart } from "@/components/profile/PortfolioChart";
+import { AssetOverview } from "@/components/profile/AssetOverview";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
 import { Holding } from "@/types/holding";
@@ -154,42 +156,42 @@ const ProfilePage = () => {
   return (
     <div className="p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-12 gap-4 md:gap-5">
-          {/* Portfolio Summary Cards - Full width on top for prominence */}
-          <div className="col-span-12">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-5">
+          {/* Portfolio Summary Cards - Top 3 cards */}
+          <div className="lg:col-span-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
               <Card className="border shadow-sm">
-                <CardContent className="p-4">
+                <CardContent className="p-3 md:p-4">
                   <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <Wallet className="h-4 w-4" />
+                    <Wallet className="h-3 w-3 md:h-4 md:w-4" />
                     <span className="text-xs md:text-sm">Portfolio Value</span>
                   </div>
-                  <p className="text-xl md:text-2xl font-bold">
+                  <p className="text-lg md:text-2xl font-bold">
                     ₹{formatNumberIN(portfolioValue)}
                   </p>
                 </CardContent>
               </Card>
 
               <Card className="border shadow-sm">
-                <CardContent className="p-4">
+                <CardContent className="p-3 md:p-4">
                   <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <PieChart className="h-4 w-4" />
+                    <PieChart className="h-3 w-3 md:h-4 md:w-4" />
                     <span className="text-xs md:text-sm">Invested</span>
                   </div>
-                  <p className="text-xl md:text-2xl font-bold">
+                  <p className="text-lg md:text-2xl font-bold">
                     ₹{formatNumberIN(totalInvestment)}
                   </p>
                 </CardContent>
               </Card>
 
               <Card className="border shadow-sm">
-                <CardContent className="p-4">
+                <CardContent className="p-3 md:p-4">
                   <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <TrendingUp className="h-4 w-4" />
+                    <TrendingUp className="h-3 w-3 md:h-4 md:w-4" />
                     <span className="text-xs md:text-sm">P&L</span>
                   </div>
                   <p
-                    className={`text-xl md:text-2xl font-bold ${
+                    className={`text-lg md:text-2xl font-bold ${
                       profitLoss >= 0 ? "text-green-500" : "text-red-500"
                     }`}
                   >
@@ -205,37 +207,30 @@ const ProfilePage = () => {
                   </p>
                 </CardContent>
               </Card>
-
-              <Card className="border shadow-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <Briefcase className="h-4 w-4" />
-                    <span className="text-xs md:text-sm">Assets</span>
-                  </div>
-                  <p className="text-xl md:text-2xl font-bold">
-                    {holdings.length}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {groupedHoldings.length} unique stocks
-                  </p>
-                </CardContent>
-              </Card>
             </div>
           </div>
 
-          {/* Main Content Area */}
-          <div className="col-span-12 lg:col-span-8 space-y-4 md:space-y-5">
-            {/* Top Holdings */}
+          {/* Row 2: Portfolio Chart (left) + Asset Overview (right) */}
+          <div className="lg:col-span-8">
+            <PortfolioChart holdings={holdings} />
+          </div>
+
+          <div className="lg:col-span-4">
+            <AssetOverview holdings={holdings} />
+          </div>
+
+          {/* Row 3: Top Holdings + Watchlists (left) + User Info (right) */}
+          <div className="lg:col-span-8 space-y-4 md:space-y-5">{/* Top Holdings */}
             <Card className="border shadow-sm">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Briefcase className="h-5 w-5" />
+                  <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 md:h-5 md:w-5" />
                     Top Holdings
                   </CardTitle>
                   <Link
                     href="/holdings"
-                    className="text-sm text-primary hover:underline flex items-center gap-1"
+                    className="text-xs md:text-sm text-primary hover:underline flex items-center gap-1"
                   >
                     View All <ExternalLink className="h-3 w-3" />
                   </Link>
@@ -257,58 +252,60 @@ const ProfilePage = () => {
                     </Link>
                   </div>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Stock</TableHead>
-                        <TableHead className="text-right">Qty</TableHead>
-                        <TableHead className="text-right hidden md:table-cell">
-                          Price
-                        </TableHead>
-                        <TableHead className="text-right hidden sm:table-cell">
-                          Current
-                        </TableHead>
-                        <TableHead className="text-right">P&L</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {topHoldings.map((holding) => (
-                        <TableRow key={holding.id}>
-                          <TableCell onClick={() => router.push(`/stock/${getTicker(holding.ticker, TICKERS)}`)} className="font-medium cursor-pointer hover:text-primary transition-colors">
-                            {holding.ticker}
-                            <p className="text-xs text-muted-foreground truncate max-w-[100px] md:max-w-[150px]">
-                              {holding.name}
-                            </p>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {holding.quantity}
-                          </TableCell>
-                          <TableCell className="text-right hidden md:table-cell">
-                            ₹{formatPrice(holding.averagePrice)}
-                          </TableCell>
-                          <TableCell className="text-right hidden sm:table-cell">
-                            ₹{formatPrice(holding.currentPrice)}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <span
-                              className={`flex items-center justify-end gap-1 ${
-                                holding.change >= 0
-                                  ? "text-green-500"
-                                  : "text-red-500"
-                              }`}
-                            >
-                              {holding.change >= 0 ? (
-                                <ArrowUp className="h-3 w-3" />
-                              ) : (
-                                <ArrowDown className="h-3 w-3" />
-                              )}
-                              {Math.abs(holding.change).toFixed(2)}%
-                            </span>
-                          </TableCell>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Stock</TableHead>
+                          <TableHead className="text-right">Qty</TableHead>
+                          <TableHead className="text-right hidden md:table-cell">
+                            Price
+                          </TableHead>
+                          <TableHead className="text-right hidden sm:table-cell">
+                            Current
+                          </TableHead>
+                          <TableHead className="text-right">P&L</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {topHoldings.map((holding) => (
+                          <TableRow key={holding.id}>
+                            <TableCell onClick={() => router.push(`/stock/${getTicker(holding.ticker, TICKERS)}`)} className="font-medium cursor-pointer hover:text-primary transition-colors">
+                              {holding.ticker}
+                              <p className="text-xs text-muted-foreground truncate max-w-[100px] md:max-w-[150px]">
+                                {holding.name}
+                              </p>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {holding.quantity}
+                            </TableCell>
+                            <TableCell className="text-right hidden md:table-cell">
+                              ₹{formatPrice(holding.averagePrice)}
+                            </TableCell>
+                            <TableCell className="text-right hidden sm:table-cell">
+                              ₹{formatPrice(holding.currentPrice)}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <span
+                                className={`flex items-center justify-end gap-1 ${
+                                  holding.change >= 0
+                                    ? "text-green-500"
+                                    : "text-red-500"
+                                }`}
+                              >
+                                {holding.change >= 0 ? (
+                                  <ArrowUp className="h-3 w-3" />
+                                ) : (
+                                  <ArrowDown className="h-3 w-3" />
+                                )}
+                                {Math.abs(holding.change).toFixed(2)}%
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -317,13 +314,13 @@ const ProfilePage = () => {
             <Card className="border shadow-sm">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <List className="h-5 w-5" />
+                  <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                    <List className="h-4 w-4 md:h-5 md:w-5" />
                     My Watchlists
                   </CardTitle>
                   <Link
                     href="/watchlist"
-                    className="text-sm text-primary hover:underline flex items-center gap-1"
+                    className="text-xs md:text-sm text-primary hover:underline flex items-center gap-1"
                   >
                     View All <ExternalLink className="h-3 w-3" />
                   </Link>
@@ -345,7 +342,7 @@ const ProfilePage = () => {
                     </Link>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {watchlists.slice(0, 6).map((watchlist) => {
                       const aggregateChange = calculateWatchlistChange(
                         watchlist.stocks
@@ -358,7 +355,7 @@ const ProfilePage = () => {
                         >
                           <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                             <div className="min-w-0 flex-1">
-                              <p className="font-medium truncate">
+                              <p className="font-medium truncate text-sm">
                                 {watchlist.name}
                               </p>
                               <p className="text-xs text-muted-foreground">
@@ -389,7 +386,7 @@ const ProfilePage = () => {
             </Card>
           </div>
 
-          <div className="col-span-12 lg:col-span-4">
+          <div className="lg:col-span-4">
             <UserInfo user={user} />
           </div>
         </div>

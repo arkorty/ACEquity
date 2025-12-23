@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -10,12 +9,13 @@ import { RootState } from '@/lib/redux/store';
 import { Holding } from "@/types/holding";
 import HoldingsTable from "@/components/holdings/HoldingsTable";
 import CreateHoldingDialog from "@/components/holdings/CreateHoldingDialog";
+import { HoldingsChart } from "@/components/holdings/HoldingsChart";
 import TICKERS from "@/constants/TICKERS.json";
 import { formatPrice } from "@/lib/utils";
 
 export default function HoldingsPage() {
   const [holdings, setHoldings] = useState<Holding[]>([]);
-  const [grouped, setGrouped] = useState(true);
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { user, isLoading } = useSelector((state: RootState) => state.auth);
 
@@ -85,9 +85,12 @@ export default function HoldingsPage() {
       const data = await response.json();
       if (data.status === "success") {
         setHoldings(holdings.filter((h) => h.id !== id));
+        return true;
       }
+      return false;
     } catch (error) {
       console.error("Failed to delete holding:", error);
+      return false;
     }
   };
 
@@ -128,13 +131,10 @@ export default function HoldingsPage() {
 
   return (
     <div className="container mx-auto p-4 md:p-6 max-w-7xl">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 gap-4">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold mb-2">My Holdings</h1>
-            <Switch id="grouped-toggle" checked={grouped} onCheckedChange={setGrouped}/>
-          </div>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">My Holdings</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Track and manage My stock portfolio
           </p>
         </div>
@@ -143,27 +143,36 @@ export default function HoldingsPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="border rounded-lg p-4 shadow-sm">
-          <p className="text-sm text-muted-foreground mb-1">Portfolio Value</p>
-          <p className="text-2xl font-bold">₹{formatPrice(calculatePortfolioValue())}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
+        <div className="border rounded-lg p-3 md:p-4 shadow-sm">
+          <p className="text-xs md:text-sm text-muted-foreground mb-1">Portfolio Value</p>
+          <p className="text-xl md:text-2xl font-bold">₹{formatPrice(calculatePortfolioValue())}</p>
         </div>
-        <div className="border rounded-lg p-4 shadow-sm">
-          <p className="text-sm text-muted-foreground mb-1">Total Investment</p>
-          <p className="text-2xl font-bold">₹{formatPrice(calculateTotalInvestment())}</p>
+        <div className="border rounded-lg p-3 md:p-4 shadow-sm">
+          <p className="text-xs md:text-sm text-muted-foreground mb-1">Total Investment</p>
+          <p className="text-xl md:text-2xl font-bold">₹{formatPrice(calculateTotalInvestment())}</p>
         </div>
-        <div className="border rounded-lg p-4 shadow-sm">
-          <p className="text-sm text-muted-foreground mb-1">Profit/Loss</p>
-          <p className={`text-2xl font-bold ${profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        <div className="border rounded-lg p-3 md:p-4 shadow-sm sm:col-span-2 lg:col-span-1">
+          <p className="text-xs md:text-sm text-muted-foreground mb-1">Profit/Loss</p>
+          <p className={`text-xl md:text-2xl font-bold ${profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
             ₹{formatPrice(profitLoss)}
-            <span className="text-sm ml-2">
+            <span className="text-xs md:text-sm ml-2">
               {profitLossPercent >= 0 ? '+' : ''}{profitLossPercent.toFixed(2)}%
             </span>
           </p>
         </div>
       </div>
 
-      <HoldingsTable holdings={holdings} onDelete={handleDeleteHolding} grouped={grouped} />
+      <div className="mb-4 md:mb-6">
+        <HoldingsChart holdings={holdings} />
+      </div>
+
+      <HoldingsTable 
+        holdings={holdings} 
+        onDelete={handleDeleteHolding} 
+        expandedGroup={expandedGroup}
+        onToggleGroup={setExpandedGroup}
+      />
 
       <CreateHoldingDialog
         open={isCreateDialogOpen}
