@@ -1,6 +1,5 @@
 import { StockData } from "@/types/watchlists";
 import type { ApiResponse } from "@/types/api";
-import TICKERS from "@/constants/TICKERS.json";
 
 // Re-export types
 export type { StockData };
