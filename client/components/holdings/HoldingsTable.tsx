@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Holding } from "@/types/holding";
 import {
   Table,
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import TICKERS from "@/constants/TICKERS.json";
+import { fetchTickers, StockTicker } from "@/lib/stockApi";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import { getBaseTicker, groupHoldingsByBase, getStockInfo, getStockInfoByBase, getTicker } from "@/lib/holdings";
@@ -37,6 +37,11 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({ holdings, onDelete, expan
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [groupToDelete, setGroupToDelete] = useState<{ base: string; holdings: Holding[] } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [tickers, setTickers] = useState<StockTicker[]>([]);
+
+  useEffect(() => {
+    fetchTickers().then(setTickers).catch(console.error);
+  }, []);
 
   const aggregatedHoldings = React.useMemo(
     () => groupHoldingsByBase(holdings),
@@ -96,14 +101,14 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({ holdings, onDelete, expan
           </TableHeader>
           <TableBody>
             {aggregatedHoldings.map((group, index) => {
-              const stockInfo = getStockInfoByBase(group.base, TICKERS);
+              const stockInfo = getStockInfoByBase(group.base, tickers);
               const currentPrice = stockInfo?.["Adj Close"] || 0;
               const isExpanded = expandedGroup === group.base;
 
               if (isExpanded) {
                 // Show individual holdings for this group
                 return group.holdings.map((holding, subIndex) => {
-                  const holdingStockInfo = getStockInfo(holding.ticker, TICKERS);
+                  const holdingStockInfo = getStockInfo(holding.ticker, tickers);
                   const holdingCurrentPrice = holdingStockInfo?.["Adj Close"] || 0;
                   const invested = holding.price * holding.quantity;
                   const current = holdingCurrentPrice * holding.quantity;
@@ -188,7 +193,7 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({ holdings, onDelete, expan
                       className="font-medium"
                       onClick={(e) => {
                         e.stopPropagation();
-                        router.push(`/stock/${getTicker(group.base, TICKERS)}`);
+                        router.push(`/stock/${getTicker(group.base, tickers)}`);
                       }}
                     >
                       <div>

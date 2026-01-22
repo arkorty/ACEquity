@@ -1,9 +1,21 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Tickers from "@/constants/TICKERS.json";
+import { fetchTickers, StockTicker } from "@/lib/stockApi";
 
 export function RecentNews({ ticker }: { ticker: string }) {
-  const stock = Tickers.find((item) => item.Ticker === ticker);
+  const [stock, setStock] = useState<StockTicker | undefined>(undefined);
+
+  useEffect(() => {
+    fetchTickers()
+      .then((data) => {
+        const found = data.find((item) => item.Ticker === ticker);
+        setStock(found);
+      })
+      .catch(console.error);
+  }, [ticker]);
 
   const handleRedirect = () => {
     if (stock) {

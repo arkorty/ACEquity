@@ -5,7 +5,6 @@ services:
       - "8080:8080"
     volumes:
       - ./.env:/server/.env
-      - ./.ignore/sqlite.db:/server/.ignore/sqlite.db
     environment:
-      - DB_PATH=/server/.ignore/sqlite.db
+      - DB_PATH=/server/sqlite.db
     restart: unless-stopped

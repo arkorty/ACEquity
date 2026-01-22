@@ -4,21 +4,26 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { StockOverview } from "@/components/stock/StockOverview";
 import { PriceChart } from "@/components/stock/PriceChart";
-import Tickers from "@/constants/TICKERS.json";
+import { fetchTickers, StockTicker } from "@/lib/stockApi";
 import { SearchBar } from "@/components/SearchBar";
 import { RecentNews } from "@/components/stock/RecentNews";
 
 export default function StockDetailsPage() {
   const router = useRouter();
   const [ticker, setTicker] = useState<string | null>(null);
-  const [stockData, setStockData] = useState<any>(null);
+  const [stockData, setStockData] = useState<StockTicker | null>(null);
 
   useEffect(() => {
     const pathParts = window.location.pathname.split("/");
     const tickerFromPath = pathParts[pathParts.length - 1];
     setTicker(tickerFromPath);
-    const stock = Tickers.find((item) => item.Ticker === tickerFromPath);
-    setStockData(stock);
+    
+    fetchTickers()
+      .then((data) => {
+        const stock = data.find((item) => item.Ticker === tickerFromPath);
+        setStockData(stock || null);
+      })
+      .catch(console.error);
   }, []);
 
   if (!stockData) {

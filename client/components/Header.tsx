@@ -13,6 +13,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/lib/redux/store';
 import { logout, fetchUser, verifyOtp } from '@/lib/redux/slices/authSlice';
 import { openLoginPopup, closeLoginPopup } from '@/lib/redux/slices/CTASlice';
+import { fetchStockData } from '@/lib/stockApi';
 
 const navigation = [
   { name: "Markets", href: "/markets", icon: BarChart2, requiresAuth: true },
@@ -43,19 +44,16 @@ export default function Header() {
 
     const fetchMarketDate = async () => {
       try {
-        const response = await fetch("/data/BSESN.json");
-        if (response.ok) {
-          const data = await response.json();
-          if (Array.isArray(data) && data.length > 0) {
-            const lastEntry = data[data.length - 1];
-            if (lastEntry.Date) {
-              const date = new Date(lastEntry.Date);
-              setLastUpdated(date.toLocaleDateString("en-IN", { 
-                day: 'numeric', 
-                month: 'short', 
-                year: 'numeric' 
-              }));
-            }
+        const data = await fetchStockData("BSESN");
+        if (Array.isArray(data) && data.length > 0) {
+          const lastEntry = data[data.length - 1];
+          if (lastEntry.Date) {
+            const date = new Date(lastEntry.Date);
+            setLastUpdated(date.toLocaleDateString("en-IN", { 
+              day: 'numeric', 
+              month: 'short', 
+              year: 'numeric' 
+            }));
           }
         }
       } catch (error) {

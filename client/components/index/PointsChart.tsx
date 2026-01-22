@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { ChartData, ChartOptions } from "@/types";
+import { fetchStockData } from "@/lib/stockApi";
 
 ChartJS.register(
   CategoryScale,
@@ -66,11 +67,11 @@ export function PointsChart({ ticker }: { ticker: string }) {
   }, [theme]);
 
   useEffect(() => {
-    fetch(`/data/${ticker}.json`)
-      .then((response) => response.json())
+    fetchStockData(ticker)
       .then((data) => {
-        setChartData(data);
-      });
+        setChartData(data as ChartData[]);
+      })
+      .catch(console.error);
   }, [ticker]);
 
   const handleTimeframeChange = (newRange: string) => {

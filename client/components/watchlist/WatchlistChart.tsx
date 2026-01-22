@@ -20,6 +20,7 @@ import { ChartData } from "@/types/watchlists";
 import type { ChartOptions as ChartJSOptions } from "chart.js";
 import { formatPrice } from "@/lib/utils";
 import { BarChart3, BarChart } from "lucide-react";
+import { fetchStockData } from "@/lib/stockApi";
 
 ChartJS.register(
   CategoryScale,
@@ -84,12 +85,7 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
       try {
         const dataPromises = tickers.map(async (ticker: string) => {
           try {
-            const response = await fetch(`/data/${ticker}.json`);
-            if (!response.ok) {
-              console.warn(`Failed to load data for ${ticker}`);
-              return { ticker, data: [] };
-            }
-            const data = await response.json();
+            const data = await fetchStockData(ticker);
             return { ticker, data };
           } catch (error) {
             console.warn(`Error loading data for ${ticker}:`, error);

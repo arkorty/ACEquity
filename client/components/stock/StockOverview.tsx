@@ -1,10 +1,22 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import stockData from "@/constants/TICKERS.json";
+import { fetchTickers, StockTicker } from "@/lib/stockApi";
 import { formatNumberIN, formatPrice } from "@/lib/utils";
 
 export function StockOverview({ ticker }: { ticker: string }) {
-  const stock = stockData.find((item) => item.Ticker === ticker);
+  const [stock, setStock] = useState<StockTicker | undefined>(undefined);
+
+  useEffect(() => {
+    fetchTickers()
+      .then((data) => {
+        const found = data.find((item) => item.Ticker === ticker);
+        setStock(found);
+      })
+      .catch(console.error);
+  }, [ticker]);
 
   const getValue = (value: any) => {
     return value !== undefined ? (

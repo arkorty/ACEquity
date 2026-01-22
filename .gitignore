@@ -1,3 +1,6 @@
 .env
-.ignore/
 image.tar
+
+server/public/
+server/sqlite.db
+server/scraper/scrapedcsv/

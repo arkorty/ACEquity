@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import stockData from "@/constants/TICKERS.json";
+import { fetchTickers } from "@/lib/stockApi";
 import { Stock } from "@/types/stock";
 import { formatNumberIN } from "@/lib/utils";
 
@@ -15,10 +15,10 @@ export function TrendingStocks() {
     const router = useRouter();
 
     useEffect(() => {
-        // cast to Stock[] to ensure TypeScript knows about the Volume property
-        // validation would be better in a real app, but relying on JSON structure here for now
-
-        const allStocks = stockData as unknown as Stock[];
+        const loadTrendingStocks = async () => {
+            try {
+                const stockData = await fetchTickers();
+                const allStocks = stockData as unknown as Stock[];
 
         // Group by base ticker to handle duplicates like [ticker].NS and [ticker].BO
         const stockGroups = new Map<string, Stock[]>();
@@ -57,6 +57,12 @@ export function TrendingStocks() {
             .slice(0, 12);
 
         setTrendingStocks(topVolumeStocks);
+            } catch (error) {
+                console.error("Failed to load trending stocks:", error);
+            }
+        };
+        
+        loadTrendingStocks();
     }, []);
 
     const handleCardClick = (ticker: string) => {

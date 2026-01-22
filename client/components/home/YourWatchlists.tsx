@@ -1,30 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ArrowRight, ArrowUp, ArrowDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import stockData from "@/constants/TICKERS.json";
+import { fetchTickers, StockTicker } from "@/lib/stockApi";
 import { StockData } from "@/types/watchlists";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/redux/store';
-
-function calculateAggregateChange(stocks: string[]): number {
-  const changes = stocks.map((stock) => {
-    const stockInfo = stockData.find(
-      (data: StockData) => data.Ticker === stock
-    );
-    return stockInfo ? stockInfo.Change : 0;
-  });
-  const totalChange = changes.reduce((sum, change) => sum + change, 0);
-  return stocks.length > 0 ? totalChange / stocks.length : 0;
-}
 
 export function WatchlistsList() {
   const [watchlists, setWatchlists] = useState<
     { uuid: string; name: string; stocks: string[] }[]
   >([]);
+  const [tickers, setTickers] = useState<StockTicker[]>([]);
   const { user, isLoading } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    fetchTickers().then(setTickers).catch(console.error);
+  }, []);
+
+  const calculateAggregateChange = useCallback((stocks: string[]): number => {
+    const changes = stocks.map((stock) => {
+      const stockInfo = tickers.find((data) => data.Ticker === stock);
+      return stockInfo?.Change ?? 0;
+    });
+    const totalChange = changes.reduce((sum, change) => sum + change, 0);
+    return stocks.length > 0 ? totalChange / stocks.length : 0;
+  }, [tickers]);
 
   useEffect(() => {
     const fetchUserData = async () => {

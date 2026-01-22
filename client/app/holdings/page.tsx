@@ -3,21 +3,26 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/redux/store';
 import { Holding } from "@/types/holding";
 import HoldingsTable from "@/components/holdings/HoldingsTable";
 import CreateHoldingDialog from "@/components/holdings/CreateHoldingDialog";
 import { HoldingsChart } from "@/components/holdings/HoldingsChart";
-import TICKERS from "@/constants/TICKERS.json";
+import { fetchTickers, StockTicker } from "@/lib/stockApi";
 import { formatPrice } from "@/lib/utils";
 
 export default function HoldingsPage() {
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [tickers, setTickers] = useState<StockTicker[]>([]);
   const { user, isLoading } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    fetchTickers().then(setTickers).catch(console.error);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -94,13 +99,13 @@ export default function HoldingsPage() {
     }
   };
 
-  const calculatePortfolioValue = () => {
+  const calculatePortfolioValue = useCallback(() => {
     return holdings.reduce((total, holding) => {
-      const stockInfo = TICKERS.find((stock) => stock.Ticker === holding.ticker);
+      const stockInfo = tickers.find((stock) => stock.Ticker === holding.ticker);
       const currentPrice = stockInfo?.["Adj Close"] || 0;
       return total + (currentPrice * holding.quantity);
     }, 0);
-  };
+  }, [holdings, tickers]);
 
   const calculateTotalInvestment = () => {
     return holdings.reduce((total, holding) => {

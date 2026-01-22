@@ -1,7 +1,7 @@
 "use client";
 import { ArrowDown, ArrowUp, Settings } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import ALL_TICKERS from "@/constants/TICKERS.json";
+import { fetchTickers, StockTicker } from "@/lib/stockApi";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -17,17 +17,14 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
-// All available indexes from the main JSON file
-const allIndexes = ALL_TICKERS.filter((index) =>
-  index.Ticker.startsWith("^")
-);
-
 const PinnedIndexesSelector = ({
   pinned,
   onSave,
+  allIndexes,
 }: {
   pinned: string[];
   onSave: (newPins: string[]) => void;
+  allIndexes: StockTicker[];
 }) => {
   const [selected, setSelected] = useState(pinned);
   const [isOpen, setIsOpen] = useState(false);
@@ -99,8 +96,21 @@ export function PinnedIndexes() {
   const LOCAL_STORAGE_KEY = "pinnedIndexes";
 
   const [pinnedTickers, setPinnedTickers] = useState<string[]>(DEFAULTS);
+  const [allTickers, setAllTickers] = useState<StockTicker[]>([]);
+  const [allIndexes, setAllIndexes] = useState<StockTicker[]>([]);
 
   useEffect(() => {
+    const loadTickers = async () => {
+      try {
+        const data = await fetchTickers();
+        setAllTickers(data);
+        setAllIndexes(data.filter((item) => item.Ticker.startsWith("^")));
+      } catch (error) {
+        console.error("Failed to load tickers:", error);
+      }
+    };
+    loadTickers();
+
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
       setPinnedTickers(JSON.parse(saved));
@@ -114,7 +124,7 @@ export function PinnedIndexes() {
 
   const pinnedIndexesData = pinnedTickers
     .map((ticker) => {
-      const indexData = ALL_TICKERS.find((item) => item.Ticker === ticker);
+      const indexData = allTickers.find((item) => item.Ticker === ticker);
       if (!indexData) return null;
       return {
         name: indexData.Name,
@@ -152,6 +162,7 @@ export function PinnedIndexes() {
         <PinnedIndexesSelector
           pinned={pinnedTickers}
           onSave={handleSavePins}
+          allIndexes={allIndexes}
         />
       </div>
       <div className="grid gap-4 md:grid-cols-3">

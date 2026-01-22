@@ -15,6 +15,9 @@ RUN CGO_ENABLED=1 go build -o ace .
 # Stage 2: Run the server
 FROM alpine:latest
 
+# Install Python, dependencies, and timezone data for the scraper
+RUN apk add --no-cache python3 py3-pip tzdata
+
 WORKDIR /server
 
 # Copy the server binary from the builder stage
@@ -25,6 +28,9 @@ COPY --from=builder /server/db/schema.sql /server/db/schema.sql
 
 # Copy templates directory (required for email handlers)
 COPY --from=builder /server/templates /server/templates
+
+# Copy scraper files
+COPY --from=builder /server/scraper /server/scraper
 
 # Expose the port
 EXPOSE 8080

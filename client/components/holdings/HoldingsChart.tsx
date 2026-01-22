@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { Holding } from "@/types/holding";
-import TICKERS from "@/constants/TICKERS.json";
+import { fetchTickers, fetchStockData, StockTicker } from "@/lib/stockApi";
 import { formatPrice } from "@/lib/utils";
 import { LineChart, PieChart } from "lucide-react";
 import { groupHoldingsByBase, getStockInfoByBase, type StockData } from "@/lib/holdings";
@@ -71,10 +71,15 @@ export function HoldingsChart({ holdings }: HoldingsChartProps) {
   const [chartType, setChartType] = useState<"line" | "pie">("line");
   const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]); // Default 3M
   const [portfolioHistory, setPortfolioHistory] = useState<PortfolioHistory[]>([]);
+  const [tickers, setTickers] = useState<StockTicker[]>([]);
   const groupedHoldings = groupHoldingsByBase(holdings);
 
   useEffect(() => {
-    if (holdings.length === 0) return;
+    fetchTickers().then(setTickers).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (holdings.length === 0 || tickers.length === 0) return;
 
     // Calculate portfolio value over time using grouped holdings
     const calculatePortfolioHistory = () => {
@@ -90,11 +95,10 @@ export function HoldingsChart({ holdings }: HoldingsChartProps) {
       let loadedCount = 0;
 
       uniqueTickers.forEach((base) => {
-        const stockInfo = getStockInfoByBase(base, TICKERS as StockData[]);
+        const stockInfo = getStockInfoByBase(base, tickers as StockData[]);
         const ticker = stockInfo?.Ticker || base;
         
-        fetch(`/data/${ticker}.json`)
-          .then((res) => res.json())
+        fetchStockData(ticker)
           .then((data) => {
             tickerDataMap.set(base, data);
             data.forEach((d: any) => allDates.add(d.Date));
@@ -130,13 +134,13 @@ export function HoldingsChart({ holdings }: HoldingsChartProps) {
     };
 
     calculatePortfolioHistory();
-  }, [holdings, groupedHoldings]);
+  }, [holdings, groupedHoldings, tickers]);
 
   // Calculate holdings distribution grouped by base ticker
   const getHoldingsDistribution = () => {
     const grouped = groupHoldingsByBase(holdings);
     return grouped.map((group) => {
-      const stockInfo = getStockInfoByBase(group.base, TICKERS as StockData[]);
+      const stockInfo = getStockInfoByBase(group.base, tickers as StockData[]);
       const currentPrice = stockInfo?.["Adj Close"] || 0;
       const currentValue = currentPrice * group.quantity;
       return {

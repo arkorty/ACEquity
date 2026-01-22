@@ -27,7 +27,7 @@ import {
   Briefcase,
   ExternalLink,
 } from "lucide-react";
-import TICKERS from "@/constants/TICKERS.json";
+import { fetchTickers, StockTicker } from "@/lib/stockApi";
 import { formatPrice, formatNumberIN } from "@/lib/utils";
 import { groupHoldingsByBase, getStockInfoByBase, getTicker } from "@/lib/holdings";
 import type { StockData } from "@/lib/holdings";
@@ -43,6 +43,11 @@ const ProfilePage = () => {
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [watchlists, setWatchlists] = useState<WatchlistItem[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [tickers, setTickers] = useState<StockTicker[]>([]);
+
+  useEffect(() => {
+    fetchTickers().then(setTickers).catch(console.error);
+  }, []);
 
   const groupedHoldings = React.useMemo(
     () => groupHoldingsByBase(holdings),
@@ -84,7 +89,7 @@ const ProfilePage = () => {
     return groupedHoldings.reduce((total, holding) => {
       const stockInfo = getStockInfoByBase(
         holding.base,
-        TICKERS as StockData[]
+        tickers as StockData[]
       );
       const currentPrice = stockInfo?.["Adj Close"] || 0;
       return total + currentPrice * holding.quantity;
@@ -106,7 +111,7 @@ const ProfilePage = () => {
   const getTopHoldings = () => {
     return groupedHoldings
       .map((g) => {
-        const stockInfo = getStockInfoByBase(g.base, TICKERS as StockData[]);
+        const stockInfo = getStockInfoByBase(g.base, tickers as StockData[]);
         const currentPrice = stockInfo?.["Adj Close"] || 0;
         const currentValue = currentPrice * g.quantity;
         const investedValue = g.investedValue;

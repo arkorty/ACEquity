@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import stockData from "@/constants/TICKERS.json";
+import { fetchTickers, StockTicker } from "@/lib/stockApi";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { StockSearchBar } from "@/components/gen-assist/SearchBar";
@@ -35,6 +35,7 @@ export function StockAnalysisPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [requestType, setRequestType] = useState<string>("technical");
   const [progress, setProgress] = useState<number>(0);
+  const [allTickers, setAllTickers] = useState<StockTicker[]>([]);
 
   const [responseCache, setResponseCache] = useState<
     Record<string, Record<string, string>>
@@ -42,7 +43,11 @@ export function StockAnalysisPage() {
 
   const { user, isLoading } = useSelector((state: RootState) => state.auth);
 
-  const stock = stockData.find((item) => item.Ticker === ticker);
+  useEffect(() => {
+    fetchTickers().then(setAllTickers).catch(console.error);
+  }, []);
+
+  const stock = allTickers.find((item) => item.Ticker === ticker);
 
   useEffect(() => {
     async function fetchAnalysis() {

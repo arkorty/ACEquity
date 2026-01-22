@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
-import TICKERS from "@/constants/TICKERS.json";
+import { fetchTickers, StockTicker } from "@/lib/stockApi";
 import Fuse from "fuse.js";
 
 export function StockSearchBar({
@@ -15,11 +15,16 @@ export function StockSearchBar({
     []
   );
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [tickers, setTickers] = useState<StockTicker[]>([]);
 
-  const fuse = new Fuse(TICKERS, {
+  useEffect(() => {
+    fetchTickers().then(setTickers).catch(console.error);
+  }, []);
+
+  const fuse = useMemo(() => new Fuse(tickers, {
     keys: ["Ticker", "Name"],
     threshold: 0.3,
-  });
+  }), [tickers]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;

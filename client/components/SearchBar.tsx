@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import TICKERS from "@/constants/TICKERS.json";
+import { fetchTickers, StockTicker } from "@/lib/stockApi";
 import Fuse from "fuse.js";
 
 export function SearchBar() {
@@ -14,12 +14,17 @@ export function SearchBar() {
     []
   );
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [tickers, setTickers] = useState<StockTicker[]>([]);
   const router = useRouter();
 
-  const fuse = new Fuse(TICKERS, {
+  useEffect(() => {
+    fetchTickers().then(setTickers).catch(console.error);
+  }, []);
+
+  const fuse = useMemo(() => new Fuse(tickers, {
     keys: ["Ticker", "Name"],
     threshold: 0.3,
-  });
+  }), [tickers]);
 
   const navigateToIndexOrStock = (ticker: string) => {
     if (ticker.startsWith("^")) {
@@ -32,7 +37,7 @@ export function SearchBar() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const stock = TICKERS.find(
+    const stock = tickers.find(
       (item) => item.Ticker.toLowerCase() === query.toLowerCase()
     );
     if (stock) {

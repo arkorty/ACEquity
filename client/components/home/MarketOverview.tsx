@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTheme } from "next-themes";
+import { fetchStockData } from "@/lib/stockApi";
 
 ChartJS.register(
   CategoryScale,
@@ -45,14 +46,12 @@ export function MarketOverview() {
 
   useEffect(() => {
     // Fetch Sensex Data
-    fetch("/data/BSESN.json")
-      .then((res) => res.json())
+    fetchStockData("BSESN")
       .then((data) => setSensexData(data))
       .catch((err) => console.error("Failed to fetch Sensex data", err));
 
     // Fetch Nifty Data
-    fetch("/data/NSEI.json")
-      .then((res) => res.json())
+    fetchStockData("NSEI")
       .then((data) => setNiftyData(data))
       .catch((err) => console.error("Failed to fetch Nifty data", err));
   }, []);

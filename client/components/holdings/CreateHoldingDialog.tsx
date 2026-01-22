@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +15,7 @@ import { formatPrice, formatPriceToTick, roundToTick } from "@/lib/utils";
 import { Search } from "lucide-react";
 import { DatePicker } from "../ui/date-picker";
 import { format } from "date-fns";
-import TICKERS from "@/constants/TICKERS.json";
+import { fetchTickers, fetchStockData, StockTicker } from "@/lib/stockApi";
 import Fuse from "fuse.js";
 import { Holding } from "@/types/holding";
 import { Switch } from "@/components/ui/switch";
@@ -115,11 +115,16 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
   const [availableDates, setAvailableDates] = useState<Set<string>>(new Set());
   const [dateRange, setDateRange] = useState<{ minDate: Date | null; maxDate: Date | null }>({ minDate: null, maxDate: null });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [allTickers, setAllTickers] = useState<StockTicker[]>([]);
 
-  const fuse = new Fuse(TICKERS, {
+  useEffect(() => {
+    fetchTickers().then(setAllTickers).catch(console.error);
+  }, []);
+
+  const fuse = useMemo(() => new Fuse(allTickers, {
     keys: ["Ticker", "Name"],
     threshold: 0.3,
-  });
+  }), [allTickers]);
 
   useEffect(() => {
     if (searchQuery) {
@@ -151,14 +156,7 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
 
   const fetchAvailableDates = async (ticker: string) => {
     try {
-      const response = await fetch(`/data/${ticker}.json`);
-      
-      if (!response.ok) {
-        console.error("Failed to fetch stock data");
-        return;
-      }
-
-      const data = await response.json();
+      const data = await fetchStockData(ticker);
       const dates = new Set<string>(
         data.map((d: any) => format(new Date(d.Date), "yyyy-MM-dd"))
       );
@@ -186,14 +184,7 @@ const CreateHoldingDialog: React.FC<CreateHoldingDialogProps> = ({
   const fetchPriceRange = async (ticker: string, selectedDate: Date) => {
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
-      const response = await fetch(`/data/${ticker}.json`);
-      
-      if (!response.ok) {
-        console.error("Failed to fetch stock data");
-        return;
-      }
-
-      const data = await response.json();
+      const data = await fetchStockData(ticker);
       
       // Find the exact date or the closest previous date
       const stockDataForDate = data.find((d: any) => {

@@ -1,9 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
@@ -12,6 +17,7 @@ import (
 	"acequity/db"
 	"acequity/handlers"
 	"acequity/proxy"
+	"acequity/utils"
 )
 
 func main() {
@@ -23,6 +29,9 @@ func main() {
 	}
 
 	db.InitDB()
+
+	// Start the scraper scheduler
+	utils.StartScraperScheduler()
 
 	port := ":8080"
 	fmt.Printf("Starting server on %s\n", port)
@@ -52,6 +61,12 @@ func main() {
 		json.NewEncoder(w).Encode(response)
 	})
 
+	// Data API routes (stock data served by the server)
+	r.Get("/api/tickers", handlers.GetTickers)
+	r.Get("/api/stocks/{ticker}", handlers.GetStockData)
+	r.Get("/api/data/status", handlers.GetScraperStatus)
+	r.Get("/api/data/last-updated", handlers.GetDataLastUpdated)
+
 	r.Post("/signup", handlers.SignUp)
 	r.Post("/signin", handlers.SignIn)
 	r.Post("/verify-otp", handlers.VerifyOTP)
@@ -74,5 +89,38 @@ func main() {
 
 	r.Post("/proxy/gemini", proxy.HandleGeminiProxy)
 
-	http.ListenAndServe(port, r)
+	// Create HTTP server with graceful shutdown
+	server := &http.Server{
+		Addr:    port,
+		Handler: r,
+	}
+
+	// Channel to listen for interrupt signals
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+	// Start server in a goroutine
+	go func() {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			fmt.Printf("Server error: %v\n", err)
+		}
+	}()
+
+	// Wait for interrupt signal
+	<-stop
+	fmt.Println("\nShutting down server...")
+
+	// Stop the scraper scheduler
+	utils.StopScraperScheduler()
+
+	// Create a deadline for shutdown
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Shutdown the HTTP server
+	if err := server.Shutdown(ctx); err != nil {
+		fmt.Printf("Server forced to shutdown: %v\n", err)
+	}
+
+	fmt.Println("Server stopped gracefully")
 }

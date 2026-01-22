@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -10,7 +11,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTheme } from "next-themes";
 import { Holding } from "@/types/holding";
-import TICKERS from "@/constants/TICKERS.json";
+import { fetchTickers, StockTicker } from "@/lib/stockApi";
 import { formatPrice } from "@/lib/utils";
 import { PieChart } from "lucide-react";
 import { groupHoldingsByBase, getStockInfoByBase, type StockData } from "@/lib/holdings";
@@ -37,13 +38,18 @@ const generateDistinctColors = (count: number, theme: string = "light") => {
 
 export function AssetOverview({ holdings }: AssetOverviewProps) {
   const { theme } = useTheme();
+  const [tickers, setTickers] = useState<StockTicker[]>([]);
   const groupedHoldings = groupHoldingsByBase(holdings);
+
+  useEffect(() => {
+    fetchTickers().then(setTickers).catch(console.error);
+  }, []);
 
   // Calculate holdings distribution grouped by base ticker
   const getHoldingsDistribution = () => {
     const grouped = groupHoldingsByBase(holdings);
     return grouped.map((group) => {
-      const stockInfo = getStockInfoByBase(group.base, TICKERS as StockData[]);
+      const stockInfo = getStockInfoByBase(group.base, tickers as StockData[]);
       const currentPrice = stockInfo?.["Adj Close"] || 0;
       const currentValue = currentPrice * group.quantity;
       return {

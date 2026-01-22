@@ -13,12 +13,15 @@ import coloredlogs
 # Setup logger
 logger = logging.getLogger(__name__)
 
-# Define paths relative to the project root directory
-STOCK_DATA_DIR = "stockdata"
-SEC_LIST_FILE = "sec_list.csv"
-IND_LIST_FILE = "ind_list.csv"
-TARGET_JSON_FILE = "../client/constants/TICKERS.json"
-PUBLIC_DATA_DIR = "../client/public/data"
+# Define paths relative to the server directory
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+SERVER_DIR = os.path.dirname(SCRIPT_DIR)
+
+STOCK_DATA_DIR = os.path.join(SCRIPT_DIR, "scrapedcsv")
+SEC_LIST_FILE = os.path.join(SCRIPT_DIR, "sec_list.csv")
+IND_LIST_FILE = os.path.join(SCRIPT_DIR, "ind_list.csv")
+TARGET_JSON_FILE = os.path.join(SERVER_DIR, "public", "tickers.json")
+PUBLIC_DATA_DIR = os.path.join(SERVER_DIR, "public", "stocks")
 
 
 def download_stock_data(tickers_chunk):
@@ -54,11 +57,9 @@ def download_stock_data(tickers_chunk):
                 status = "Success"
                 break
             except Exception as e:
-                logger.debug(f"Error fetching data for {
-                             ticker}: {e}", exc_info=True)
+                logger.debug(f"Error fetching data for {ticker}: {e}", exc_info=True)
                 if "rate limit" in str(e).lower():
-                    logger.debug(f"Rate limit for {
-                                 ticker}, retrying in 5 seconds...")
+                    logger.debug(f"Rate limit for {ticker}, retrying in 5 seconds...")
                     time.sleep(5)
                 else:
                     status = "Failed"
@@ -88,8 +89,7 @@ def run_get(num_threads):
         logger.critical("GET   | No tickers to download. Halting.")
         return
 
-    logger.info(f"GET   | Found {len(tickers)
-                                 } total unique tickers to download.")
+    logger.info(f"GET   | Found {len(tickers)} total unique tickers to download.")
 
     if num_threads > 1:
         chunk_size = math.ceil(len(tickers) / num_threads)
@@ -119,8 +119,7 @@ def get_valid_tickers():
     except FileNotFoundError:
         logger.warning(f"SETUP | {SEC_LIST_FILE} not found.")
     except KeyError:
-        logger.warning(f"SETUP | 'Symbol' column not found in {
-                       SEC_LIST_FILE}.")
+        logger.warning(f"SETUP | 'Symbol' column not found in {SEC_LIST_FILE}.")
 
     try:
         ind_df = pd.read_csv(IND_LIST_FILE)
@@ -129,41 +128,36 @@ def get_valid_tickers():
     except FileNotFoundError:
         logger.warning(f"SETUP | {IND_LIST_FILE} not found.")
     except KeyError:
-        logger.warning(f"SETUP | 'Symbol' column not found in {
-                       IND_LIST_FILE}.")
+        logger.warning(f"SETUP | 'Symbol' column not found in {IND_LIST_FILE}.")
 
     return sorted(list(set(tickers)))
 
 
 def run_cleanup():
     """
-    Cleans up JSON files and TICKERS.json entries for symbols that are no longer in the CSV lists.
+    Cleans up JSON files and tickers.json entries for symbols that are no longer in the CSV lists.
     """
     logger.info("CLEAN | Starting cleanup phase...")
     valid_tickers = get_valid_tickers()
     valid_tickers_set = set(valid_tickers)
-    logger.info(f"CLEAN | Found {
-                len(valid_tickers)} valid tickers from lists.")
+    logger.info(f"CLEAN | Found {len(valid_tickers)} valid tickers from lists.")
 
-    # Cleanup TICKERS.json
+    # Cleanup tickers.json
     if os.path.exists(TARGET_JSON_FILE):
         try:
             with open(TARGET_JSON_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             original_count = len(data)
-            cleaned_data = [item for item in data if item.get(
-                "Ticker") in valid_tickers_set]
+            cleaned_data = [item for item in data if item.get("Ticker") in valid_tickers_set]
             removed_count = original_count - len(cleaned_data)
 
             if removed_count > 0:
                 with open(TARGET_JSON_FILE, "w", encoding="utf-8") as f:
                     json.dump(cleaned_data, f, indent=4)
-                logger.info(f"CLEAN | Removed {removed_count} stale entries from {
-                            TARGET_JSON_FILE}.")
+                logger.info(f"CLEAN | Removed {removed_count} stale entries from {TARGET_JSON_FILE}.")
             else:
-                logger.info(f"CLEAN | No stale entries found in {
-                            TARGET_JSON_FILE}.")
+                logger.info(f"CLEAN | No stale entries found in {TARGET_JSON_FILE}.")
         except Exception as e:
             logger.error(f"CLEAN | Error cleaning {TARGET_JSON_FILE}: {e}")
     else:
@@ -185,11 +179,9 @@ def run_cleanup():
                         logger.error(f"CLEAN | Error removing {filename}: {e}")
 
         if removed_files_count > 0:
-            logger.info(f"CLEAN | Removed {
-                        removed_files_count} stale JSON files from {PUBLIC_DATA_DIR}.")
+            logger.info(f"CLEAN | Removed {removed_files_count} stale JSON files from {PUBLIC_DATA_DIR}.")
         else:
-            logger.info(f"CLEAN | No stale JSON files found in {
-                        PUBLIC_DATA_DIR}.")
+            logger.info(f"CLEAN | No stale JSON files found in {PUBLIC_DATA_DIR}.")
     else:
         logger.warning(f"CLEAN | {PUBLIC_DATA_DIR} not found.")
 
@@ -207,8 +199,7 @@ def sanitize_csv(file_path):
             headers = next(reader)
             for row in reader:
                 if any(field.strip() == "" for field in row):
-                    logger.debug(f"Skipping line with empty fields in {
-                                 file_path}: {row}")
+                    logger.debug(f"Skipping line with empty fields in {file_path}: {row}")
                     continue
                 sanitized_rows.append(row)
         return headers, sanitized_rows
@@ -222,9 +213,12 @@ def run_save():
     """
     logger.info("SAVE  | Starting conversion phase: CSV to JSON...")
     if not os.path.exists(STOCK_DATA_DIR):
-        logger.critical(f"SAVE  | Stock data directory not found at '{
-                        STOCK_DATA_DIR}'. Please run --get first.")
+        logger.critical(f"SAVE  | Stock data directory not found at '{STOCK_DATA_DIR}'. Please run --get first.")
         return
+
+    # Ensure output directories exist
+    os.makedirs(os.path.dirname(TARGET_JSON_FILE), exist_ok=True)
+    os.makedirs(PUBLIC_DATA_DIR, exist_ok=True)
 
     symbol_names = {}
     for list_file in [SEC_LIST_FILE, IND_LIST_FILE]:
@@ -240,13 +234,10 @@ def run_save():
                     else:
                         symbol_names[symbol] = name
         except FileNotFoundError:
-            logger.warning(
-                f"SAVE  | {list_file} not found. Security names may be missing.")
+            logger.warning(f"SAVE  | {list_file} not found. Security names may be missing.")
         except KeyError:
-            logger.warning(
-                f"SAVE  | 'Symbol' or 'Security Name' column not found in {list_file}.")
-    logger.info(f"SAVE  | Loaded {
-                len(symbol_names)} security names from lists.")
+            logger.warning(f"SAVE  | 'Symbol' or 'Security Name' column not found in {list_file}.")
+    logger.info(f"SAVE  | Loaded {len(symbol_names)} security names from lists.")
 
     csv_files = [f for f in os.listdir(STOCK_DATA_DIR) if f.endswith(".csv")]
     logger.info(f"SAVE  | Found {len(csv_files)} CSV files to process.")
@@ -259,8 +250,7 @@ def run_save():
 
         if len(rows) < 1:
             skipped_insufficient += 1
-            logger.debug(
-                f"Skipping {filename}: insufficient data (empty).")
+            logger.debug(f"Skipping {filename}: insufficient data (empty).")
             continue
         try:
             latest_day = {k: v for k, v in zip(headers, rows[-1])}
@@ -293,13 +283,10 @@ def run_save():
             processed_count += 1
         except (ValueError, KeyError, TypeError, IndexError) as e:
             skipped_error += 1
-            logger.debug(f"Skipping a line in {
-                         filename} due to error: {e}", exc_info=True)
+            logger.debug(f"Skipping a line in {filename} due to error: {e}", exc_info=True)
             continue
-    logger.info(f"SAVE  | Processed {processed_count} files for main JSON. Skipped: {
-                skipped_insufficient + skipped_error}.")
+    logger.info(f"SAVE  | Processed {processed_count} files for main JSON. Skipped: {skipped_insufficient + skipped_error}.")
 
-    os.makedirs(os.path.dirname(TARGET_JSON_FILE), exist_ok=True)
     with open(TARGET_JSON_FILE, mode="w", encoding="utf-8") as file:
         json.dump(stock_data, file, indent=4)
     logger.info(f"SAVE  | Main JSON file saved to {TARGET_JSON_FILE}")
@@ -315,30 +302,28 @@ def run_save():
                 for row in reader:
                     try:
                         if all(k in row and row[k] for k in ["Datetime", "Close", "Adj Close"]):
-                            json_data.append({"Date": row["Datetime"].split(" ")[0], "Close": float(
-                                row["Close"]), "Adj Close": float(row["Adj Close"])})
+                            json_data.append({
+                                "Date": row["Datetime"].split(" ")[0],
+                                "Close": float(row["Close"]),
+                                "Adj Close": float(row["Adj Close"])
+                            })
                     except (ValueError, TypeError):
-                        logger.debug(f"Skipping invalid row in {
-                                     filename}: {row}")
+                        logger.debug(f"Skipping invalid row in {filename}: {row}")
                         continue
         except Exception as e:
-            logger.debug(f"Could not process file {
-                         filename} for individual JSON: {e}", exc_info=True)
+            logger.debug(f"Could not process file {filename} for individual JSON: {e}", exc_info=True)
             skipped_ind_count += 1
             continue
         if len(json_data) >= 1:
-            json_file_path = os.path.join(
-                PUBLIC_DATA_DIR, f"{ticker.replace('^', '')}.json")
+            json_file_path = os.path.join(PUBLIC_DATA_DIR, f"{ticker.replace('^', '')}.json")
             with open(json_file_path, "w", encoding="utf-8") as f:
                 json.dump(json_data, f, indent=2)
             processed_ind_count += 1
         else:
             skipped_ind_count += 1
-            logger.debug(f"Skipped individual JSON for {
-                         filename} (no data)")
+            logger.debug(f"Skipped individual JSON for {filename} (no data)")
 
-    logger.info(f"SAVE  | Processed {
-                processed_ind_count} individual stock JSONs. Skipped: {skipped_ind_count}.")
+    logger.info(f"SAVE  | Processed {processed_ind_count} individual stock JSONs. Skipped: {skipped_ind_count}.")
     logger.info("SAVE  | Finished conversion phase.")
 
 
@@ -350,7 +335,7 @@ if __name__ == "__main__":
     parser.add_argument("--save", action="store_true",
                         help="Only convert existing CSVs to JSON.")
     parser.add_argument("--cleanup", action="store_true",
-                        help="Clean up stale JSON files and TICKERS.json entries.")
+                        help="Clean up stale JSON files and tickers.json entries.")
     parser.add_argument("-n", "--num-threads", type=int, default=12,
                         help="Number of parallel threads for downloading.")
     parser.add_argument("-v", "--verbose", action="store_true",
@@ -371,8 +356,7 @@ if __name__ == "__main__":
     )
 
     if args.get and args.save:
-        logger.critical(
-            "SETUP | Error: --get and --save cannot be used together.")
+        logger.critical("SETUP | Error: --get and --save cannot be used together.")
     elif args.get:
         run_get(args.num_threads)
     elif args.save:
