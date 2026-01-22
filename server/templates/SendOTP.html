@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACEquity Login OTP</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.4;
+            color: hsl(0 0% 90%);
+            background-color: hsl(240 10% 5%);
+            margin: 0;
+            padding: 16px;
+        }
+        
+        .card {
+            max-width: 360px;
+            margin: 0 auto;
+            padding: 24px;
+            background: hsl(240 10% 8%);
+            border-radius: 8px;
+            border: 1px solid hsl(240 5% 20%);
+        }
+        
+        .logo {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+        
+        .otp-code {
+            font-family: monospace;
+            font-size: 24px;
+            letter-spacing: 4px;
+            text-align: center;
+            background: hsl(240 10% 12%);
+            padding: 16px;
+            border-radius: 4px;
+            margin: 16px 0;
+            font-weight: bold;
+        }
+        
+        .text {
+            font-size: 13px;
+            color: hsl(0 0% 70%);
+            margin: 8px 0;
+        }
+        
+        .footer {
+            font-size: 12px;
+            color: hsl(0 0% 60%);
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid hsl(240 5% 20%);
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">ACEquity</div>
+        <div class="text">Hello {{.Fullname}}, My verification code is:</div>
+        
+        <div class="otp-code">{{.OTP}}</div>
+        
+        <div class="text">This code will expire in 10 minutes. Do not share this code with anyone.</div>
+        
+        <div class="footer">
+            <div>Automated message - please don't reply</div>
+            <div style="margin-top: 4px;">ACEquity Team</div>
+        </div>
+    </div>
+</body>
+</html>

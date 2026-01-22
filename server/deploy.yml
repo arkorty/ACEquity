@@ -1,0 +1,10 @@
+services:
+  server:
+    image: acequity:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./.env:/server/.env
+    environment:
+      - DB_PATH=/server/sqlite.db
+    restart: unless-stopped

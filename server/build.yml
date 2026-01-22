@@ -1,0 +1,7 @@
+services:
+  server:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: acequity:latest

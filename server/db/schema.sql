@@ -1,0 +1,29 @@
+CREATE TABLE IF NOT EXISTS users (
+	userid TEXT PRIMARY KEY,
+	fullname TEXT NOT NULL,
+	email TEXT NOT NULL UNIQUE,
+	watchlistIDs TEXT DEFAULT '[]',
+	holdings TEXT DEFAULT '[]',
+	otp TEXT,
+	otp_expiry DATETIME
+);
+
+CREATE TABLE IF NOT EXISTS watchlists (
+	id TEXT PRIMARY KEY,
+	name TEXT NOT NULL,
+	tickers TEXT DEFAULT '[]',
+	userid TEXT NOT NULL,
+	FOREIGN KEY(userid) REFERENCES users(userid) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS holdings (
+	id TEXT PRIMARY KEY,
+	data TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS pending_users (
+	email TEXT PRIMARY KEY,
+	fullname TEXT NOT NULL,
+	otp TEXT NOT NULL,
+	otp_expiry DATETIME NOT NULL
+);
