@@ -1,24 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { fetchTickers } from "@/lib/stockApi";
+import { StockTicker } from "@/lib/stockApi";
 import { Stock } from "@/types/stock";
 import { formatNumberIN } from "@/lib/utils";
 
+interface TrendingStocksProps {
+    tickers: StockTicker[];
+}
 
-
-export function TrendingStocks() {
-    const [trendingStocks, setTrendingStocks] = useState<Stock[]>([]);
+export function TrendingStocks({ tickers }: TrendingStocksProps) {
     const router = useRouter();
 
-    useEffect(() => {
-        const loadTrendingStocks = async () => {
-            try {
-                const stockData = await fetchTickers();
-                const allStocks = stockData as unknown as Stock[];
+    const trendingStocks = useMemo(() => {
+        const allStocks = tickers as unknown as Stock[];
 
         // Group by base ticker to handle duplicates like [ticker].NS and [ticker].BO
         const stockGroups = new Map<string, Stock[]>();
@@ -52,18 +50,10 @@ export function TrendingStocks() {
         });
 
         // Sort by Volume descending and take top
-        const topVolumeStocks = uniqueStocks
+        return uniqueStocks
             .sort((a, b) => b.Volume - a.Volume)
             .slice(0, 12);
-
-        setTrendingStocks(topVolumeStocks);
-            } catch (error) {
-                console.error("Failed to load trending stocks:", error);
-            }
-        };
-        
-        loadTrendingStocks();
-    }, []);
+    }, [tickers]);
 
     const handleCardClick = (ticker: string) => {
         router.push(`/stock/${ticker}`);

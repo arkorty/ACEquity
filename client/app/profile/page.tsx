@@ -27,7 +27,9 @@ import {
   Briefcase,
   ExternalLink,
 } from "lucide-react";
+import { LoadingScreen } from "@/components/ui/loading-bar";
 import { fetchTickers, StockTicker } from "@/lib/stockApi";
+import { fetchHoldings } from "@/lib/holdingsApi";
 import { formatPrice, formatNumberIN } from "@/lib/utils";
 import { groupHoldingsByBase, getStockInfoByBase, getTicker } from "@/lib/holdings";
 import type { StockData } from "@/lib/holdings";
@@ -45,10 +47,6 @@ const ProfilePage = () => {
   const [dataLoading, setDataLoading] = useState(true);
   const [tickers, setTickers] = useState<StockTicker[]>([]);
 
-  useEffect(() => {
-    fetchTickers().then(setTickers).catch(console.error);
-  }, []);
-
   const groupedHoldings = React.useMemo(
     () => groupHoldingsByBase(holdings),
     [holdings]
@@ -57,22 +55,17 @@ const ProfilePage = () => {
   useEffect(() => {
     if (isLoading || !user) return;
 
-    const fetchData = async () => {
+    const fetchAllData = async () => {
       setDataLoading(true);
       try {
-        const holdingsResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/holdings`,
-          {
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-          }
-        );
-        const holdingsData = await holdingsResponse.json();
-        if (holdingsData.status === "success") {
-          setHoldings(holdingsData.response || []);
-        }
-
-        const userWatchlists = await fetchUserWatchlists(user.userid);
+        const [tickersData, holdingsData, userWatchlists] = await Promise.all([
+          fetchTickers(),
+          fetchHoldings(),
+          fetchUserWatchlists(user.userid),
+        ]);
+        
+        setTickers(tickersData);
+        setHoldings(holdingsData);
         setWatchlists(userWatchlists);
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -81,7 +74,7 @@ const ProfilePage = () => {
       }
     };
 
-    fetchData();
+    fetchAllData();
   }, [user, isLoading]);
 
   // Calculate portfolio metrics using grouped holdings (merge .BO/.NS)
@@ -135,12 +128,8 @@ const ProfilePage = () => {
       .slice(0, 5);
   };
 
-  if (isLoading) {
-    return (
-      <div className="h-[calc(100vh-3.5rem)] flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
+  if (isLoading || dataLoading) {
+    return <LoadingScreen />;
   }
 
   if (!user) {
@@ -217,7 +206,7 @@ const ProfilePage = () => {
 
           {/* Row 2: Portfolio Chart (left) + Asset Overview (right) */}
           <div className="lg:col-span-8">
-            <PortfolioChart holdings={holdings} />
+            <PortfolioChart holdings={holdings} tickers={tickers} />
           </div>
 
           <div className="lg:col-span-4">
@@ -275,7 +264,7 @@ const ProfilePage = () => {
                       <TableBody>
                         {topHoldings.map((holding) => (
                           <TableRow key={holding.id}>
-                            <TableCell onClick={() => router.push(`/stock/${getTicker(holding.ticker, TICKERS)}`)} className="font-medium cursor-pointer hover:text-primary transition-colors">
+                            <TableCell onClick={() => router.push(`/stock/${getTicker(holding.ticker, tickers as StockData[])}`)} className="font-medium cursor-pointer hover:text-primary transition-colors">
                               {holding.ticker}
                               <p className="text-xs text-muted-foreground truncate max-w-[100px] md:max-w-[150px]">
                                 {holding.name}
@@ -350,7 +339,8 @@ const ProfilePage = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {watchlists.slice(0, 6).map((watchlist) => {
                       const aggregateChange = calculateWatchlistChange(
-                        watchlist.stocks
+                        watchlist.stocks,
+                        tickers as StockData[]
                       );
                       return (
                         <Link

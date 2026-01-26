@@ -4,27 +4,47 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { StockOverview } from "@/components/stock/StockOverview";
 import { PriceChart } from "@/components/stock/PriceChart";
-import { fetchTickers, StockTicker } from "@/lib/stockApi";
+import { fetchTickers, fetchStockData, StockTicker } from "@/lib/stockApi";
 import { SearchBar } from "@/components/SearchBar";
 import { RecentNews } from "@/components/stock/RecentNews";
+import { LoadingScreen } from "@/components/ui/loading-bar";
+import { ChartData } from "@/types/stock";
 
 export default function StockDetailsPage() {
   const router = useRouter();
   const [ticker, setTicker] = useState<string | null>(null);
   const [stockData, setStockData] = useState<StockTicker | null>(null);
+  const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const pathParts = window.location.pathname.split("/");
-    const tickerFromPath = pathParts[pathParts.length - 1];
-    setTicker(tickerFromPath);
-    
-    fetchTickers()
-      .then((data) => {
-        const stock = data.find((item) => item.Ticker === tickerFromPath);
+    const loadAllData = async () => {
+      const pathParts = window.location.pathname.split("/");
+      const tickerFromPath = pathParts[pathParts.length - 1];
+      setTicker(tickerFromPath);
+      
+      setLoading(true);
+      try {
+        const [tickers, priceData] = await Promise.all([
+          fetchTickers(),
+          fetchStockData(tickerFromPath),
+        ]);
+        const stock = tickers.find((item) => item.Ticker === tickerFromPath);
         setStockData(stock || null);
-      })
-      .catch(console.error);
+        setChartData(priceData as ChartData[]);
+      } catch (error) {
+        console.error("Failed to load stock data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadAllData();
   }, []);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   if (!stockData) {
     return <div>Stock data not found</div>;
@@ -39,21 +59,21 @@ export default function StockDetailsPage() {
             <SearchBar />
           </div>
           <div className="flex-1 overflow-y-auto min-h-0 space-y-4">
-            <StockOverview ticker={ticker || ""} />
+            <StockOverview stock={stockData} />
           </div>
           <div className="shrink-0 mt-4 hidden lg:block">
-            <RecentNews ticker={ticker || ""} />
+            <RecentNews stock={stockData} ticker={ticker || ""} />
           </div>
         </div>
 
         {/* Right Column: Chart */}
         <div className="lg:col-span-2 lg:h-full h-auto min-h-0 flex flex-col">
-          <PriceChart ticker={ticker || ""} />
+          <PriceChart ticker={ticker || ""} chartData={chartData} />
         </div>
 
         {/* Mobile News */}
         <div className="lg:hidden">
-          <RecentNews ticker={ticker || ""} />
+          <RecentNews stock={stockData} ticker={ticker || ""} />
         </div>
       </div>
     </div>

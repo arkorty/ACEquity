@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -17,7 +17,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTheme } from "next-themes";
-import { fetchStockData } from "@/lib/stockApi";
 
 ChartJS.register(
   CategoryScale,
@@ -38,23 +37,14 @@ const timeframes = [
   { label: "1Y", days: 365 },
 ];
 
-export function MarketOverview() {
+interface MarketOverviewProps {
+  sensexData: any[];
+  niftyData: any[];
+}
+
+export function MarketOverview({ sensexData, niftyData }: MarketOverviewProps) {
   const { theme } = useTheme();
-  const [sensexData, setSensexData] = useState<any[]>([]);
-  const [niftyData, setNiftyData] = useState<any[]>([]);
   const [range, setRange] = useState("1M");
-
-  useEffect(() => {
-    // Fetch Sensex Data
-    fetchStockData("BSESN")
-      .then((data) => setSensexData(data))
-      .catch((err) => console.error("Failed to fetch Sensex data", err));
-
-    // Fetch Nifty Data
-    fetchStockData("NSEI")
-      .then((data) => setNiftyData(data))
-      .catch((err) => console.error("Failed to fetch Nifty data", err));
-  }, []);
 
   const getFilteredData = (data: any[]) => {
     const selectedRange = timeframes.find((r) => r.label === range);

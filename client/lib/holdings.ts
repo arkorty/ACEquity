@@ -1,11 +1,8 @@
 import { Holding } from "@/types/holding";
+import type { StockTicker } from "@/types/api";
 
-export interface StockData {
-  Ticker: string;
-  Name: string;
-  "Adj Close": number;
-  Change: number;
-}
+// Re-export StockTicker as StockData for backwards compatibility
+export type StockData = StockTicker;
 
 export interface GroupedHolding {
   base: string;

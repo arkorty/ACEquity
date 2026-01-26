@@ -1,33 +1,21 @@
 // Stock data API utilities
 // Fetches stock data from the server API instead of local JSON files
 
+import type { 
+  ApiResponse, 
+  StockTicker, 
+  StockPriceData, 
+  ScraperStatus, 
+  DataLastUpdated 
+} from "@/types/api";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
 
-export interface StockTicker {
-  Ticker: string;
-  Name: string;
-  Open?: number;
-  High?: number;
-  Low?: number;
-  Close?: number;
-  "Adj Close"?: number;
-  Volume?: number;
-  Change?: number;
-  Datetime?: string;
-}
+// Re-export types for convenience
+export type { StockTicker, StockPriceData, ScraperStatus, DataLastUpdated };
 
-export interface StockPriceData {
-  Date: string;
-  Close: number;
-  "Adj Close": number;
-}
-
-export interface DataStatus {
-  lastRun: string | null;
-  nextRun: string | null;
-  status: string;
-  dataExists: boolean;
-}
+// Deprecated: Use types from @/types/api instead
+export type DataStatus = ScraperStatus;
 
 // Cache for tickers data
 let tickersCache: StockTicker[] | null = null;
@@ -57,7 +45,7 @@ export async function fetchTickers(): Promise<StockTicker[]> {
       throw new Error(`Failed to fetch tickers: ${response.status}`);
     }
     
-    const data = await response.json();
+    const data: StockTicker[] = await response.json();
     tickersCache = data;
     tickersCacheTime = now;
     return data;
@@ -89,7 +77,8 @@ export async function fetchStockData(ticker: string): Promise<StockPriceData[]> 
       throw new Error(`Failed to fetch stock data for ${ticker}: ${response.status}`);
     }
     
-    return await response.json();
+    const data: StockPriceData[] = await response.json();
+    return data;
   } catch (error) {
     console.error(`Error fetching stock data for ${ticker}:`, error);
     throw error;
@@ -97,9 +86,9 @@ export async function fetchStockData(ticker: string): Promise<StockPriceData[]> 
 }
 
 /**
- * Fetches the last updated timestamp for the data
+ * Fetches the last successful scraper run timestamp
  */
-export async function fetchDataLastUpdated(): Promise<{ lastUpdated: string | null; exists: boolean }> {
+export async function fetchDataLastUpdated(): Promise<DataLastUpdated> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/data/last-updated`, {
       headers: {
@@ -111,18 +100,18 @@ export async function fetchDataLastUpdated(): Promise<{ lastUpdated: string | nu
       throw new Error(`Failed to fetch data status: ${response.status}`);
     }
     
-    const data = await response.json();
+    const data: ApiResponse<DataLastUpdated> = await response.json();
     return data.response;
   } catch (error) {
     console.error('Error fetching data status:', error);
-    return { lastUpdated: null, exists: false };
+    return { lastSuccess: null, exists: false };
   }
 }
 
 /**
  * Fetches the scraper status
  */
-export async function fetchScraperStatus(): Promise<DataStatus | null> {
+export async function fetchScraperStatus(): Promise<ScraperStatus | null> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/data/status`, {
       headers: {
@@ -134,7 +123,7 @@ export async function fetchScraperStatus(): Promise<DataStatus | null> {
       throw new Error(`Failed to fetch scraper status: ${response.status}`);
     }
     
-    const data = await response.json();
+    const data: ApiResponse<ScraperStatus> = await response.json();
     return data.response;
   } catch (error) {
     console.error('Error fetching scraper status:', error);

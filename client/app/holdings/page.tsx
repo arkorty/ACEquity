@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { LoadingScreen } from "@/components/ui/loading-bar";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { useSelector } from 'react-redux';
@@ -11,6 +12,7 @@ import HoldingsTable from "@/components/holdings/HoldingsTable";
 import CreateHoldingDialog from "@/components/holdings/CreateHoldingDialog";
 import { HoldingsChart } from "@/components/holdings/HoldingsChart";
 import { fetchTickers, StockTicker } from "@/lib/stockApi";
+import { fetchHoldings, createHolding, deleteHolding } from "@/lib/holdingsApi";
 import { formatPrice } from "@/lib/utils";
 
 export default function HoldingsPage() {
@@ -18,35 +20,38 @@ export default function HoldingsPage() {
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [tickers, setTickers] = useState<StockTicker[]>([]);
+  const [loading, setLoading] = useState(true);
   const { user, isLoading } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    fetchTickers().then(setTickers).catch(console.error);
-  }, []);
-
-  useEffect(() => {
-    if (!user) return;
+    if (!user || isLoading) return;
     
-    fetchHoldings();
-  }, [user]);
+    const loadAllData = async () => {
+      setLoading(true);
+      try {
+        const [tickersData, holdingsData] = await Promise.all([
+          fetchTickers(),
+          fetchHoldings(),
+        ]);
+        
+        setTickers(tickersData);
+        setHoldings(holdingsData);
+      } catch (error) {
+        console.error("Failed to load data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadAllData();
+  }, [user, isLoading]);
 
-  const fetchHoldings = async () => {
+  const refetchHoldings = async () => {
     if (!user?.userid) return;
     
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/holdings`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: 'include',
-        }
-      );
-      const data = await response.json();
-      if (data.status === "success") {
-        setHoldings(data.response || []);
-      }
+      const holdingsData = await fetchHoldings();
+      setHoldings(holdingsData);
     } catch (error) {
       console.error("Failed to fetch holdings:", error);
     }
@@ -54,22 +59,9 @@ export default function HoldingsPage() {
 
   const handleCreateHolding = async (holding: Omit<Holding, "id">) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/holdings`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: 'include',
-          body: JSON.stringify(holding),
-        }
-      );
-      const data = await response.json();
-      if (data.status === "success") {
-        setHoldings([...holdings, data.response]);
-        setIsCreateDialogOpen(false);
-      }
+      const newHolding = await createHolding(holding);
+      setHoldings([...holdings, newHolding]);
+      setIsCreateDialogOpen(false);
     } catch (error) {
       console.error("Failed to create holding:", error);
     }
@@ -77,22 +69,9 @@ export default function HoldingsPage() {
 
   const handleDeleteHolding = async (id: string) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/holdings/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: 'include',
-        }
-      );
-      const data = await response.json();
-      if (data.status === "success") {
-        setHoldings(holdings.filter((h) => h.id !== id));
-        return true;
-      }
-      return false;
+      await deleteHolding(id);
+      setHoldings(holdings.filter((h) => h.id !== id));
+      return true;
     } catch (error) {
       console.error("Failed to delete holding:", error);
       return false;
@@ -122,8 +101,8 @@ export default function HoldingsPage() {
     ? (profitLoss / calculateTotalInvestment()) * 100 
     : 0;
 
-  if (isLoading) {
-    return <div className="h-[calc(100vh-3.5rem)] flex items-center justify-center">Loading...</div>;
+  if (isLoading || loading) {
+    return <LoadingScreen />;
   }
 
   if (!user) {
@@ -169,7 +148,7 @@ export default function HoldingsPage() {
       </div>
 
       <div className="mb-4 md:mb-6">
-        <HoldingsChart holdings={holdings} />
+        <HoldingsChart holdings={holdings} tickers={tickers} />
       </div>
 
       <HoldingsTable 

@@ -100,10 +100,12 @@ func GetStockData(w http.ResponseWriter, r *http.Request) {
 
 // ScraperStatus holds information about the scraper's last run
 type ScraperStatus struct {
-	LastRun    *time.Time `json:"lastRun"`
-	NextRun    *time.Time `json:"nextRun"`
-	Status     string     `json:"status"`
-	DataExists bool       `json:"dataExists"`
+	LastRunStarted   *time.Time `json:"lastRunStarted"`
+	LastRunCompleted *time.Time `json:"lastRunCompleted"`
+	LastSuccess      *time.Time `json:"lastSuccess"`
+	NextRun          *time.Time `json:"nextRun"`
+	Status           string     `json:"status"`
+	DataExists       bool       `json:"dataExists"`
 }
 
 // Global scraper status (will be updated by the scheduler)
@@ -112,8 +114,10 @@ var scraperStatus = ScraperStatus{
 }
 
 // UpdateScraperStatus updates the global scraper status
-func UpdateScraperStatus(lastRun, nextRun *time.Time, status string) {
-	scraperStatus.LastRun = lastRun
+func UpdateScraperStatus(lastRunStarted, lastRunCompleted, lastSuccess, nextRun *time.Time, status string) {
+	scraperStatus.LastRunStarted = lastRunStarted
+	scraperStatus.LastRunCompleted = lastRunCompleted
+	scraperStatus.LastSuccess = lastSuccess
 	scraperStatus.NextRun = nextRun
 	scraperStatus.Status = status
 }
@@ -132,28 +136,17 @@ func GetScraperStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GetDataLastUpdated returns when the data was last updated
+// GetDataLastUpdated returns when the data was last successfully updated
 func GetDataLastUpdated(w http.ResponseWriter, r *http.Request) {
 	tickersPath := filepath.Join(dataDir, "tickers.json")
-	info, err := os.Stat(tickersPath)
-
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"response": map[string]interface{}{
-				"lastUpdated": nil,
-				"exists":      false,
-			},
-			"status": "success",
-		})
-		return
-	}
+	_, err := os.Stat(tickersPath)
+	exists := err == nil
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"response": map[string]interface{}{
-			"lastUpdated": info.ModTime().UTC(),
-			"exists":      true,
+			"lastSuccess": scraperStatus.LastSuccess,
+			"exists":      exists,
 		},
 		"status": "success",
 	})

@@ -20,7 +20,6 @@ import { ChartData } from "@/types/watchlists";
 import type { ChartOptions as ChartJSOptions } from "chart.js";
 import { formatPrice } from "@/lib/utils";
 import { BarChart3, BarChart } from "lucide-react";
-import { fetchStockData } from "@/lib/stockApi";
 
 ChartJS.register(
   CategoryScale,
@@ -43,6 +42,7 @@ const timeframes = [
 interface WatchlistChartProps {
   tickers: string[];
   watchlistName: string;
+  stocksData: StockChartData[];
 }
 
 interface StockChartData {
@@ -68,7 +68,7 @@ const generateColors = (count: number, theme: string = "light") => {
   return colors;
 };
 
-export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) {
+export function WatchlistChart({ tickers, watchlistName, stocksData }: WatchlistChartProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -76,37 +76,6 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
   const selectedTimeframe = timeframes.find((tf) => tf.range === range) || timeframes[2];
   const { theme } = useTheme();
   const [isAggregated, setIsAggregated] = useState(true);
-  const [stocksData, setStocksData] = useState<StockChartData[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadWatchlistData = async () => {
-      setLoading(true);
-      try {
-        const dataPromises = tickers.map(async (ticker: string) => {
-          try {
-            const data = await fetchStockData(ticker);
-            return { ticker, data };
-          } catch (error) {
-            console.warn(`Error loading data for ${ticker}:`, error);
-            return { ticker, data: [] };
-          }
-        });
-        const results = await Promise.all(dataPromises);
-        setStocksData((results as StockChartData[]).filter((result) => result.data.length > 0));
-      } catch (error) {
-        console.error("Error loading watchlist data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (tickers.length > 0) {
-      loadWatchlistData();
-    } else {
-      setStocksData([]);
-      setLoading(false);
-    }
-  }, [tickers]);
 
   const handleTimeframeChange = (newRange: string) => {
     const params = new URLSearchParams(searchParams as any);
@@ -282,14 +251,6 @@ export function WatchlistChart({ tickers, watchlistName }: WatchlistChartProps) 
       },
     },
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading watchlist chart...</div>
-      </div>
-    );
-  }
 
   if (tickers.length === 0) {
     return (

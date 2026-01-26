@@ -1,23 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { fetchTickers, StockTicker } from "@/lib/stockApi";
+import { StockTicker } from "@/lib/stockApi";
 import { formatNumberIN, formatPrice } from "@/lib/utils";
 
-export function StockOverview({ ticker }: { ticker: string }) {
-  const [stock, setStock] = useState<StockTicker | undefined>(undefined);
+interface StockOverviewProps {
+  stock: StockTicker | undefined;
+}
 
-  useEffect(() => {
-    fetchTickers()
-      .then((data) => {
-        const found = data.find((item) => item.Ticker === ticker);
-        setStock(found);
-      })
-      .catch(console.error);
-  }, [ticker]);
-
+export function StockOverview({ stock }: StockOverviewProps) {
   const getValue = (value: any) => {
     return value !== undefined ? (
       value
@@ -81,7 +73,7 @@ export function StockOverview({ ticker }: { ticker: string }) {
             <p className="text-sm text-muted-foreground">Turnover</p>
             <p className="text-lg font-semibold">
               ₹{stock && formatNumberIN(
-                stock?.Volume * stock?.["Adj Close"]
+                (stock?.Volume ?? 0) * (stock?.["Adj Close"] ?? 0)
               )}
             </p>
           </div>

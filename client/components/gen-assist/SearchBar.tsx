@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import { fetchTickers, StockTicker } from "@/lib/stockApi";
 import Fuse from "fuse.js";
 
@@ -41,6 +43,12 @@ export function StockSearchBar({
     }
   };
 
+  const handleSelect = (ticker: string) => {
+    setQuery(ticker);
+    setResults([]);
+    onSelect(ticker);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowDown") {
       setHighlightedIndex((prev) => Math.min(prev + 1, results.length - 1));
@@ -51,24 +59,36 @@ export function StockSearchBar({
       const selectedStock =
         highlightedIndex >= 0 ? results[highlightedIndex] : results[0];
       if (selectedStock) {
-        setQuery(selectedStock.Ticker);
-        setResults([]);
-        onSelect(selectedStock.Ticker);
+        handleSelect(selectedStock.Ticker);
       }
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const selectedStock =
+        highlightedIndex >= 0 ? results[highlightedIndex] : results[0];
+    if (selectedStock) {
+      handleSelect(selectedStock.Ticker);
     }
   };
 
   return (
     <div className="relative w-full max-w-sm mx-auto">
-      <Input
-        type="text"
-        placeholder="Search stocks..."
-        value={query}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-      />
+      <form onSubmit={handleSubmit} className="flex items-center space-x-2">
+        <Input
+          type="text"
+          placeholder="Search stocks..."
+          value={query}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+        />
+        <Button variant="outline" type="submit" size="icon">
+          <Search className="h-4 w-4" />
+        </Button>
+      </form>
       {results.length > 0 && (
-        <ul className="absolute top-full mt-2 w-full bg-white dark:bg-black border border-gray-300 dark:border-zinc-800 rounded-md shadow-lg z-10">
+        <ul className="absolute top-full mt-2 w-full bg-white dark:bg-black border border-gray-300 dark:border-zinc-800 rounded-md shadow-lg z-50">
           {results.map((result, index) => (
             <li
               key={index}

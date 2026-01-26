@@ -1,7 +1,7 @@
 "use client";
 import { ArrowDown, ArrowUp, Settings } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { fetchTickers, StockTicker } from "@/lib/stockApi";
+import { StockTicker } from "@/lib/stockApi";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -90,27 +90,19 @@ const PinnedIndexesSelector = ({
   );
 };
 
-export function PinnedIndexes() {
+interface PinnedIndexesProps {
+  tickers: StockTicker[];
+}
+
+export function PinnedIndexes({ tickers }: PinnedIndexesProps) {
   const router = useRouter();
   const DEFAULTS = ["^BSESN", "^NSEI", "^NSEBANK"];
   const LOCAL_STORAGE_KEY = "pinnedIndexes";
 
   const [pinnedTickers, setPinnedTickers] = useState<string[]>(DEFAULTS);
-  const [allTickers, setAllTickers] = useState<StockTicker[]>([]);
-  const [allIndexes, setAllIndexes] = useState<StockTicker[]>([]);
+  const allIndexes = tickers.filter((item) => item.Ticker.startsWith("^"));
 
   useEffect(() => {
-    const loadTickers = async () => {
-      try {
-        const data = await fetchTickers();
-        setAllTickers(data);
-        setAllIndexes(data.filter((item) => item.Ticker.startsWith("^")));
-      } catch (error) {
-        console.error("Failed to load tickers:", error);
-      }
-    };
-    loadTickers();
-
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
       setPinnedTickers(JSON.parse(saved));
@@ -124,7 +116,7 @@ export function PinnedIndexes() {
 
   const pinnedIndexesData = pinnedTickers
     .map((ticker) => {
-      const indexData = allTickers.find((item) => item.Ticker === ticker);
+      const indexData = tickers.find((item) => item.Ticker === ticker);
       if (!indexData) return null;
       return {
         name: indexData.Name,

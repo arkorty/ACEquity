@@ -1,107 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useCallback } from "react";
+import { useMemo } from "react";
 import { ArrowRight, ArrowUp, ArrowDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { fetchTickers, StockTicker } from "@/lib/stockApi";
+import { StockTicker } from "@/lib/stockApi";
 import { StockData } from "@/types/watchlists";
-import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/redux/store';
 
-export function WatchlistsList() {
-  const [watchlists, setWatchlists] = useState<
-    { uuid: string; name: string; stocks: string[] }[]
-  >([]);
-  const [tickers, setTickers] = useState<StockTicker[]>([]);
-  const { user, isLoading } = useSelector((state: RootState) => state.auth);
+interface WatchlistsListProps {
+  tickers: StockTicker[];
+  watchlists: { uuid: string; name: string; stocks: string[] }[];
+}
 
-  useEffect(() => {
-    fetchTickers().then(setTickers).catch(console.error);
-  }, []);
-
-  const calculateAggregateChange = useCallback((stocks: string[]): number => {
-    const changes = stocks.map((stock) => {
-      const stockInfo = tickers.find((data) => data.Ticker === stock);
-      return stockInfo?.Change ?? 0;
-    });
-    const totalChange = changes.reduce((sum, change) => sum + change, 0);
-    return stocks.length > 0 ? totalChange / stocks.length : 0;
+export function WatchlistsList({ tickers, watchlists }: WatchlistsListProps) {
+  const calculateAggregateChange = useMemo(() => {
+    return (stocks: string[]): number => {
+      const changes = stocks.map((stock) => {
+        const stockInfo = tickers.find((data) => data.Ticker === stock);
+        return stockInfo?.Change ?? 0;
+      });
+      const totalChange = changes.reduce((sum, change) => sum + change, 0);
+      return stocks.length > 0 ? totalChange / stocks.length : 0;
+    };
   }, [tickers]);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!user) {
-        setWatchlists([]);
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${user.userid}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: 'include',
-          }
-        );
-        const data = await response.json();
-        if (data.status === "success") {
-          const userWatchlists = await Promise.all(
-            data.response.watchlistIDs.map(async (id: string) => {
-              const watchlistResponse = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/watchlists/${id}`,
-                {
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  credentials: 'include',
-                }
-              );
-              const watchlistData = await watchlistResponse.json();
-              if (watchlistData.status === "success") {
-                return {
-                  uuid: watchlistData.response.id,
-                  name: watchlistData.response.name,
-                  stocks: watchlistData.response.tickers,
-                };
-              }
-              return null;
-            })
-          );
-
-          setWatchlists(
-            userWatchlists.filter((watchlist) => watchlist !== null)
-          );
-        }
-      } catch (error) {
-        console.error("Failed to fetch user data:", error);
-      }
-    };
-
-    if (!isLoading) {
-      fetchUserData();
-    }
-  }, [user, isLoading]);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    return null;
-  }
-
   if (watchlists.length === 0) {
-    return (
-      <div>
-        <h2 className="text-lg text-center font-semibold">My Watchlists</h2>
-        <p className="text-center text-muted-foreground mt-4">
-          You have no watchlists. Create one to get started!
-        </p>
-      </div>
-    );
+    return null;
   }
 
   return (

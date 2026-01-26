@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Line, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { Holding } from "@/types/holding";
-import { fetchTickers, fetchStockData, StockTicker } from "@/lib/stockApi";
+import { fetchStockData, StockTicker } from "@/lib/stockApi";
 import { formatPrice } from "@/lib/utils";
 import { LineChart, PieChart } from "lucide-react";
 import { groupHoldingsByBase, getStockInfoByBase, type StockData } from "@/lib/holdings";
@@ -37,6 +37,7 @@ ChartJS.register(
 
 interface HoldingsChartProps {
   holdings: Holding[];
+  tickers: StockTicker[];
 }
 
 interface PortfolioHistory {
@@ -66,17 +67,12 @@ const generateDistinctColors = (count: number, theme: string = "light") => {
   return colors;
 };
 
-export function HoldingsChart({ holdings }: HoldingsChartProps) {
+export function HoldingsChart({ holdings, tickers }: HoldingsChartProps) {
   const { theme } = useTheme();
   const [chartType, setChartType] = useState<"line" | "pie">("line");
   const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]); // Default 3M
   const [portfolioHistory, setPortfolioHistory] = useState<PortfolioHistory[]>([]);
-  const [tickers, setTickers] = useState<StockTicker[]>([]);
-  const groupedHoldings = groupHoldingsByBase(holdings);
-
-  useEffect(() => {
-    fetchTickers().then(setTickers).catch(console.error);
-  }, []);
+  const groupedHoldings = useMemo(() => groupHoldingsByBase(holdings), [holdings]);
 
   useEffect(() => {
     if (holdings.length === 0 || tickers.length === 0) return;

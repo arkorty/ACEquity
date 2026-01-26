@@ -83,11 +83,26 @@ const config: Config = {
   				to: {
   					height: '0'
   				}
+  			},
+  			'loading-bar': {
+  				'0%': {
+  					transform: 'translateX(-100%) scaleX(0.3)',
+  				},
+  				'40%': {
+  					transform: 'translateX(-60%) scaleX(0.6)',
+  				},
+  				'80%': {
+  					transform: 'translateX(-10%) scaleX(0.9)',
+  				},
+  				'100%': {
+  					transform: 'translateX(100%) scaleX(1)',
+  				}
   			}
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			'loading-bar': 'loading-bar 1.5s ease-in-out infinite'
   		}
   	}
   },

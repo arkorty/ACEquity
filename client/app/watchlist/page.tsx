@@ -15,9 +15,12 @@ import {
   createWatchlist, 
   deleteWatchlist as deleteWatchlistApi, 
   calculateWatchlistChange, 
-  type WatchlistItem 
+  type WatchlistItem,
+  type StockData,
 } from "@/lib/watchlists";
+import { fetchTickers, StockTicker } from "@/lib/stockApi";
 import { Plus, Trash } from "lucide-react";
+import { LoadingScreen } from "@/components/ui/loading-bar";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useSelector } from 'react-redux';
@@ -25,25 +28,32 @@ import { RootState } from '@/lib/redux/store';
 
 export default function WatchlistPage() {
   const [watchlists, setWatchlists] = useState<WatchlistItem[]>([]);
+  const [tickers, setTickers] = useState<StockTicker[]>([]);
   const [newWatchlist, setNewWatchlist] = useState("");
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { user, isLoading } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     if (!user) return;
     
-    const fetchUserData = async () => {
-      if (user.userid) {
-        try {
-          const userWatchlists = await fetchUserWatchlists(user.userid);
-          setWatchlists(userWatchlists);
-        } catch (error) {
-          console.error("Failed to fetch user data:", error);
-        }
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        const [tickersData, userWatchlists] = await Promise.all([
+          fetchTickers(),
+          fetchUserWatchlists(user.userid),
+        ]);
+        setTickers(tickersData);
+        setWatchlists(userWatchlists);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchUserData();
+    fetchAllData();
   }, [user]);
 
   const addWatchlist = async (e: React.FormEvent) => {
@@ -84,8 +94,8 @@ export default function WatchlistPage() {
     return change >= 0 ? "text-green-500" : "text-red-500";
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (isLoading || loading) {
+    return <LoadingScreen />;
   }
 
   if (!user) {
@@ -137,11 +147,11 @@ export default function WatchlistPage() {
                 </TableCell>
                 <TableCell
                   className={`${getChangeColor(
-                    calculateWatchlistChange(watchlist.stocks)
+                    calculateWatchlistChange(watchlist.stocks, tickers as StockData[])
                   )} text-right`}
                   onClick={() => viewWatchlist(watchlist.uuid)}
                 >
-                  {watchlist.stocks.length > 0 ? calculateWatchlistChange(watchlist.stocks).toFixed(2) : 0}%
+                  {watchlist.stocks.length > 0 ? calculateWatchlistChange(watchlist.stocks, tickers as StockData[]).toFixed(2) : 0}%
                 </TableCell>
                 <TableCell className="flex justify-end">
                   <Trash

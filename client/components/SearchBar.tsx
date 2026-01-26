@@ -93,7 +93,7 @@ export function SearchBar() {
         </Button>
       </form>
       {results.length > 0 && (
-        <ul className="absolute top-full mt-2 w-full bg-white dark:bg-black border border-gray-300 dark:border-zinc-800 rounded-md shadow-lg z-10">
+        <ul className="absolute top-full mt-2 w-full bg-white dark:bg-black border border-gray-300 dark:border-zinc-800 rounded-md shadow-lg z-50">
           {results.map((result, index) => (
             <li
               key={index}

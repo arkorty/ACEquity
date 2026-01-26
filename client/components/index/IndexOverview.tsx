@@ -1,27 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowDown, ArrowUp } from "lucide-react";
-import { fetchTickers, StockTicker } from "@/lib/stockApi";
+import { StockTicker } from "@/lib/stockApi";
 
 interface IndexOverviewProps {
-  ticker: string;
+  index: StockTicker | undefined;
 }
 
-export const IndexOverview: React.FC<IndexOverviewProps> = ({ ticker }) => {
-  const [index, setIndex] = useState<StockTicker | undefined>(undefined);
-  const formattedTicker = ticker.startsWith("^") ? ticker.substring(1) : ticker;
-
-  useEffect(() => {
-    fetchTickers()
-      .then((data) => {
-        const found = data.find((item) => item.Ticker === `^${formattedTicker}`);
-        setIndex(found);
-      })
-      .catch(console.error);
-  }, [formattedTicker]);
-
+export const IndexOverview: React.FC<IndexOverviewProps> = ({ index }) => {
   const getValue = (value: any) => {
     return value !== undefined ? (
       value

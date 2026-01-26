@@ -9,6 +9,7 @@ import { StockSearchBar } from "@/components/gen-assist/SearchBar";
 import { Progress } from "@/components/ui/progress";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Lightbulb, Search } from "lucide-react";
+import { LoadingScreen } from "@/components/ui/loading-bar";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/redux/store';
 
@@ -139,7 +140,7 @@ export function StockAnalysisPage() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingScreen />;
   }
 
   if (!user) {

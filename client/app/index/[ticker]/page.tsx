@@ -4,17 +4,20 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { IndexOverview } from '@/components/index/IndexOverview'
 import { PointsChart } from '@/components/index/PointsChart'
-import { fetchTickers } from '@/lib/stockApi'
+import { fetchTickers, fetchStockData, StockTicker } from '@/lib/stockApi'
 import { SearchBar } from '@/components/SearchBar'
+import { LoadingScreen } from '@/components/ui/loading-bar'
+import { ChartData } from '@/types'
 
 export default function StockDetailsPage() {
   const router = useRouter()
   const [ticker, setTicker] = useState<string | null>(null)
-  const [stockData, setStockData] = useState<any>(null)
+  const [indexData, setIndexData] = useState<StockTicker | undefined>(undefined)
+  const [chartData, setChartData] = useState<ChartData[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadData = async () => {
+    const loadAllData = async () => {
       const pathParts = window.location.pathname.split('/')
       let tickerFromPath = pathParts[pathParts.length - 1]
       if (tickerFromPath.startsWith('^')) {
@@ -22,10 +25,15 @@ export default function StockDetailsPage() {
       }
       setTicker(tickerFromPath)
       
+      setLoading(true)
       try {
-        const tickers = await fetchTickers()
-        const stock = tickers.find((item: any) => item.Ticker === `^${tickerFromPath}`)
-        setStockData(stock)
+        const [tickers, priceData] = await Promise.all([
+          fetchTickers(),
+          fetchStockData(`^${tickerFromPath}`),
+        ])
+        const stock = tickers.find((item: StockTicker) => item.Ticker === `^${tickerFromPath}`)
+        setIndexData(stock)
+        setChartData(priceData as ChartData[])
       } catch (error) {
         console.error('Failed to fetch index data:', error)
       } finally {
@@ -33,14 +41,14 @@ export default function StockDetailsPage() {
       }
     }
     
-    loadData()
+    loadAllData()
   }, [])
 
   if (loading) {
-    return <div className="flex items-center justify-center h-full">Loading...</div>
+    return <LoadingScreen />
   }
 
-  if (!stockData) {
+  if (!indexData) {
     return <div>Stock data not found</div>
   }
 
@@ -53,13 +61,13 @@ export default function StockDetailsPage() {
             <SearchBar />
           </div>
           <div className="flex-1 overflow-y-auto min-h-0">
-            <IndexOverview ticker={ticker || ''} />
+            <IndexOverview index={indexData} />
           </div>
         </div>
 
         {/* Right Column: Chart */}
         <div className="lg:col-span-2 lg:h-full h-auto min-h-0 flex flex-col">
-          <PointsChart ticker={ticker || ''} />
+          <PointsChart ticker={`^${ticker}` || ''} chartData={chartData} />
         </div>
       </div>
     </div>

@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { ChartData, ChartOptions } from "@/types/stock";
 import { formatPrice } from "@/lib/utils";
-import { fetchStockData } from "@/lib/stockApi";
 
 ChartJS.register(
   CategoryScale,
@@ -40,7 +39,12 @@ const timeframes = [
   { label: "1Y", days: 365, range: "1y" },
 ];
 
-export function PriceChart({ ticker }: { ticker: string }) {
+interface PriceChartProps {
+  ticker: string;
+  chartData: ChartData[];
+}
+
+export function PriceChart({ ticker, chartData }: PriceChartProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -54,8 +58,6 @@ export function PriceChart({ ticker }: { ticker: string }) {
     "rgba(75, 192, 192, 0.2)"
   );
 
-  const [chartData, setChartData] = useState<ChartData[]>([]);
-
   useEffect(() => {
     if (theme === "dark") {
       setBorderColor("rgb(41,187,114)");
@@ -65,14 +67,6 @@ export function PriceChart({ ticker }: { ticker: string }) {
       setBackgroundColor("rgba(255, 99, 132, 0.2)");
     }
   }, [theme]);
-
-  useEffect(() => {
-    fetchStockData(ticker)
-      .then((data) => {
-        setChartData(data as ChartData[]);
-      })
-      .catch(console.error);
-  }, [ticker]);
 
   const handleTimeframeChange = (newRange: string) => {
     const params = new URLSearchParams(searchParams);

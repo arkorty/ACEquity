@@ -20,13 +20,15 @@ const secListURL = "https://nsearchives.nseindia.com/content/equities/sec_list.c
 
 // Scraper scheduler configuration
 type ScraperScheduler struct {
-	mu           sync.Mutex
-	isRunning    bool
-	lastRun      *time.Time
-	nextRun      *time.Time
-	stopChan     chan struct{}
-	runningCmd   *exec.Cmd
-	runningCmdMu sync.Mutex
+	mu               sync.Mutex
+	isRunning        bool
+	lastRunStarted   *time.Time
+	lastRunCompleted *time.Time
+	lastSuccess      *time.Time
+	nextRun          *time.Time
+	stopChan         chan struct{}
+	runningCmd       *exec.Cmd
+	runningCmdMu     sync.Mutex
 }
 
 var scheduler = &ScraperScheduler{
@@ -54,7 +56,7 @@ func StartScraperScheduler() {
 			scheduler.mu.Unlock()
 
 			// Update status in handlers
-			handlers.UpdateScraperStatus(scheduler.lastRun, scheduler.nextRun, "waiting")
+			handlers.UpdateScraperStatus(scheduler.lastRunStarted, scheduler.lastRunCompleted, scheduler.lastSuccess, scheduler.nextRun, "waiting")
 
 			now := time.Now()
 			duration := nextRun.Sub(now)
@@ -300,9 +302,15 @@ func runScraper() {
 	scheduler.mu.Unlock()
 
 	fmt.Println("SCHEDULER | Starting scraper run...")
-	handlers.UpdateScraperStatus(scheduler.lastRun, scheduler.nextRun, "running")
-
 	startTime := time.Now()
+
+	// Track when this run started
+	scheduler.mu.Lock()
+	scheduler.lastRunStarted = &startTime
+	scheduler.mu.Unlock()
+
+	handlers.UpdateScraperStatus(scheduler.lastRunStarted, scheduler.lastRunCompleted, scheduler.lastSuccess, scheduler.nextRun, "running")
+
 	scraperDir := getScraperDir()
 
 	var lastErr error
@@ -346,15 +354,19 @@ func runScraper() {
 
 	scheduler.mu.Lock()
 	scheduler.isRunning = false
-	scheduler.lastRun = &now
+	scheduler.lastRunCompleted = &now
+	if lastErr == nil {
+		// On success, record when the scraper started (this is the data timestamp)
+		scheduler.lastSuccess = &startTime
+	}
 	scheduler.mu.Unlock()
 
 	if lastErr != nil {
 		fmt.Printf("SCHEDULER | Scraper failed after %d attempts in %v: %v\n", maxRetries, duration.Round(time.Second), lastErr)
-		handlers.UpdateScraperStatus(scheduler.lastRun, scheduler.nextRun, "failed")
+		handlers.UpdateScraperStatus(scheduler.lastRunStarted, scheduler.lastRunCompleted, scheduler.lastSuccess, scheduler.nextRun, "failed")
 	} else {
 		fmt.Printf("SCHEDULER | Scraper completed successfully in %v\n", duration.Round(time.Second))
-		handlers.UpdateScraperStatus(scheduler.lastRun, scheduler.nextRun, "success")
+		handlers.UpdateScraperStatus(scheduler.lastRunStarted, scheduler.lastRunCompleted, scheduler.lastSuccess, scheduler.nextRun, "success")
 	}
 }
 

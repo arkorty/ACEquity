@@ -1,9 +1,6 @@
-import { StockData } from "@/types/watchlists";
-import type { ApiResponse } from "@/types/api";
+import type { ApiResponse, BackendWatchlist, BackendUser, StockTicker } from "@/types/api";
 
-// Re-export types
-export type { StockData };
-
+// Local types for watchlist management
 export interface WatchlistItem {
   uuid: string;
   name: string;
@@ -12,33 +9,26 @@ export interface WatchlistItem {
 
 export type Watchlist = WatchlistItem;
 
-interface BackendWatchlist {
-  id: string;
-  name: string;
-  tickers: string[];
-}
+// Stock data type for calculations (compatible with StockTicker)
+export type StockData = StockTicker;
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-// Helper to get stock data
-export const getStockData = (ticker: string): StockData | undefined => {
-  return (TICKERS as StockData[]).find((stock) => stock.Ticker === ticker);
-};
 
 /**
  * Calculates the average percentage change of stocks in a watchlist.
  * Uses Equal Weight method (average of individual stock changes).
+ * Requires tickers data to be passed in.
  */
-export const calculateWatchlistChange = (stocks: string[]): number => {
-  if (!stocks || stocks.length === 0) return 0;
+export const calculateWatchlistChange = (stocks: string[], tickers: StockData[] = []): number => {
+  if (!stocks || stocks.length === 0 || tickers.length === 0) return 0;
   
   const stocksWithData = stocks
-    .map(getStockData)
-    .filter((s): s is StockData => !!s);
+    .map(ticker => tickers.find((stock) => stock.Ticker === ticker))
+    .filter((s): s is StockData => !!s && s.Change !== undefined);
     
   if (stocksWithData.length === 0) return 0;
   
-  const totalChange = stocksWithData.reduce((sum, stock) => sum + stock.Change, 0);
+  const totalChange = stocksWithData.reduce((sum, stock) => sum + (stock.Change || 0), 0);
   return totalChange / stocksWithData.length;
 };
 
@@ -49,7 +39,7 @@ export const fetchUserWatchlists = async (userId: string): Promise<Watchlist[]> 
       headers: { "Content-Type": "application/json" },
       credentials: "include",
     });
-    const userData: ApiResponse<{ watchlistIDs: string[] }> = await userResponse.json();
+    const userData: ApiResponse<BackendUser> = await userResponse.json();
     
     if (userData.status !== "success") throw new Error(userData.error || "Failed to fetch user data");
 
@@ -132,7 +122,7 @@ export const deleteWatchlist = async (id: string): Promise<void> => {
     headers: { "Content-Type": "application/json" },
     credentials: "include",
   });
-  const data: ApiResponse<any> = await response.json();
+  const data: ApiResponse<{ message: string }> = await response.json();
   
   if (data.status !== "success") throw new Error(data.error || "Failed to delete watchlist");
 };

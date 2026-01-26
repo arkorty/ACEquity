@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, ArrowLeftRight } from "lucide-react";
+import { LoadingScreen } from "@/components/ui/loading-bar";
 import MarketHeatmap from "@/components/markets/MarketHeatmap";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/redux/store';
@@ -27,7 +28,7 @@ const MarketsPage = () => {
   }, [isMobile, selectedMarketId]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingScreen />;
   }
 
   if (!user) {

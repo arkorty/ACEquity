@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Line, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -18,9 +18,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { Holding } from "@/types/holding";
-import { fetchTickers, fetchStockData, StockTicker } from "@/lib/stockApi";
+import { fetchStockData, StockTicker } from "@/lib/stockApi";
 import { formatPrice } from "@/lib/utils";
 import { groupHoldingsByBase, getStockInfoByBase, type StockData } from "@/lib/holdings";
+import { LoadingBar } from "@/components/ui/loading-bar";
 
 ChartJS.register(
   CategoryScale,
@@ -36,6 +37,7 @@ ChartJS.register(
 
 interface PortfolioChartProps {
   holdings: Holding[];
+  tickers: StockTicker[];
 }
 
 interface PortfolioHistory {
@@ -65,23 +67,22 @@ const generateDistinctColors = (count: number, theme: string = "light") => {
   return colors;
 };
 
-export function PortfolioChart({ holdings }: PortfolioChartProps) {
+export function PortfolioChart({ holdings, tickers }: PortfolioChartProps) {
   const { theme } = useTheme();
   const [chartType, setChartType] = useState<"line" | "pie">("line");
   const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]); // Default 3M
   const [portfolioHistory, setPortfolioHistory] = useState<PortfolioHistory[]>([]);
-  const [tickers, setTickers] = useState<StockTicker[]>([]);
-  const groupedHoldings = groupHoldingsByBase(holdings);
-
-  useEffect(() => {
-    fetchTickers().then(setTickers).catch(console.error);
-  }, []);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  
+  // Memoize groupedHoldings to prevent infinite loop in useEffect
+  const groupedHoldings = useMemo(() => groupHoldingsByBase(holdings), [holdings]);
 
   useEffect(() => {
     if (holdings.length === 0 || tickers.length === 0) return;
 
     // Calculate portfolio value over time using grouped holdings
-    const calculatePortfolioHistory = () => {
+    const calculatePortfolioHistory = async () => {
+      setHistoryLoading(true);
       const tickerDataMap = new Map<string, any[]>();
       const allDates = new Set<string>();
       const uniqueTickers = new Set<string>();
@@ -91,45 +92,45 @@ export function PortfolioChart({ holdings }: PortfolioChartProps) {
         uniqueTickers.add(holding.base);
       });
 
-      let loadedCount = 0;
-
-      uniqueTickers.forEach((base) => {
-        const stockInfo = getStockInfoByBase(base, tickers as StockData[]);
-        const ticker = stockInfo?.Ticker || base;
-        
-        fetchStockData(ticker)
-          .then((data) => {
-            tickerDataMap.set(base, data);
-            data.forEach((d: any) => allDates.add(d.Date));
+      try {
+        await Promise.all(
+          Array.from(uniqueTickers).map(async (base) => {
+            const stockInfo = getStockInfoByBase(base, tickers as StockData[]);
+            const ticker = stockInfo?.Ticker || base;
             
-            loadedCount++;
-            
-            // Recalculate when all data is loaded
-            if (loadedCount === uniqueTickers.size) {
-              const sortedDates = Array.from(allDates).sort();
-              const history: PortfolioHistory[] = [];
-
-              sortedDates.forEach((date) => {
-                let totalValue = 0;
-                groupedHoldings.forEach((holding) => {
-                  const data = tickerDataMap.get(holding.base);
-                  if (data) {
-                    const priceData = data.find((d: any) => d.Date === date);
-                    if (priceData) {
-                      totalValue += priceData["Adj Close"] * holding.quantity;
-                    }
-                  }
-                });
-                if (totalValue > 0) {
-                  history.push({ date, value: totalValue });
-                }
-              });
-
-              setPortfolioHistory(history);
+            try {
+              const data = await fetchStockData(ticker);
+              tickerDataMap.set(base, data);
+              data.forEach((d: any) => allDates.add(d.Date));
+            } catch (err) {
+              console.error(`Error loading data for ${base}:`, err);
             }
           })
-          .catch((err) => console.error(`Error loading data for ${base}:`, err));
-      });
+        );
+
+        const sortedDates = Array.from(allDates).sort();
+        const history: PortfolioHistory[] = [];
+
+        sortedDates.forEach((date) => {
+          let totalValue = 0;
+          groupedHoldings.forEach((holding) => {
+            const data = tickerDataMap.get(holding.base);
+            if (data) {
+              const priceData = data.find((d: any) => d.Date === date);
+              if (priceData) {
+                totalValue += priceData["Adj Close"] * holding.quantity;
+              }
+            }
+          });
+          if (totalValue > 0) {
+            history.push({ date, value: totalValue });
+          }
+        });
+
+        setPortfolioHistory(history);
+      } finally {
+        setHistoryLoading(false);
+      }
     };
 
     calculatePortfolioHistory();
@@ -286,8 +287,10 @@ export function PortfolioChart({ holdings }: PortfolioChartProps) {
           filteredHistory.length > 0 ? (
             <Line data={lineChartData} options={lineChartOptions} />
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              Loading chart data...
+            <div className="flex items-center justify-center h-full">
+              <div className="w-64">
+                <LoadingBar />
+              </div>
             </div>
           )
         ) : (

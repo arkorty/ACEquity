@@ -58,9 +58,18 @@ export function AddBar({ onAdd }: { onAdd: (ticker: string) => void }) {
     setHighlightedIndex(-1); // Reset highlighted index
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (highlightedIndex >= 0) {
+      handleAdd(results[highlightedIndex].Ticker);
+    } else if (results.length > 0) {
+      handleAdd(results[0].Ticker);
+    }
+  };
+
   return (
     <div className="relative w-full max-w-sm mx-auto">
-      <div className="flex items-center space-x-2">
+      <form onSubmit={handleSubmit} className="flex items-center space-x-2">
         <Input
           type="text"
           placeholder="Add stocks..."
@@ -71,19 +80,13 @@ export function AddBar({ onAdd }: { onAdd: (ticker: string) => void }) {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => {
-            if (highlightedIndex >= 0) {
-              handleAdd(results[highlightedIndex].Ticker);
-            } else if (results.length > 0) {
-              handleAdd(results[0].Ticker);
-            }
-          }}
+          type="submit"
         >
           <Plus className="h-4 w-4" /> {/* Updated icon */}
         </Button>
-      </div>
+      </form>
       {results.length > 0 && (
-        <ul className="absolute top-full mt-2 w-full bg-white dark:bg-black border border-gray-300 dark:border-zinc-800 rounded-md shadow-lg z-10">
+        <ul className="absolute top-full mt-2 w-full bg-white dark:bg-black border border-gray-300 dark:border-zinc-800 rounded-md shadow-lg z-50">
           {results.map((result, index) => (
             <li
               key={index}

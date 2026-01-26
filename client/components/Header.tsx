@@ -3,21 +3,22 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { BarChart2, List, LogOut, User, UserCircle, Briefcase } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { BarChart2, List, LogOut, User, Briefcase, PanelLeftOpen, Home, ShoppingBag, Eye } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ThemeToggle";
 import { useState, useEffect } from "react";
 import { LoginPopup } from "@/components/profile/LoginPopup";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/lib/redux/store';
-import { logout, fetchUser, verifyOtp } from '@/lib/redux/slices/authSlice';
+import { logout, verifyOtp } from '@/lib/redux/slices/authSlice';
 import { openLoginPopup, closeLoginPopup } from '@/lib/redux/slices/CTASlice';
-import { fetchStockData } from '@/lib/stockApi';
+import { fetchDataLastUpdated } from '@/lib/stockApi';
 
 const navigation = [
-  { name: "Markets", href: "/markets", icon: BarChart2, requiresAuth: true },
-  { name: "Watchlists", href: "/watchlist", icon: List, requiresAuth: true },
+  { name: "Home", href: "/", icon: Home, requiresAuth: false },
+  { name: "Markets", href: "/markets", icon: ShoppingBag, requiresAuth: true },
+  { name: "Watchlists", href: "/watchlist", icon: Eye, requiresAuth: true },
   { name: "Holdings", href: "/holdings", icon: Briefcase, requiresAuth: true },
   { name: "Profile", href: "/profile", icon: User, requiresAuth: true },
 ];
@@ -44,20 +45,19 @@ export default function Header() {
 
     const fetchMarketDate = async () => {
       try {
-        const data = await fetchStockData("BSESN");
-        if (Array.isArray(data) && data.length > 0) {
-          const lastEntry = data[data.length - 1];
-          if (lastEntry.Date) {
-            const date = new Date(lastEntry.Date);
-            setLastUpdated(date.toLocaleDateString("en-IN", { 
-              day: 'numeric', 
-              month: 'short', 
-              year: 'numeric' 
-            }));
-          }
+        const data = await fetchDataLastUpdated();
+        if (data.lastSuccess) {
+          const date = new Date(data.lastSuccess);
+          setLastUpdated(date.toLocaleDateString("en-IN", { 
+            day: 'numeric', 
+            month: 'short', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }));
         }
       } catch (error) {
-        console.error("Failed to fetch market date:", error);
+        console.error("Failed to fetch last updated date:", error);
       }
     };
 
@@ -145,26 +145,8 @@ export default function Header() {
       <div className="mx-8 flex h-14 items-center justify-between">
         {/* Logo and Title Section */}
         <div className="flex items-center">
-          {/* Mobile View - Sheet Trigger */}
-          <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
-            <SheetContent side="left" className="pr-0">
-              <MobileNav closeNav={() => setIsMobileNavOpen(false)} onLoginClick={() => dispatch(openLoginPopup())} />
-            </SheetContent>
-          </Sheet>
-          <BarChart2
-            className="flex items-center md:hidden cursor-pointer h-6 w-6"
-            onClick={() => {
-              if (!user) {
-                dispatch(openLoginPopup());
-              } else {
-                setIsMobileNavOpen(true);
-              }
-            }}
-          />
-          <Link
-            href="/"
-            className="flex items-center ml-2 md:hidden cursor-pointer"
-          >
+          {/* Mobile View - Logo */}
+          <Link href="/" className="flex md:hidden items-center space-x-2">
             <span className="font-bold">ACEquity</span>
           </Link>
 
@@ -203,28 +185,27 @@ export default function Header() {
           </div>
         )}
 
-        {/* Dark Mode Toggle and Login/Logout */}
-        <div className="flex items-center space-x-4">
-          {user ? (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleLogout}
-              className="relative flex items-center justify-center overflow-hidden"
-            >
-              <LogOut className="h-6 w-6" />
-            </Button>
-          ) : (
-            isServerOnline && (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => dispatch(openLoginPopup())}
-                className="relative flex items-center justify-center overflow-hidden"
-              >
-                <UserCircle className="h-6 w-6" />
-              </Button>
-            )
+        {/* Dark Mode Toggle and Mobile Menu */}
+        <div className="flex items-center space-x-2">
+          {user && (
+            <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="md:hidden"
+                >
+                  <PanelLeftOpen className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-72 p-0">
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                <MobileNav 
+                  closeNav={() => setIsMobileNavOpen(false)} 
+                  onLoginClick={() => dispatch(openLoginPopup())} 
+                />
+              </SheetContent>
+            </Sheet>
           )}
           <ModeToggle />
         </div>
@@ -250,20 +231,29 @@ export default function Header() {
   );
 }
 
-function MobileNav({ closeNav, onLoginClick }: { closeNav: () => void; onLoginClick: () => void }) {
+function MobileNav({ closeNav }: { closeNav: () => void; onLoginClick: () => void }) {
   const pathname = usePathname();
-  const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleLogout = async () => {
+    await dispatch(logout());
+    toast.success("You have been logged out.");
+    closeNav();
+    window.location.href = "/";
+  };
 
   return (
-    <nav className="flex flex-col space-y-8 mt-16">
-      {navigation
-        .filter((item) => !item.requiresAuth || !!user)
-        .map((item) => (
+    <div className="flex flex-col h-full">
+      {/* Navigation Links */}
+      <nav className="flex-1 mt-12">
+        {navigation.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center space-x-2 ${
-              pathname === item.href ? "text-foreground" : "text-foreground/60"
+            className={`flex items-center space-x-3 px-12 py-2 transition-colors ${
+              pathname === item.href 
+                ? "text-accent-foreground" 
+                : "text-muted-foreground hover:bg-accent"
             }`}
             onClick={closeNav}
           >
@@ -271,6 +261,19 @@ function MobileNav({ closeNav, onLoginClick }: { closeNav: () => void; onLoginCl
             <span>{item.name}</span>
           </Link>
         ))}
-    </nav>
+      </nav>
+
+      {/* Footer with Logout Button */}
+      <div className="p-6 border-t">
+        <Button
+          variant="outline"
+          className="w-full flex items-center justify-center space-x-2"
+          onClick={handleLogout}
+        >
+          <LogOut className="h-5 w-5" />
+          <span>Logout</span>
+        </Button>
+      </div>
+    </div>
   );
 }
