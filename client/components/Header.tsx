@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { BarChart2, List, LogOut, User, Briefcase, PanelLeftOpen, Home, ShoppingBag, Eye } from "lucide-react";
+import { LogOut, LogIn, User, Briefcase, PanelLeftOpen, Home, ShoppingBag, Eye } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ThemeToggle";
@@ -25,7 +25,6 @@ const navigation = [
 
 export default function Header() {
   const pathname = usePathname();
-  const router = useRouter();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isServerOnline, setIsServerOnline] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
@@ -152,7 +151,6 @@ export default function Header() {
 
           {/* Desktop View - Home Link */}
           <Link href="/" className="hidden md:flex items-center space-x-2">
-            <BarChart2 className="h-6 w-6" />
             <span className="font-bold">ACEquity</span>
           </Link>
 
@@ -187,26 +185,34 @@ export default function Header() {
 
         {/* Dark Mode Toggle and Mobile Menu */}
         <div className="flex items-center space-x-2">
-          {user && (
-            <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="md:hidden"
-                >
-                  <PanelLeftOpen className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-72 p-0">
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                <MobileNav 
-                  closeNav={() => setIsMobileNavOpen(false)} 
-                  onLoginClick={() => dispatch(openLoginPopup())} 
-                />
-              </SheetContent>
-            </Sheet>
+          {!user && isServerOnline && (
+            <Button 
+              variant="outline" 
+              className="hidden md:flex items-center gap-2"
+              onClick={() => dispatch(openLoginPopup())}
+            >
+              <LogIn className="h-4 w-4" />
+              <span>Login</span>
+            </Button>
           )}
+          <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="md:hidden"
+              >
+                <PanelLeftOpen className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 p-0">
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <MobileNav 
+                closeNav={() => setIsMobileNavOpen(false)} 
+                onLoginClick={() => dispatch(openLoginPopup())} 
+              />
+            </SheetContent>
+          </Sheet>
           <ModeToggle />
         </div>
       </div>
@@ -231,9 +237,10 @@ export default function Header() {
   );
 }
 
-function MobileNav({ closeNav }: { closeNav: () => void; onLoginClick: () => void }) {
+function MobileNav({ closeNav, onLoginClick }: { closeNav: () => void; onLoginClick: () => void }) {
   const pathname = usePathname();
   const dispatch = useDispatch<AppDispatch>();
+  const { user } = useSelector((state: RootState) => state.auth);
 
   const handleLogout = async () => {
     await dispatch(logout());
@@ -246,33 +253,49 @@ function MobileNav({ closeNav }: { closeNav: () => void; onLoginClick: () => voi
     <div className="flex flex-col h-full">
       {/* Navigation Links */}
       <nav className="flex-1 mt-12">
-        {navigation.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex items-center space-x-3 px-12 py-2 transition-colors ${
-              pathname === item.href 
-                ? "text-accent-foreground" 
-                : "text-muted-foreground hover:bg-accent"
-            }`}
-            onClick={closeNav}
-          >
-            <item.icon className="h-5 w-5" />
-            <span>{item.name}</span>
-          </Link>
-        ))}
+        {navigation
+          .filter((item) => !item.requiresAuth || !!user)
+          .map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center space-x-3 px-12 py-2 transition-colors ${
+                pathname === item.href 
+                  ? "text-accent-foreground" 
+                  : "text-muted-foreground hover:bg-accent"
+              }`}
+              onClick={closeNav}
+            >
+              <item.icon className="h-5 w-5" />
+              <span>{item.name}</span>
+            </Link>
+          ))}
       </nav>
 
-      {/* Footer with Logout Button */}
+      {/* Footer with Logout/Login Button */}
       <div className="p-6 border-t">
-        <Button
-          variant="outline"
-          className="w-full flex items-center justify-center space-x-2"
-          onClick={handleLogout}
-        >
-          <LogOut className="h-5 w-5" />
-          <span>Logout</span>
-        </Button>
+        {user ? (
+          <Button
+            variant="outline"
+            className="w-full flex items-center justify-center space-x-2"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-5 w-5" />
+            <span>Logout</span>
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            className="w-full flex items-center justify-center space-x-2"
+            onClick={() => {
+              onLoginClick();
+              closeNav();
+            }}
+          >
+            <LogIn className="h-5 w-5" />
+            <span>Login</span>
+          </Button>
+        )}
       </div>
     </div>
   );
