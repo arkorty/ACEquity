@@ -35,7 +35,7 @@ export async function fetchTickers(): Promise<StockTicker[]> {
   }
   
   try {
-    const response = await fetch(`${API_BASE_URL}/api/tickers`, {
+    const response = await fetch(`${API_BASE_URL}/tickers`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -67,7 +67,7 @@ export async function fetchStockData(ticker: string): Promise<StockPriceData[]> 
     // Remove .json extension if present
     const cleanTicker = ticker.replace('.json', '');
     
-    const response = await fetch(`${API_BASE_URL}/api/stocks/${cleanTicker}`, {
+    const response = await fetch(`${API_BASE_URL}/stocks/${cleanTicker}`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -90,7 +90,7 @@ export async function fetchStockData(ticker: string): Promise<StockPriceData[]> 
  */
 export async function fetchDataLastUpdated(): Promise<DataLastUpdated> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/data/last-updated`, {
+    const response = await fetch(`${API_BASE_URL}/data/last-updated`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -113,7 +113,7 @@ export async function fetchDataLastUpdated(): Promise<DataLastUpdated> {
  */
 export async function fetchScraperStatus(): Promise<ScraperStatus | null> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/data/status`, {
+    const response = await fetch(`${API_BASE_URL}/data/status`, {
       headers: {
         'Content-Type': 'application/json',
       },

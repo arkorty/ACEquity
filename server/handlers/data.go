@@ -142,12 +142,54 @@ func GetDataLastUpdated(w http.ResponseWriter, r *http.Request) {
 	_, err := os.Stat(tickersPath)
 	exists := err == nil
 
+	lastSuccess := scraperStatus.LastSuccess
+	if lastSuccess == nil {
+		lastSuccess = getLastAvailableDateFromFiles()
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"response": map[string]interface{}{
-			"lastSuccess": scraperStatus.LastSuccess,
+			"lastSuccess": lastSuccess,
 			"exists":      exists,
 		},
 		"status": "success",
 	})
+}
+
+func getLastAvailableDateFromFiles() *time.Time {
+	files := []string{"NSEI.json", "BSESN.json"}
+
+	for _, filename := range files {
+		filePath := filepath.Join(dataDir, "stocks", filename)
+
+		// check if exists
+		if _, err := os.Stat(filePath); os.IsNotExist(err) {
+			continue
+		}
+
+		data, err := os.ReadFile(filePath)
+		if err != nil {
+			continue
+		}
+
+		// Use a struct to decode only the Date field
+		var prices []struct {
+			Date string `json:"Date"`
+		}
+		if err := json.Unmarshal(data, &prices); err != nil {
+			continue
+		}
+
+		if len(prices) > 0 {
+			lastDate := prices[len(prices)-1].Date
+			t, err := time.Parse("2006-01-02", lastDate)
+			if err == nil {
+				// Set to 16:05 IST (10:35 UTC) to represent end of trading day update
+				updatedT := time.Date(t.Year(), t.Month(), t.Day(), 10, 35, 0, 0, time.UTC)
+				return &updatedT
+			}
+		}
+	}
+	return nil
 }

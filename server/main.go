@@ -62,10 +62,10 @@ func main() {
 	})
 
 	// Data API routes (stock data served by the server)
-	r.Get("/api/tickers", handlers.GetTickers)
-	r.Get("/api/stocks/{ticker}", handlers.GetStockData)
-	r.Get("/api/data/status", handlers.GetScraperStatus)
-	r.Get("/api/data/last-updated", handlers.GetDataLastUpdated)
+	r.Get("/tickers", handlers.GetTickers)
+	r.Get("/stocks/{ticker}", handlers.GetStockData)
+	r.Get("/data/status", handlers.GetScraperStatus)
+	r.Get("/data/last-updated", handlers.GetDataLastUpdated)
 
 	r.Post("/signup", handlers.SignUp)
 	r.Post("/signin", handlers.SignIn)

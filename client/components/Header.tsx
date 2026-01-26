@@ -47,7 +47,7 @@ export default function Header() {
         const data = await fetchDataLastUpdated();
         if (data.lastSuccess) {
           const date = new Date(data.lastSuccess);
-          setLastUpdated(date.toLocaleDateString("en-IN", { 
+          setLastUpdated(date.toLocaleString("en-IN", { 
             day: 'numeric', 
             month: 'short', 
             year: 'numeric',
