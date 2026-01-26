@@ -64,8 +64,8 @@ export async function fetchTickers(): Promise<StockTicker[]> {
  */
 export async function fetchStockData(ticker: string): Promise<StockPriceData[]> {
   try {
-    // Remove .json extension if present
-    const cleanTicker = ticker.replace('.json', '');
+    // Remove .json extension if present and remove '^' prefix
+    const cleanTicker = ticker.replace('.json', '').replace('^', '');
     
     const response = await fetch(`${API_BASE_URL}/stocks/${cleanTicker}`, {
       headers: {
