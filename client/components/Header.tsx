@@ -259,9 +259,9 @@ function MobileNav({ closeNav, onLoginClick }: { closeNav: () => void; onLoginCl
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center space-x-3 px-12 py-2 transition-colors ${
+              className={`flex items-center space-x-3 px-8 py-4 transition-colors ${
                 pathname === item.href 
-                  ? "text-accent-foreground" 
+                  ? "text-accent-foreground bg-accent" 
                   : "text-muted-foreground hover:bg-accent"
               }`}
               onClick={closeNav}
