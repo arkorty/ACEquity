@@ -30,6 +30,9 @@ func main() {
 
 	db.InitDB()
 
+	// Set up the status update callback for the scheduler
+	utils.SetStatusUpdateCallback(handlers.UpdateScraperStatus)
+
 	// Start the scraper scheduler
 	utils.StartScraperScheduler()
 
@@ -66,6 +69,9 @@ func main() {
 	r.Get("/stocks/{ticker}", handlers.GetStockData)
 	r.Get("/data/status", handlers.GetScraperStatus)
 	r.Get("/data/last-updated", handlers.GetDataLastUpdated)
+
+	// Webhook to trigger and monitor scraper
+	r.HandleFunc("/webhook/scraper", handlers.WebhookScraper)
 
 	r.Post("/signup", handlers.SignUp)
 	r.Post("/signin", handlers.SignIn)

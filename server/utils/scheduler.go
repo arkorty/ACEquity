@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bufio"
 	"compress/gzip"
 	"fmt"
 	"io"
@@ -8,15 +9,32 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
-
-	"acequity/handlers"
 )
 
 const maxRetries = 3
 const secListURL = "https://nsearchives.nseindia.com/content/equities/sec_list.csv"
+
+// StatusUpdateCallback is a callback function for updating scraper status
+type StatusUpdateCallback func(lastRunStarted, lastRunCompleted, lastSuccess, nextRun *time.Time, status string)
+
+// statusUpdateCallback holds the callback function
+var statusUpdateCallback StatusUpdateCallback
+
+// scraperProgress tracks the progress of the running scraper (internal struct)
+type scraperProgress struct {
+	Percentage   float64
+	ElapsedTime  time.Duration
+	CurrentPhase string
+	Processed    int
+	Total        int
+	LastLogLine  string
+	StartTime    time.Time
+}
 
 // Scraper scheduler configuration
 type ScraperScheduler struct {
@@ -29,10 +47,24 @@ type ScraperScheduler struct {
 	stopChan         chan struct{}
 	runningCmd       *exec.Cmd
 	runningCmdMu     sync.Mutex
+	progress         scraperProgress
+	progressMu       sync.RWMutex
 }
 
 var scheduler = &ScraperScheduler{
 	stopChan: make(chan struct{}),
+}
+
+// SetStatusUpdateCallback sets the callback function for status updates
+func SetStatusUpdateCallback(callback StatusUpdateCallback) {
+	statusUpdateCallback = callback
+}
+
+// updateStatus calls the callback if it's set
+func updateStatus(lastRunStarted, lastRunCompleted, lastSuccess, nextRun *time.Time, status string) {
+	if statusUpdateCallback != nil {
+		statusUpdateCallback(lastRunStarted, lastRunCompleted, lastSuccess, nextRun, status)
+	}
 }
 
 // StartScraperScheduler initializes and starts the background scraper scheduler
@@ -56,7 +88,7 @@ func StartScraperScheduler() {
 			scheduler.mu.Unlock()
 
 			// Update status in handlers
-			handlers.UpdateScraperStatus(scheduler.lastRunStarted, scheduler.lastRunCompleted, scheduler.lastSuccess, scheduler.nextRun, "waiting")
+			updateStatus(scheduler.lastRunStarted, scheduler.lastRunCompleted, scheduler.lastSuccess, scheduler.nextRun, "waiting")
 
 			now := time.Now()
 			duration := nextRun.Sub(now)
@@ -272,15 +304,46 @@ func executeScraperScript(scraperDir string) error {
 	scraperPath := filepath.Join(scraperDir, "main.py")
 
 	cmd := exec.Command(venvPython, scraperPath, "-n", "8", "--cleanup")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+
+	// Create pipes for stdout and stderr to capture output
+	stdoutPipe, err := cmd.StdoutPipe()
+	if err != nil {
+		return fmt.Errorf("failed to create stdout pipe: %w", err)
+	}
+	stderrPipe, err := cmd.StderrPipe()
+	if err != nil {
+		return fmt.Errorf("failed to create stderr pipe: %w", err)
+	}
 
 	// Store the command so we can kill it if needed
 	scheduler.runningCmdMu.Lock()
 	scheduler.runningCmd = cmd
 	scheduler.runningCmdMu.Unlock()
 
-	err := cmd.Run()
+	// Start the command
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("failed to start scraper: %w", err)
+	}
+
+	// Start goroutines to read output and update progress
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		parseScraperOutput(bufio.NewScanner(stdoutPipe))
+	}()
+
+	go func() {
+		defer wg.Done()
+		parseScraperOutput(bufio.NewScanner(stderrPipe))
+	}()
+
+	// Wait for command to complete
+	err = cmd.Wait()
+
+	// Wait for output readers to finish
+	wg.Wait()
 
 	// Clear the running command
 	scheduler.runningCmdMu.Lock()
@@ -309,7 +372,15 @@ func runScraper() {
 	scheduler.lastRunStarted = &startTime
 	scheduler.mu.Unlock()
 
-	handlers.UpdateScraperStatus(scheduler.lastRunStarted, scheduler.lastRunCompleted, scheduler.lastSuccess, scheduler.nextRun, "running")
+	// Initialize progress tracking
+	scheduler.progressMu.Lock()
+	scheduler.progress = scraperProgress{
+		StartTime:    startTime,
+		CurrentPhase: "SETUP",
+	}
+	scheduler.progressMu.Unlock()
+
+	updateStatus(scheduler.lastRunStarted, scheduler.lastRunCompleted, scheduler.lastSuccess, scheduler.nextRun, "running")
 
 	scraperDir := getScraperDir()
 
@@ -363,10 +434,10 @@ func runScraper() {
 
 	if lastErr != nil {
 		fmt.Printf("SCHEDULER | Scraper failed after %d attempts in %v: %v\n", maxRetries, duration.Round(time.Second), lastErr)
-		handlers.UpdateScraperStatus(scheduler.lastRunStarted, scheduler.lastRunCompleted, scheduler.lastSuccess, scheduler.nextRun, "failed")
+		updateStatus(scheduler.lastRunStarted, scheduler.lastRunCompleted, scheduler.lastSuccess, scheduler.nextRun, "failed")
 	} else {
 		fmt.Printf("SCHEDULER | Scraper completed successfully in %v\n", duration.Round(time.Second))
-		handlers.UpdateScraperStatus(scheduler.lastRunStarted, scheduler.lastRunCompleted, scheduler.lastSuccess, scheduler.nextRun, "success")
+		updateStatus(scheduler.lastRunStarted, scheduler.lastRunCompleted, scheduler.lastSuccess, scheduler.nextRun, "success")
 	}
 }
 
@@ -381,6 +452,82 @@ func RunScraperManually() error {
 
 	go runScraper()
 	return nil
+}
+
+// parseScraperOutput parses the scraper output and updates progress
+func parseScraperOutput(scanner *bufio.Scanner) {
+	// Regex patterns to match log lines
+	// Example: "RELIANCE.NS    | Status: Success"
+	successPattern := regexp.MustCompile(`^(.+?)\s+\|\s+Status:\s+(Success|Skipped|Failed)`)
+	// Example: "GET   | Found 2500 total unique tickers to download."
+	totalPattern := regexp.MustCompile(`Found (\d+) total unique tickers`)
+	// Example: "BUILD | Processing 2500 CSV files..."
+	processingPattern := regexp.MustCompile(`Processing (\d+) CSV files`)
+	// Phase detection
+	phasePattern := regexp.MustCompile(`^(GET|BUILD|CLEAN|SETUP)\s+\|`)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		fmt.Println(line) // Also print to console
+
+		scheduler.progressMu.Lock()
+		scheduler.progress.LastLogLine = line
+		scheduler.progress.ElapsedTime = time.Since(scheduler.progress.StartTime)
+
+		// Detect phase
+		if matches := phasePattern.FindStringSubmatch(line); len(matches) > 1 {
+			scheduler.progress.CurrentPhase = matches[1]
+		}
+
+		// Detect total items
+		if matches := totalPattern.FindStringSubmatch(line); len(matches) > 1 {
+			if total, err := strconv.Atoi(matches[1]); err == nil {
+				scheduler.progress.Total = total
+				scheduler.progress.Processed = 0
+			}
+		} else if matches := processingPattern.FindStringSubmatch(line); len(matches) > 1 {
+			if total, err := strconv.Atoi(matches[1]); err == nil {
+				scheduler.progress.Total = total
+				scheduler.progress.Processed = 0
+			}
+		}
+
+		// Count successful/failed downloads
+		if successPattern.MatchString(line) {
+			scheduler.progress.Processed++
+		}
+
+		// Calculate percentage
+		if scheduler.progress.Total > 0 {
+			scheduler.progress.Percentage = float64(scheduler.progress.Processed) / float64(scheduler.progress.Total) * 100
+		} else {
+			scheduler.progress.Percentage = 0
+		}
+
+		scheduler.progressMu.Unlock()
+	}
+}
+
+// GetScraperProgress returns the current scraper progress as a map
+func GetScraperProgress() map[string]interface{} {
+	scheduler.progressMu.RLock()
+	defer scheduler.progressMu.RUnlock()
+
+	// Update elapsed time
+	progress := scheduler.progress
+	if scheduler.isRunning {
+		progress.ElapsedTime = time.Since(scheduler.progress.StartTime)
+	}
+
+	return map[string]interface{}{
+		"percentage":    progress.Percentage,
+		"elapsed_time":  progress.ElapsedTime,
+		"current_phase": progress.CurrentPhase,
+		"processed":     progress.Processed,
+		"total":         progress.Total,
+		"last_log_line": progress.LastLogLine,
+		"start_time":    progress.StartTime,
+	}
 }
 
 // IsScraperRunning returns whether the scraper is currently running
