@@ -6,6 +6,7 @@ services:
     volumes:
       - ./.env:/server/.env
       - ./public/:/server/public/
+      - ./sqlite.db/:/server/sqlite.db
     environment:
       - DB_PATH=/server/sqlite.db
     restart: unless-stopped
