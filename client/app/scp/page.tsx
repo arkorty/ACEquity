@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Terminal, Play, Square, Loader2 } from 'lucide-react';
+import { Terminal, Play, Square, Loader2, Webhook } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
@@ -150,9 +150,9 @@ export default function ForceRunScraperPage() {
     <div className="w-full bg-background text-foreground">
       <div className="max-w-6xl mx-auto space-y-6 py-4">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4">
           <div className="flex items-center gap-3">
-            <Terminal className="w-6 h-6 text-primary" />
+            <Webhook className="w-6 h-6 text-primary" />
             <h1 className="text-2xl font-bold tracking-tight">Scraper Control Panel</h1>
           </div>
           <div className="flex items-center gap-4">
